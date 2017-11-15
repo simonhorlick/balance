@@ -2,9 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+
 import 'package:balance/channels.dart';
 import 'package:balance/transactions.dart';
 import 'package:flutter/material.dart';
+
+import 'package:barcode_scan/barcode_scan.dart';
 
 enum TabsDemoStyle { textOnly }
 
@@ -28,7 +32,7 @@ class Tabs extends StatefulWidget {
 
 class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   TabController _controller;
-  TabsDemoStyle _demoStyle = TabsDemoStyle.textOnly;
+  String barcode;
 
   @override
   void initState() {
@@ -40,6 +44,11 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future scan() async {
+    String barcode = await BarcodeScanner.scan();
+    setState(() => this.barcode = barcode);
   }
 
   @override
@@ -63,6 +72,11 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
               child: page.widget,
             );
           }).toList()),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: scan,
+        tooltip: 'Scan a barcode',
+        child: new Icon(Icons.add_a_photo),
+      ),
     );
   }
 }
