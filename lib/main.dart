@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:balance/welcome.dart';
+import 'package:balance/transactions.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new BalanceApp());
 
-class MyApp extends StatelessWidget {
+class BalanceApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Balance',
       theme: new ThemeData(
         // This is the theme of your application.
         //
@@ -22,6 +23,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: new Welcome(),
+      routes: <String, WidgetBuilder>{
+        '/welcome': (BuildContext context) => new Welcome(),
+        '/transactions': (BuildContext context) => new Transactions(),
+      },
     );
   }
 }
