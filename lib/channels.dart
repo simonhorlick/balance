@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-class Transactions extends StatefulWidget {
-  const Transactions({Key key}) : super(key: key);
+class Channels extends StatefulWidget {
+  const Channels({Key key}) : super(key: key);
 
-  static const String routeName = '/transactions';
+  static const String routeName = '/channels';
 
   @override
-  _TransactionsState createState() => new _TransactionsState();
+  _ChannelsState createState() => new _ChannelsState();
 }
 
-class _TransactionsState extends State<Transactions> {
+class _ChannelsState extends State<Channels> {
   static final GlobalKey<ScaffoldState> scaffoldKey =
       new GlobalKey<ScaffoldState>();
 
@@ -18,17 +18,6 @@ class _TransactionsState extends State<Transactions> {
     'A',
     'B',
     'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
   ];
 
   Widget buildListTile(BuildContext context, String item) {

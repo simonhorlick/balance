@@ -1,7 +1,7 @@
+import 'package:balance/tabs.dart';
 import 'package:flutter/material.dart';
 
 import 'package:balance/welcome.dart';
-import 'package:balance/transactions.dart';
 
 void main() => runApp(new BalanceApp());
 
@@ -25,7 +25,7 @@ class BalanceApp extends StatelessWidget {
       home: new Welcome(),
       routes: <String, WidgetBuilder>{
         '/welcome': (BuildContext context) => new Welcome(),
-        '/transactions': (BuildContext context) => new Transactions(),
+        '/tabs': (BuildContext context) => new Tabs(),
       },
     );
   }

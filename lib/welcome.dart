@@ -36,9 +36,8 @@ class _PageSelector extends StatelessWidget {
             if (page == pages.last) {
               entries.add(new FlatButton(
                   child: new Text("OK"),
-                  onPressed: () => Navigator
-                      .of(context)
-                      .pushReplacementNamed('/transactions')));
+                  onPressed: () =>
+                      Navigator.of(context).pushReplacementNamed('/tabs')));
             }
 
             return new Container(
