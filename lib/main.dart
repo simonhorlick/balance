@@ -1,3 +1,4 @@
+import 'package:balance/scan.dart';
 import 'package:balance/tabs.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +27,7 @@ class BalanceApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/welcome': (BuildContext context) => new Welcome(),
         '/tabs': (BuildContext context) => new Tabs(),
+        '/scan': (BuildContext context) => new Cam(),
       },
     );
   }

@@ -8,8 +8,6 @@ import 'package:balance/channels.dart';
 import 'package:balance/transactions.dart';
 import 'package:flutter/material.dart';
 
-import 'package:barcode_scan/barcode_scan.dart';
-
 enum TabsDemoStyle { textOnly }
 
 class _Page {
@@ -46,9 +44,8 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  Future scan() async {
-    String barcode = await BarcodeScanner.scan();
-    setState(() => this.barcode = barcode);
+  void scan() {
+    Navigator.of(context).pushNamed("/scan");
   }
 
   @override
