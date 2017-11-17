@@ -17,13 +17,10 @@ class _Page {
   final Widget widget;
 }
 
-final List<_Page> _allPages = <_Page>[
-  new _Page(text: 'TRANSACTIONS', widget: new Transactions()),
-  new _Page(text: 'CHANNELS', widget: new Channels()),
-];
-
 class Tabs extends StatefulWidget {
-  static const String routeName = '/tabs';
+  Tabs(this.stub);
+
+  final LightningClient stub;
 
   @override
   TabsState createState() => new TabsState();
@@ -32,10 +29,15 @@ class Tabs extends StatefulWidget {
 class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   TabController _controller;
   String barcode;
+  List<_Page> _allPages;
 
   @override
   void initState() {
     super.initState();
+    _allPages = <_Page>[
+      new _Page(text: 'TRANSACTIONS', widget: new Transactions()),
+      new _Page(text: 'CHANNELS', widget: new ChannelWrapper(widget.stub)),
+    ];
     _controller = new TabController(vsync: this, length: _allPages.length);
   }
 

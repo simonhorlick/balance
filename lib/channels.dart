@@ -10,9 +10,7 @@ import 'package:flutter/services.dart' show rootBundle;
 /// A ChannelWrapper calls the listChannels RPC on initialisation then renders
 /// nothing until the RPC returns.
 class ChannelWrapper extends StatefulWidget {
-  const ChannelWrapper({Key key, LightningClient stub})
-      : stub = stub,
-        super(key: key);
+  const ChannelWrapper(this.stub);
   final LightningClient stub;
   @override
   _ChannelWrapperState createState() => new _ChannelWrapperState();

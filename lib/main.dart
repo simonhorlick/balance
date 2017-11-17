@@ -70,10 +70,10 @@ class BalanceAppState extends State<BalanceApp> {
     return new MaterialApp(
       title: 'Balance',
       theme: new ThemeData(primarySwatch: Colors.blue),
-      home: new ChannelWrapper(stub: _stub),
+      home: new Tabs(_stub),
       routes: <String, WidgetBuilder>{
         '/welcome': (BuildContext context) => new Welcome(),
-        '/tabs': (BuildContext context) => new Tabs(),
+        '/tabs': (BuildContext context) => new Tabs(_stub),
         '/scan': (BuildContext context) => new Cam(),
       },
     );
