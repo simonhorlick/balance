@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:balance/channels.dart';
+import 'package:balance/generated/rpc.pbgrpc.dart';
 import 'package:balance/transactions.dart';
 import 'package:flutter/material.dart';
 

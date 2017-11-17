@@ -1,3 +1,4 @@
+import 'package:balance/generated/rpc.pbgrpc.dart';
 import 'package:flutter/material.dart';
 
 class Transactions extends StatefulWidget {
