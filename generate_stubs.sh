@@ -4,7 +4,7 @@
 #  pub global activate protoc_plugin
 #  PATH=$PATH:$HOME/.pub-cache/bin
 
-mkdir -p gen
+mkdir -p lib/generated
 
 # Assumes you have dart installed, i.e.
 #  brew tap dart-lang/dart
@@ -12,5 +12,5 @@ mkdir -p gen
 protoc \
   -I. \
   -Ithird_party/googleapis \
-  --dart_out=gen \
+  --dart_out=grpc:lib/generated \
   rpc.proto
