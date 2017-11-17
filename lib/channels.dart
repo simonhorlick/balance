@@ -7,26 +7,6 @@ import 'package:grpc/grpc.dart';
 import 'generated/rpc.pbgrpc.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
-/// A StubWrapper renders nothing until the provided stub is non-null. This
-/// allows children to rely on the passed stub in their initState methods.
-class StubWrapper extends StatefulWidget {
-  const StubWrapper({Key key, LightningClient stub})
-      : stub = stub,
-        super(key: key);
-  final LightningClient stub;
-  @override
-  _StubWrapperState createState() => new _StubWrapperState();
-}
-
-class _StubWrapperState extends State<StubWrapper> {
-  @override
-  Widget build(BuildContext context) {
-    return widget.stub == null
-        ? new Text("Loading RPC")
-        : new ChannelWrapper(stub: widget.stub);
-  }
-}
-
 /// A ChannelWrapper calls the listChannels RPC on initialisation then renders
 /// nothing until the RPC returns.
 class ChannelWrapper extends StatefulWidget {
@@ -54,7 +34,7 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
   @override
   Widget build(BuildContext context) {
     return channels == null
-        ? new Text("Calling listChannels")
+        ? new Center(child: new Text("Loading channels"))
         : channels.isEmpty
             ? new Center(child: new Text("No channels"))
             : new Channels(channels);

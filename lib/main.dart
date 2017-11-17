@@ -57,20 +57,20 @@ class BalanceAppState extends State<BalanceApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // Wait until we've loaded grpc before we attempt to draw anything else.
+    // This should just take a couple of millis.
+    if (_stub == null) {
+      return new MaterialApp(
+        title: 'Balance',
+        theme: new ThemeData(primarySwatch: Colors.blue),
+        home: new Center(child: new Text("Loading RPC")),
+      );
+    }
+
     return new MaterialApp(
       title: 'Balance',
-      theme: new ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-        // counter didn't reset back to zero; the application is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: new Scaffold(body: new StubWrapper(stub: _stub)),
+      theme: new ThemeData(primarySwatch: Colors.blue),
+      home: new Scaffold(body: new ChannelWrapper(stub: _stub)),
       routes: <String, WidgetBuilder>{
         '/welcome': (BuildContext context) => new Welcome(),
         '/tabs': (BuildContext context) => new Tabs(),
