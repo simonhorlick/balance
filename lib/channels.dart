@@ -34,8 +34,9 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
         .catchError((error) => print("listChannels failed"));
 
     // This doesn't work. Not sure why.
-    widget.stub.subscribeTransactions(GetTransactionsRequest.create())
-        .listen(onTransaction, onError: (error) => print("subscribeTransactions failed $error"));
+    widget.stub.subscribeTransactions(GetTransactionsRequest.create()).listen(
+        onTransaction,
+        onError: (error) => print("subscribeTransactions failed $error"));
 
     refreshBalance();
   }
@@ -45,17 +46,19 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
   }
 
   void refreshBalance() {
-    widget.stub.walletBalance(WalletBalanceRequest.create()..witnessOnly = true).then((response) {
+    widget.stub
+        .walletBalance(WalletBalanceRequest.create()..witnessOnly = true)
+        .then((response) {
       setState(() {
         balance = response.balance;
       });
-    })
-    .catchError((error) => print("walletBalance failed"));
+    }).catchError((error) => print("walletBalance failed"));
   }
 
   void makeChannel() {
     OpenChannelRequest request = OpenChannelRequest.create()
-      ..nodePubkey = hex.decoder.convert("03f3ae3c64338b0545ba12493421c6782aae7e43be7332f5658a5ae29cea0119da")
+      ..nodePubkey = hex.decoder.convert(
+          "03f3ae3c64338b0545ba12493421c6782aae7e43be7332f5658a5ae29cea0119da")
       ..localFundingAmount = new Int64(500000);
     widget.stub.openChannel(request).map(_processStatusUpdate);
   }
@@ -66,24 +69,23 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
 
   void connect() {
     LightningAddress address = LightningAddress.create()
-      ..pubkey = "03f3ae3c64338b0545ba12493421c6782aae7e43be7332f5658a5ae29cea0119da"
+      ..pubkey =
+          "03f3ae3c64338b0545ba12493421c6782aae7e43be7332f5658a5ae29cea0119da"
       ..host = "sg.horlick.me";
     ConnectPeerRequest request = ConnectPeerRequest.create()
       ..addr = address
       ..perm = true;
     widget.stub.connectPeer(request).then((response) {
       print(response);
-    })
-    .catchError((error) => print("connectPeer failed"));
+    }).catchError((error) => print("connectPeer failed"));
   }
 
   void createAddress() {
     NewAddressRequest request = NewAddressRequest.create()
-    ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
+      ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
     widget.stub.newAddress(request).then((response) {
       print(response);
-    })
-    .catchError((error) => print("newAddress failed"));
+    }).catchError((error) => print("newAddress failed"));
   }
 
   @override
@@ -91,26 +93,29 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
     return channels == null
         ? new Center(child: new Text("Loading channels"))
         : channels.isEmpty
-            ? new Center(child:
-                new Column(
-                    children: <Widget>[
-                      new Text("No channels"),
-                      new Text("Balance is $balance"),
-                      new GestureDetector(
-                        onTap: connect,
-                        child: new Padding(padding: const EdgeInsets.all(20.0), child: new Text("Connect to peer")),
-                      ),
-                      new GestureDetector(
-                        onTap: makeChannel,
-                        child: new Padding(padding: const EdgeInsets.all(20.0), child: new Text("Make a channel")),
-                      ),
-                      new GestureDetector(
-                        onTap: createAddress,
-                        child: new Padding(padding: const EdgeInsets.all(20.0), child: new Text("Create a new address")),
-                      )
-                    ]
+            ? new Center(
+                child: new Column(children: <Widget>[
+                new Text("No channels"),
+                new Text("Balance is $balance"),
+                new GestureDetector(
+                  onTap: connect,
+                  child: new Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: new Text("Connect to peer")),
+                ),
+                new GestureDetector(
+                  onTap: makeChannel,
+                  child: new Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: new Text("Make a channel")),
+                ),
+                new GestureDetector(
+                  onTap: createAddress,
+                  child: new Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: new Text("Create a new address")),
                 )
-            )
+              ]))
             : new Channels(channels);
   }
 }

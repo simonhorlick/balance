@@ -74,7 +74,7 @@ class BalanceAppState extends State<BalanceApp> {
       routes: <String, WidgetBuilder>{
         '/welcome': (BuildContext context) => new Welcome(),
         '/tabs': (BuildContext context) => new Tabs(_stub),
-        '/scan': (BuildContext context) => new Cam(),
+        '/scan': (BuildContext context) => new Cam(_stub),
       },
     );
   }
