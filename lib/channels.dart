@@ -21,6 +21,10 @@ class ChannelWrapper extends StatefulWidget {
 
 class _ChannelWrapperState extends State<ChannelWrapper> {
   List<ActiveChannel> channels;
+  List<PendingChannelResponse_ClosedChannel> closedChannels;
+  List<PendingChannelResponse_PendingOpenChannel> openingChannels;
+  List<PendingChannelResponse_ForceClosedChannel> forceClosedChannels;
+
   Int64 balance;
 
   @override
@@ -32,6 +36,13 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
               channels = response.channels;
             }))
         .catchError((error) => print("listChannels failed"));
+    widget.stub.pendingChannels(PendingChannelRequest.create())
+        .then((response) => setState(() {
+              closedChannels = response.pendingClosingChannels;
+              openingChannels = response.pendingOpenChannels;
+              forceClosedChannels = response.pendingForceClosingChannels;
+            }))
+        .catchError((error) => print("pendingChannels failed"));
 
     // This doesn't work. Not sure why.
     widget.stub.subscribeTransactions(GetTransactionsRequest.create()).listen(
@@ -116,16 +127,17 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
                       child: new Text("Create a new address")),
                 )
               ]))
-            : new Channels(channels);
+            : new Channels(channels, openingChannels);
   }
 }
 
 /// Channels is the main UI component for rendering a list of payment channels.
 /// Note that this class is stateless to simplify its implementation.
 class Channels extends StatelessWidget {
-  Channels(this.channels);
+  Channels(this.channels, this.openingChannels);
 
   final List<ActiveChannel> channels;
+  final List<PendingChannelResponse_PendingOpenChannel> openingChannels;
 
   Widget buildListTile(BuildContext context, ActiveChannel channel) {
     return new MergeSemantics(
@@ -143,15 +155,33 @@ class Channels extends StatelessWidget {
     );
   }
 
+  Widget buildOpeningListTile(BuildContext context, PendingChannelResponse_PendingOpenChannel channel) {
+    return new MergeSemantics(
+      child: new ListTile(
+        isThreeLine: true,
+        dense: false,
+        leading: new ExcludeSemantics(
+            child: new CircleAvatar(child: new Text("Pending ${channel.channel.channelPoint}"))),
+        title: new Text('${channel.channel.channelPoint.substring(0,10)}...'),
+        subtitle: new Text(
+          'Capacity is ${channel.channel.capacity}, ours is ${channel.channel.localBalance} theirs is ${channel.channel.remoteBalance}',
+        ),
+        trailing: null,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Iterable<Widget> listTiles =
         channels.map((channel) => buildListTile(context, channel));
+    Iterable<Widget> openingListTiles =
+        openingChannels.map((channel) => buildOpeningListTile(context, channel));
 
     return new Scrollbar(
       child: new ListView(
         padding: new EdgeInsets.symmetric(vertical: 8.0),
-        children: listTiles.toList(),
+        children: openingListTiles.toList()..addAll(listTiles),
       ),
     );
   }
