@@ -16,9 +16,18 @@ class _TransactionsState extends State<Transactions> {
   void initState() {
     super.initState();
     widget.stub.listPayments(ListPaymentsRequest.create()).then((response) {
-      setState(() {
-        payments = response.payments;
-      });
+      // If the user navigates between the wallet and channel tabs, the
+      // transactions tab is quickly initialised where this method gets called
+      // then the tab flies out of view and is destroyed. As listPayments is
+      // likely still in-flight after the widget is destroyed, we need to check
+      // if it's still mounted here.
+      if (!mounted) {
+        print("NOT MOUNTED!");
+      } else {
+        setState(() {
+          payments = response.payments;
+        });
+      }
     });
   }
 

@@ -31,9 +31,9 @@ class _WalletState extends State<Wallet> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
+  void deactivate() {
     balancePoller.cancel();
+    super.deactivate();
   }
 
   void refreshBalance() {

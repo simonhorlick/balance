@@ -25,15 +25,32 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
   List<PendingChannelResponse_PendingOpenChannel> openingChannels;
   List<PendingChannelResponse_ForceClosedChannel> forceClosedChannels;
 
+  Timer pollingTimer;
+
   @override
   initState() {
     super.initState();
+    refreshChannels();
+
+    pollingTimer = new Timer.periodic(new Duration(seconds: 1), (timer) {
+      refreshChannels();
+    });
+  }
+
+  @override
+  void deactivate() {
+    pollingTimer.cancel();
+    super.deactivate();
+  }
+
+  void refreshChannels() {
     widget.stub
         .listChannels(ListChannelsRequest.create())
         .then((response) => setState(() {
               channels = response.channels;
             }))
         .catchError((error) => print("listChannels failed"));
+
     widget.stub
         .pendingChannels(PendingChannelRequest.create())
         .then((response) => setState(() {
@@ -42,15 +59,6 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
               forceClosedChannels = response.pendingForceClosingChannels;
             }))
         .catchError((error) => print("pendingChannels failed"));
-
-    // This doesn't work. Not sure why.
-    widget.stub.subscribeTransactions(GetTransactionsRequest.create()).listen(
-        onTransaction,
-        onError: (error) => print("subscribeTransactions failed $error"));
-  }
-
-  void onTransaction(Transaction transaction) {
-    print(transaction);
   }
 
   void makeChannel() {
