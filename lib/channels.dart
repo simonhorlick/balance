@@ -120,7 +120,8 @@ class Channels extends StatelessWidget {
         dense: false,
         leading: new ExcludeSemantics(
             child: new CircleAvatar(child: new Text(channel.channelPoint))),
-        title: new Text('${channel.channelPoint.substring(0,10)}...'),
+        title: new Text('${channel.channelPoint}',
+            overflow: TextOverflow.ellipsis),
         subtitle: new Text(
           'Capacity is ${channel.capacity}, ours is ${channel.localBalance} theirs is ${channel.remoteBalance}',
         ),
@@ -138,8 +139,7 @@ class Channels extends StatelessWidget {
         leading: new ExcludeSemantics(
             child: new CircleAvatar(
                 child: new Text("${channel.channel.channelPoint}"))),
-        title: new Text(
-            'Pending: ${channel.channel.channelPoint}',
+        title: new Text('Pending: ${channel.channel.channelPoint}',
             overflow: TextOverflow.ellipsis),
         subtitle: new Text(
           'Capacity is ${channel.channel.capacity}, ours is ${channel.channel.localBalance} theirs is ${channel.channel.remoteBalance}',
