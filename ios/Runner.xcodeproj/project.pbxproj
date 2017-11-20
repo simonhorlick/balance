@@ -22,7 +22,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		F4F9A8B81FC2798A00311DD9 /* Lnd.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4F9A8B71FC2798A00311DD9 /* Lnd.framework */; };
+		F4656EEC1FC326BB00D990F9 /* Client.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4656EEB1FC326BA00D990F9 /* Client.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -59,7 +59,7 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E7972878335845ACF5C01467 /* libPods-Runner.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Runner.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		F4F9A8B71FC2798A00311DD9 /* Lnd.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Lnd.framework; sourceTree = SOURCE_ROOT; };
+		F4656EEB1FC326BA00D990F9 /* Client.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Client.framework; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,7 +70,7 @@
 				9705A1C61CF904A100538489 /* Flutter.framework in Frameworks */,
 				3B80C3941E831B6300D905FE /* App.framework in Frameworks */,
 				2DAD6FB78A29E1D0663DEC40 /* libPods-Runner.a in Frameworks */,
-				F4F9A8B81FC2798A00311DD9 /* Lnd.framework in Frameworks */,
+				F4656EEC1FC326BB00D990F9 /* Client.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,7 +113,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				F4F9A8B71FC2798A00311DD9 /* Lnd.framework */,
+				F4656EEB1FC326BA00D990F9 /* Client.framework */,
 				7AFFD8ED1D35381100E5BB4D /* AppDelegate.h */,
 				7AFFD8EE1D35381100E5BB4D /* AppDelegate.m */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,

@@ -79,6 +79,7 @@ func Start(dataDir string) error {
 			MaxChannels: 5,
 			Allocation:  0.6,
 		},
+		TrickleDelay: defaultTrickleDelay,
 	}
 
 	// Open the channeldb, which is dedicated to storing channel, and
@@ -179,7 +180,7 @@ func Start(dataDir string) error {
 			// TODO(roasbeef): add configurable mapping
 			//  * simple switch initially
 			//  * assign coefficient, etc
-			return uint16(defaultNumChanConfs)
+			return uint16(cfg.DefaultNumChanConfs)
 		},
 		RequiredRemoteDelay: func(chanAmt btcutil.Amount) uint16 {
 			// TODO(roasbeef): add additional hooks for
@@ -412,11 +413,4 @@ func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string) (*chainCon
 
 	return cc, cleanUp, nil
 
-}
-
-func InvokeMethod(methodName string, request []byte) ([]byte, error) {
-
-	// TODO(simon): Implement.
-
-	return nil, nil
 }

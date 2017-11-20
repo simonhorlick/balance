@@ -1,7 +1,7 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
 
-#include <Lnd/Lnd.h>
+#include <Client/Client.h>
 
 @implementation AppDelegate
 
@@ -13,7 +13,7 @@
   NSString *dir = [paths objectAtIndex:0];
 
   NSError* err = NULL;
-  LndStart(dir, &err);
+  ClientStart(dir, &err);
 
   // Override point for customization after application launch.
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
@@ -33,7 +33,7 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
   NSLog(@"applicationWillTerminate");
-  LndStop();
+  ClientStop();
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
