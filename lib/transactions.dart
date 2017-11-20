@@ -11,7 +11,6 @@ class Transactions extends StatefulWidget {
 }
 
 class _TransactionsState extends State<Transactions> {
-
   List<Payment> payments;
 
   void initState() {
@@ -30,7 +29,6 @@ class _TransactionsState extends State<Transactions> {
 }
 
 class TransactionsList extends StatelessWidget {
-
   TransactionsList(this.payments);
 
   final List<Payment> payments;
@@ -52,7 +50,7 @@ class TransactionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Iterable<Widget> listTiles =
-      payments.map((payment) => buildListTile(context, payment));
+        payments.map((payment) => buildListTile(context, payment));
 
     return new Scrollbar(
       child: new ListView(

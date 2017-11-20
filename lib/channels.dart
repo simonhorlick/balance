@@ -36,7 +36,8 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
               channels = response.channels;
             }))
         .catchError((error) => print("listChannels failed"));
-    widget.stub.pendingChannels(PendingChannelRequest.create())
+    widget.stub
+        .pendingChannels(PendingChannelRequest.create())
         .then((response) => setState(() {
               closedChannels = response.pendingClosingChannels;
               openingChannels = response.pendingOpenChannels;
@@ -155,13 +156,15 @@ class Channels extends StatelessWidget {
     );
   }
 
-  Widget buildOpeningListTile(BuildContext context, PendingChannelResponse_PendingOpenChannel channel) {
+  Widget buildOpeningListTile(
+      BuildContext context, PendingChannelResponse_PendingOpenChannel channel) {
     return new MergeSemantics(
       child: new ListTile(
         isThreeLine: true,
         dense: false,
         leading: new ExcludeSemantics(
-            child: new CircleAvatar(child: new Text("Pending ${channel.channel.channelPoint}"))),
+            child: new CircleAvatar(
+                child: new Text("Pending ${channel.channel.channelPoint}"))),
         title: new Text('${channel.channel.channelPoint.substring(0,10)}...'),
         subtitle: new Text(
           'Capacity is ${channel.channel.capacity}, ours is ${channel.channel.localBalance} theirs is ${channel.channel.remoteBalance}',
@@ -175,8 +178,8 @@ class Channels extends StatelessWidget {
   Widget build(BuildContext context) {
     Iterable<Widget> listTiles =
         channels.map((channel) => buildListTile(context, channel));
-    Iterable<Widget> openingListTiles =
-        openingChannels.map((channel) => buildOpeningListTile(context, channel));
+    Iterable<Widget> openingListTiles = openingChannels
+        .map((channel) => buildOpeningListTile(context, channel));
 
     return new Scrollbar(
       child: new ListView(
