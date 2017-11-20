@@ -1,15 +1,8 @@
-// Copyright 2015 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
-import 'dart:async';
-
 import 'package:balance/channels.dart';
+import 'package:balance/wallet.dart';
 import 'package:balance/generated/rpc.pbgrpc.dart';
 import 'package:balance/transactions.dart';
 import 'package:flutter/material.dart';
-
-enum TabsDemoStyle { textOnly }
 
 class _Page {
   _Page({this.text, this.widget});
@@ -35,6 +28,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _allPages = <_Page>[
+      new _Page(text: 'WALLET', widget: new Wallet(widget.stub)),
       new _Page(text: 'TRANSACTIONS', widget: new Transactions(widget.stub)),
       new _Page(text: 'CHANNELS', widget: new ChannelWrapper(widget.stub)),
     ];
@@ -49,6 +43,10 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
 
   void scan() {
     Navigator.of(context).pushNamed("/scan");
+  }
+
+  void handleMenuSelection(String value) {
+    print(value);
   }
 
   @override

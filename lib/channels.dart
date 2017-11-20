@@ -25,8 +25,6 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
   List<PendingChannelResponse_PendingOpenChannel> openingChannels;
   List<PendingChannelResponse_ForceClosedChannel> forceClosedChannels;
 
-  Int64 balance;
-
   @override
   initState() {
     super.initState();
@@ -49,22 +47,10 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
     widget.stub.subscribeTransactions(GetTransactionsRequest.create()).listen(
         onTransaction,
         onError: (error) => print("subscribeTransactions failed $error"));
-
-    refreshBalance();
   }
 
   void onTransaction(Transaction transaction) {
     print(transaction);
-  }
-
-  void refreshBalance() {
-    widget.stub
-        .walletBalance(WalletBalanceRequest.create()..witnessOnly = true)
-        .then((response) {
-      setState(() {
-        balance = response.balance;
-      });
-    }).catchError((error) => print("walletBalance failed"));
   }
 
   void makeChannel() {
@@ -89,26 +75,17 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
       ..perm = true;
     widget.stub.connectPeer(request).then((response) {
       print(response);
-    }).catchError((error) => print("connectPeer failed"));
-  }
-
-  void createAddress() {
-    NewAddressRequest request = NewAddressRequest.create()
-      ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
-    widget.stub.newAddress(request).then((response) {
-      print(response);
-    }).catchError((error) => print("newAddress failed"));
+    }).catchError((error) => print("connectPeer failed: $error"));
   }
 
   @override
   Widget build(BuildContext context) {
     return channels == null
         ? new Center(child: new Text("Loading channels"))
-        : channels.isEmpty
+        : (channels.isEmpty && openingChannels.isEmpty)
             ? new Center(
                 child: new Column(children: <Widget>[
                 new Text("No channels"),
-                new Text("Balance is $balance"),
                 new GestureDetector(
                   onTap: connect,
                   child: new Padding(
@@ -121,12 +98,6 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
                       padding: const EdgeInsets.all(20.0),
                       child: new Text("Make a channel")),
                 ),
-                new GestureDetector(
-                  onTap: createAddress,
-                  child: new Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: new Text("Create a new address")),
-                )
               ]))
             : new Channels(channels, openingChannels);
   }
@@ -164,8 +135,9 @@ class Channels extends StatelessWidget {
         dense: false,
         leading: new ExcludeSemantics(
             child: new CircleAvatar(
-                child: new Text("Pending ${channel.channel.channelPoint}"))),
-        title: new Text('${channel.channel.channelPoint.substring(0,10)}...'),
+                child: new Text("${channel.channel.channelPoint}"))),
+        title: new Text(
+            'Pending: ${channel.channel.channelPoint.substring(0,10)}...'),
         subtitle: new Text(
           'Capacity is ${channel.channel.capacity}, ours is ${channel.channel.localBalance} theirs is ${channel.channel.remoteBalance}',
         ),

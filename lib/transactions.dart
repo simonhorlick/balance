@@ -49,14 +49,20 @@ class TransactionsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Iterable<Widget> listTiles =
-        payments.map((payment) => buildListTile(context, payment));
+    List<Widget> listTiles =
+        payments.map((payment) => buildListTile(context, payment)).toList();
 
-    return new Scrollbar(
-      child: new ListView(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
-        children: listTiles.toList(),
-      ),
+    var emptyTransactionsView = new Container(
+      child: new Center(child: new Text("No transactions.")),
     );
+
+    return listTiles.isEmpty
+        ? emptyTransactionsView
+        : new Scrollbar(
+            child: new ListView(
+              padding: new EdgeInsets.symmetric(vertical: 8.0),
+              children: listTiles,
+            ),
+          );
   }
 }
