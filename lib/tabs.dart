@@ -1,6 +1,6 @@
 import 'package:balance/channels.dart';
 import 'package:balance/wallet.dart';
-import 'package:balance/generated/rpc.pbgrpc.dart';
+import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:balance/transactions.dart';
 import 'package:flutter/material.dart';
 

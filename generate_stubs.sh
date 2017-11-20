@@ -13,4 +13,4 @@ protoc \
   -I. \
   -Ithird_party/googleapis \
   --dart_out=grpc:lib/generated \
-  rpc.proto
+  vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.proto

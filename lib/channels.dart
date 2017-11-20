@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:grpc/grpc.dart';
 
-import 'generated/rpc.pbgrpc.dart';
+import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:convert/convert.dart';
