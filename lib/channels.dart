@@ -80,7 +80,9 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return channels == null
+    var waitingForRpcs = channels == null || openingChannels == null;
+
+    return waitingForRpcs
         ? new Center(child: new Text("Loading channels"))
         : (channels.isEmpty && openingChannels.isEmpty)
             ? new Center(
