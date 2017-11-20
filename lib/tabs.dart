@@ -35,7 +35,7 @@ class TabsState extends State<Tabs> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _allPages = <_Page>[
-      new _Page(text: 'TRANSACTIONS', widget: new Transactions()),
+      new _Page(text: 'TRANSACTIONS', widget: new Transactions(widget.stub)),
       new _Page(text: 'CHANNELS', widget: new ChannelWrapper(widget.stub)),
     ];
     _controller = new TabController(vsync: this, length: _allPages.length);

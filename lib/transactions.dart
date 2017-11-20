@@ -2,48 +2,48 @@ import 'package:balance/generated/rpc.pbgrpc.dart';
 import 'package:flutter/material.dart';
 
 class Transactions extends StatefulWidget {
-  const Transactions({Key key}) : super(key: key);
+  const Transactions(this.stub);
 
-  static const String routeName = '/transactions';
+  final LightningClient stub;
 
   @override
   _TransactionsState createState() => new _TransactionsState();
 }
 
 class _TransactionsState extends State<Transactions> {
-  static final GlobalKey<ScaffoldState> scaffoldKey =
-      new GlobalKey<ScaffoldState>();
 
-  // FIXME(simon): Example data.
-  List<String> items = <String>[
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-  ];
+  List<Payment> payments;
 
-  Widget buildListTile(BuildContext context, String item) {
-    Widget secondary = const Text(
-      'Even more additional list item information appears on line three.',
-    );
+  void initState() {
+    super.initState();
+    widget.stub.listPayments(ListPaymentsRequest.create()).then((response) {
+      setState(() {
+        payments = response.payments;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return payments == null ? new Container() : new TransactionsList(payments);
+  }
+}
+
+class TransactionsList extends StatelessWidget {
+
+  TransactionsList(this.payments);
+
+  final List<Payment> payments;
+
+  Widget buildListTile(BuildContext context, Payment payment) {
     return new MergeSemantics(
       child: new ListTile(
         isThreeLine: true,
         dense: false,
         leading: new ExcludeSemantics(
-            child: new CircleAvatar(child: new Text(item))),
-        title: new Text('This item represents $item.'),
-        subtitle: secondary,
+            child: new CircleAvatar(child: new Text(payment.paymentHash))),
+        title: new Text(payment.paymentHash),
+        subtitle: new Text('Sent ${payment.value} with fee ${payment.fee}'),
         trailing: null,
       ),
     );
@@ -52,7 +52,7 @@ class _TransactionsState extends State<Transactions> {
   @override
   Widget build(BuildContext context) {
     Iterable<Widget> listTiles =
-        items.map((String item) => buildListTile(context, item));
+      payments.map((payment) => buildListTile(context, payment));
 
     return new Scrollbar(
       child: new ListView(
