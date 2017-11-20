@@ -139,7 +139,8 @@ class Channels extends StatelessWidget {
             child: new CircleAvatar(
                 child: new Text("${channel.channel.channelPoint}"))),
         title: new Text(
-            'Pending: ${channel.channel.channelPoint.substring(0,10)}...'),
+            'Pending: ${channel.channel.channelPoint}',
+            overflow: TextOverflow.ellipsis),
         subtitle: new Text(
           'Capacity is ${channel.channel.capacity}, ours is ${channel.channel.localBalance} theirs is ${channel.channel.remoteBalance}',
         ),
