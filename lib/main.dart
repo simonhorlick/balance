@@ -32,7 +32,7 @@ class BalanceAppState extends State<BalanceApp> {
   Future<Null> connect() async {
     var cert = await readCertificate();
     channel = new ClientChannel('localhost',
-        port: 10009, options: new ChannelOptions.secure(certificate: cert));
+        port: 10009, options: new ChannelOptions.insecure());
     var stub = new LightningClient(channel,
         options: new CallOptions(timeout: new Duration(seconds: 3)));
     setState(() {

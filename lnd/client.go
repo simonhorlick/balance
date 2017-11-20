@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/test/bufconn"
 	"github.com/lightningnetwork/lnd/channeldb"
 	"fmt"
 	"github.com/lightningnetwork/lnd/lnwallet/btcwallet"
@@ -38,8 +37,6 @@ var (
 )
 
 var s *grpc.Server
-var lis = bufconn.Listen(1024 * 1024)
-var dialer = func(string, time.Duration) (net.Conn, error) { return lis.Dial() }
 
 // Start the grpc server.
 func Start(dataDir string) error {
@@ -209,36 +206,15 @@ func Start(dataDir string) error {
 	lnrpc.RegisterLightningServer(s, rpcServer)
 
 	 //Next, Start the gRPC server listening for HTTP/2 connections.
-	//lis, err := net.Listen("tcp", grpcEndpoint)
-	//if err != nil {
-	//	fmt.Printf("failed to listen: %v", err)
-	//	return err
-	//}
-	//go func() {
-	//	rpcsLog.Infof("RPC server listening on %s", lis.Addr())
-	//	grpcServer.Serve(lis)
-	//}()
-	// Finally, start the REST proxy for our gRPC server above.
-	//ctx := context.Background()
-	//ctx, cancel := context.WithCancel(ctx)
-	//defer cancel()
-
-	//mux := proxy.NewServeMux()
-	//err = lnrpc.RegisterLightningHandlerFromEndpoint(ctx, mux, grpcEndpoint,
-	//	proxyOpts)
-	//if err != nil {
-	//	return err
-	//}
-	//go func() {
-	//	listener, err := tls.Listen("tcp", restEndpoint, tlsConf)
-	//	if err != nil {
-	//		ltndLog.Errorf("gRPC proxy unable to listen on "+
-	//			"localhost%s", restEndpoint)
-	//		return
-	//	}
-	//	rpcsLog.Infof("gRPC proxy started at localhost%s", restEndpoint)
-	//	http.Serve(listener, mux)
-	//}()
+	lis, err := net.Listen("tcp", "localhost:10009")
+	if err != nil {
+		fmt.Printf("failed to listen: %v", err)
+		return err
+	}
+	go func() {
+		rpcsLog.Infof("RPC server listening on %s", lis.Addr())
+		s.Serve(lis)
+	}()
 
 	// If we're not in simnet mode, We'll wait until we're fully synced to
 	// continue the start up of the remainder of the daemon. This ensures
@@ -304,11 +280,6 @@ func Start(dataDir string) error {
 	//			err)
 	//		return err
 	//	}
-	//}
-
-
-	//if err := s.Serve(lis); err != nil {
-	//	log.Fatalf("failed to serve: %v", err)
 	//}
 
 	return nil
