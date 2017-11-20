@@ -1,5 +1,5 @@
-hash: b2b2f490db6ce87559d466595c69addee86771a4bf47c37a06a32981527e4d19
-updated: 2017-11-06T16:27:04.645123+08:00
+hash: 579889f1c06c50b2f50a101ca4791abf94835a8dc9b581f61b19c45840aae074
+updated: 2017-11-20T21:20:24.776284+08:00
 imports:
 - name: github.com/aead/chacha20
   version: d31a916ded42d1640b9d89a26f8abd53cc96790c
@@ -71,7 +71,7 @@ imports:
 - name: github.com/lightningnetwork/lightning-onion
   version: 18bf6612a0653a21daf1a08b4a59e54670a524a1
 - name: github.com/lightningnetwork/lnd
-  version: 0ec22cc89768991c0dfaae7d2392f10794d1a023
+  version: 53f1743be05ed29cd668bbf3b03208ef0be13ac3
   subpackages:
   - autopilot
   - brontide
@@ -199,7 +199,6 @@ imports:
   - codes
   - connectivity
   - credentials
-  - examples/helloworld/helloworld
   - grpclb/grpc_lb_v1
   - grpclog
   - internal
@@ -210,7 +209,6 @@ imports:
   - stats
   - status
   - tap
-  - test/bufconn
   - transport
 - name: gopkg.in/errgo.v1
   version: 442357a80af5c6bf9b6d51ae791a39c3421004f3
