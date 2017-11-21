@@ -125,7 +125,7 @@ class _WalletState extends State<Wallet> {
             new Text("${formatter.format(totalBalance)}",
                 style: new TextStyle(fontSize: 26.0)),
             converted > 0.0
-                ? new Text("RM ${fiatFormatter.format(converted)}")
+                ? new Text("RM ${fiatFormatter.format(converted)}", style: const TextStyle(color: const Color(0x80000000)))
                 : new Text("...", style: const TextStyle(color: const Color(0x00FFFFFF))),
             new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
             new Text("wallet ${formatter.format(balance)}", style: const TextStyle(color: const Color(0x80000000))),
