@@ -14,7 +14,8 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
-  Int64 balance;
+  Int64 balance = new Int64(0);
+  Int64 channelBalance = new Int64(0);
   String address;
   Timer balancePoller;
 
@@ -44,6 +45,13 @@ class _WalletState extends State<Wallet> {
         balance = response.balance;
       });
     }).catchError((error) => print("walletBalance failed: $error"));
+    widget.stub
+        .channelBalance(ChannelBalanceRequest.create())
+        .then((response) {
+      setState(() {
+        channelBalance = response.balance;
+      });
+    }).catchError((error) => print("channelBalance failed: $error"));
   }
 
   void createAddress() {
@@ -56,11 +64,13 @@ class _WalletState extends State<Wallet> {
 
   @override
   Widget build(BuildContext context) {
+    var totalBalance = balance + channelBalance;
+
     return new Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        new Text("$balance", style: new TextStyle(fontSize: 26.0)),
+        new Text("$totalBalance", style: new TextStyle(fontSize: 26.0)),
         new Column(
           children: <Widget>[
             new Text("Your wallet address is:"),
