@@ -87,31 +87,23 @@ class CamState extends State<Cam> {
         CameraFormat previewFormat = this.cameras.first.previewFormats.first;
         CameraFormat captureFormat = this.cameras.first.captureFormats.first;
 
-        this
-            .cameras
-            .first
-            .open(
-                previewFormat,
-                captureFormat,
-                (barcode) {
-                  if (seenBarcode) return;
-                  seenBarcode = true;
+        this.cameras.first.open(previewFormat, captureFormat, (barcode) {
+          if (seenBarcode) return;
+          seenBarcode = true;
 
-                  SendRequest request = SendRequest.create()
-                    ..paymentRequest = barcode;
-                  print("Calling sendPaymentSync");
+          SendRequest request = SendRequest.create()..paymentRequest = barcode;
+          print("Calling sendPaymentSync");
 
-                  widget.stub.sendPaymentSync(request).then((response) {
-                    print("error is: ${response.paymentError}");
-                    print("rest is: $response");
-                    Navigator.pop(context, barcode);
-                  }).catchError((error) => print("failed to sendPaymentSync: $error"));
+          widget.stub.sendPaymentSync(request).then((response) {
+            print("error is: ${response.paymentError}");
+            print("rest is: $response");
+            Navigator.pop(context, barcode);
+          }).catchError((error) => print("failed to sendPaymentSync: $error"));
 
-                  setState(() {
-                      this.barcode = barcode;
-                    });
-                })
-            .then((cameraId) {
+          setState(() {
+            this.barcode = barcode;
+          });
+        }).then((cameraId) {
           setState(() {
             this.camera = new Camera(cameraId);
             started = true;

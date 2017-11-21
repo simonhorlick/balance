@@ -101,38 +101,40 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
   void disconnectAll() {
     widget.stub.listPeers(ListPeersRequest.create()).then((response) {
       response.peers.forEach((peer) {
-        widget.stub.disconnectPeer(DisconnectPeerRequest.create()..pubKey = peer.pubKey);
+        widget.stub.disconnectPeer(
+            DisconnectPeerRequest.create()..pubKey = peer.pubKey);
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var waitingForRpcs = channels == null || openingChannels == null || peers == null;
+    var waitingForRpcs =
+        channels == null || openingChannels == null || peers == null;
 
     return waitingForRpcs
         ? new Center(child: new Text("Loading channels"))
         : (channels.isEmpty && openingChannels.isEmpty && peers.isEmpty)
             ? new Center(
                 child: new Column(children: <Widget>[
-                  new RaisedButton(
-                    onPressed: connect,
-                    child: new Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: new Text("Connect to peer")),
-                  ),
-
-                  new Text("No connections."),
+                new RaisedButton(
+                  onPressed: connect,
+                  child: new Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: new Text("Connect to peer")),
+                ),
+                new Text("No connections."),
               ]))
-            : new Channels(channels, openingChannels, peers, makeChannel, connect);
+            : new Channels(
+                channels, openingChannels, peers, makeChannel, connect);
   }
 }
 
 /// Channels is the main UI component for rendering a list of payment channels.
 /// Note that this class is stateless to simplify its implementation.
 class Channels extends StatelessWidget {
-
-  Channels(this.channels, this.openingChannels, this.peers, this.makeChannel, this.connect);
+  Channels(this.channels, this.openingChannels, this.peers, this.makeChannel,
+      this.connect);
 
   final List<ActiveChannel> channels;
   final List<PendingChannelResponse_PendingOpenChannel> openingChannels;
@@ -178,17 +180,15 @@ class Channels extends StatelessWidget {
     );
   }
 
-  Widget buildPeerTile(
-      BuildContext context, Peer peer) {
+  Widget buildPeerTile(BuildContext context, Peer peer) {
     return new MergeSemantics(
       child: new ListTile(
         isThreeLine: true,
         dense: false,
         leading: new ExcludeSemantics(
-            child: new CircleAvatar(
-                child: new Text("${peer.peerId}"))),
-        title: new Text('Peer: ${peer.pubKey}',
-            overflow: TextOverflow.ellipsis),
+            child: new CircleAvatar(child: new Text("${peer.peerId}"))),
+        title:
+            new Text('Peer: ${peer.pubKey}', overflow: TextOverflow.ellipsis),
         subtitle: new Text(
           'Sent ${peer.satSent}. Received ${peer.satRecv}',
         ),
@@ -204,8 +204,9 @@ class Channels extends StatelessWidget {
     Iterable<Widget> openingListTiles = openingChannels
         .map((channel) => buildOpeningListTile(context, channel));
 
-    peers.sort((a,b) => a.peerId.compareTo(b.peerId));
-    Iterable<Widget> peerRows = peers.map((peer) => buildPeerTile(context, peer));
+    peers.sort((a, b) => a.peerId.compareTo(b.peerId));
+    Iterable<Widget> peerRows =
+        peers.map((peer) => buildPeerTile(context, peer));
 
     return new Scrollbar(
       child: new ListView(
@@ -229,7 +230,10 @@ class Channels extends StatelessWidget {
 //                padding: const EdgeInsets.all(20.0),
 //                child: new Text("Disconnect peers")),
 //          ),
-        ]..addAll(peerRows)..addAll(openingListTiles)..addAll(channelTiles),
+        ]
+          ..addAll(peerRows)
+          ..addAll(openingListTiles)
+          ..addAll(channelTiles),
       ),
     );
   }
