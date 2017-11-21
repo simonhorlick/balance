@@ -4,6 +4,8 @@ import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/r
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 
+import 'package:intl/intl.dart';
+
 class Wallet extends StatefulWidget {
   Wallet(this.stub);
 
@@ -18,6 +20,8 @@ class _WalletState extends State<Wallet> {
   Int64 channelBalance = new Int64(0);
   String address;
   Timer balancePoller;
+
+  var formatter = new NumberFormat("###,###", "en_US");
 
   @override
   initState() {
@@ -70,7 +74,7 @@ class _WalletState extends State<Wallet> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        new Text("$totalBalance", style: new TextStyle(fontSize: 26.0)),
+        new Text("${formatter.format(totalBalance)}", style: new TextStyle(fontSize: 26.0)),
         new Column(
           children: <Widget>[
             new Text("Your wallet address is:"),
