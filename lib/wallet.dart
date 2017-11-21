@@ -43,7 +43,7 @@ class _WalletState extends State<Wallet> {
       setState(() {
         balance = response.balance;
       });
-    }).catchError((error) => print("walletBalance failed"));
+    }).catchError((error) => print("walletBalance failed: $error"));
   }
 
   void createAddress() {

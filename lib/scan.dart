@@ -68,6 +68,8 @@ class CamState extends State<Cam> {
   int pictureCount = 0;
   String barcode;
 
+  bool seenBarcode = false;
+
   @override
   void initState() {
     super.initState();
@@ -91,9 +93,24 @@ class CamState extends State<Cam> {
             .open(
                 previewFormat,
                 captureFormat,
-                (barcode) => setState(() {
+                (barcode) {
+                  if (seenBarcode) return;
+                  seenBarcode = true;
+
+                  SendRequest request = SendRequest.create()
+                    ..paymentRequest = barcode;
+                  print("Calling sendPaymentSync");
+
+                  widget.stub.sendPaymentSync(request).then((response) {
+                    print("error is: ${response.paymentError}");
+                    print("rest is: $response");
+                    Navigator.pop(context, barcode);
+                  }).catchError((error) => print("failed to sendPaymentSync: $error"));
+
+                  setState(() {
                       this.barcode = barcode;
-                    }))
+                    });
+                })
             .then((cameraId) {
           setState(() {
             this.camera = new Camera(cameraId);

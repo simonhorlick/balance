@@ -115,7 +115,14 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
         : (channels.isEmpty && openingChannels.isEmpty && peers.isEmpty)
             ? new Center(
                 child: new Column(children: <Widget>[
-                new Text("No connections."),
+                  new RaisedButton(
+                    onPressed: connect,
+                    child: new Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: new Text("Connect to peer")),
+                  ),
+
+                  new Text("No connections."),
               ]))
             : new Channels(channels, openingChannels, peers, makeChannel, connect);
   }
