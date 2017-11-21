@@ -265,23 +265,26 @@ func Start(dataDir string) error {
 		s.Serve(lis)
 	}()
 
+	// Force autopilot.
+	cfg.Autopilot.Active = true
+	cfg.Autopilot.Allocation = 1.0 // Allocate entire wallet balance to LN channels.
+	cfg.Autopilot.MaxChannels = 5
 
-	//// Now that the server has started, if the autopilot mode is currently
-	//// active, then we'll initialize a fresh instance of it and start it.
-	//var pilot *autopilot.Agent
-	//if cfg.Autopilot.Active {
-	//	pilot, err := initAutoPilot(server, cfg.Autopilot)
-	//	if err != nil {
-	//		ltndLog.Errorf("unable to create autopilot agent: %v",
-	//			err)
-	//		return err
-	//	}
-	//	if err := pilot.Start(); err != nil {
-	//		ltndLog.Errorf("unable to start autopilot agent: %v",
-	//			err)
-	//		return err
-	//	}
-	//}
+	// Now that the server has started, if the autopilot mode is currently
+	// active, then we'll initialize a fresh instance of it and start it.
+	if cfg.Autopilot.Active {
+		pilot, err := initAutoPilot(server, cfg.Autopilot)
+		if err != nil {
+			ltndLog.Errorf("unable to create autopilot agent: %v",
+				err)
+			return err
+		}
+		if err := pilot.Start(); err != nil {
+			ltndLog.Errorf("unable to start autopilot agent: %v",
+				err)
+			return err
+		}
+	}
 
 	return nil
 }

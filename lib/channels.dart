@@ -210,31 +210,11 @@ class Channels extends StatelessWidget {
 
     return new Scrollbar(
       child: new ListView(
-        padding: new EdgeInsets.symmetric(vertical: 8.0),
-        children: [
-          new RaisedButton(
-            onPressed: connect,
-            child: new Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: new Text("Connect to peer")),
-          ),
-          new RaisedButton(
-            onPressed: makeChannel,
-            child: new Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: new Text("Make a channel")),
-          ),
-//          new RaisedButton(
-//            onPressed: disconnectAll,
-//            child: new Padding(
-//                padding: const EdgeInsets.all(20.0),
-//                child: new Text("Disconnect peers")),
-//          ),
-        ]
-          ..addAll(peerRows)
-          ..addAll(openingListTiles)
-          ..addAll(channelTiles),
-      ),
+          padding: new EdgeInsets.symmetric(vertical: 8.0),
+          children: []
+            ..addAll(openingListTiles)
+            ..addAll(channelTiles)
+            ..addAll(peerRows)),
     );
   }
 }
