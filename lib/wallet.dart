@@ -29,6 +29,8 @@ class _WalletState extends State<Wallet> {
   String address;
   Timer balancePoller;
 
+  String nodeId = "";
+
   var formatter = new NumberFormat("###,###", "en_US");
   var fiatFormatter = new NumberFormat("###,###.00", "en_US");
 
@@ -41,6 +43,12 @@ class _WalletState extends State<Wallet> {
     // Set up a timer that polls the wallet balance each second.
     balancePoller = new Timer.periodic(new Duration(seconds: 1), (timer) {
       refreshBalance();
+    });
+
+    widget.stub.getInfo(GetInfoRequest.create()).then((response) {
+      setState(() {
+        nodeId = response.identityPubkey;
+      });
     });
   }
 
@@ -125,11 +133,17 @@ class _WalletState extends State<Wallet> {
             new Text("${formatter.format(totalBalance)}",
                 style: new TextStyle(fontSize: 26.0)),
             converted > 0.0
-                ? new Text("RM ${fiatFormatter.format(converted)}", style: const TextStyle(color: const Color(0x80000000)))
-                : new Text("...", style: const TextStyle(color: const Color(0x00FFFFFF))),
+                ? new Text("RM ${fiatFormatter.format(converted)}",
+                    style: const TextStyle(color: const Color(0x80000000)))
+                : new Text("...",
+                    style: const TextStyle(color: const Color(0x00FFFFFF))),
             new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
-            new Text("wallet ${formatter.format(balance)}", style: const TextStyle(color: const Color(0x80000000))),
-            new Text("in-channel ${formatter.format(channelBalance)}", style: const TextStyle(color: const Color(0x80000000))),
+            new Text("wallet ${formatter.format(balance)}",
+                style: const TextStyle(color: const Color(0x80000000))),
+            new Text("in-channel ${formatter.format(channelBalance)}",
+                style: const TextStyle(color: const Color(0x80000000))),
+            new Text("node is $nodeId",
+                style: const TextStyle(color: const Color(0x80000000))),
           ],
         ),
         new Column(
