@@ -41,11 +41,6 @@ var lightningRpcServer *rpcServer
 
 // Start the grpc server.
 func Start(dataDir string) error {
-	// FIXME(simon): CAS
-	if s != nil {
-		log.Print("Backend already started")
-		return nil
-	}
 	log.Print("Starting backend")
 
 	initLogRotator(filepath.Join(dataDir, defaultLogFilename))
