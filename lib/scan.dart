@@ -170,22 +170,13 @@ class CamState extends State<Cam> {
         child: new Container(
           decoration: new BoxDecoration(
             borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
-            border: new Border.all(width: 2.0, color: Colors.yellow),
+            border: new Border.all(width: 2.0, color: theme.accentColor),
           ),
           child: new SizedBox.fromSize(
             size: new Size.fromHeight(100.0),
           ),
         ),
       )),
-      new Center(
-        child: (barcode == null)
-            ? new Text("")
-            : new Text(barcode,
-                style: new TextStyle(
-                    decoration: TextDecoration.none,
-                    fontSize: 11.0,
-                    color: Colors.white)),
-      ),
     ]);
   }
 
