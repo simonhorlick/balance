@@ -93,6 +93,13 @@ class CamState extends State<Cam> {
           if (seenBarcode) return;
           seenBarcode = true;
 
+          if (barcode.startsWith("lightning:")) {
+            barcode = barcode.substring("lightning:".length);
+          }
+          if (barcode.startsWith("//")) {
+            barcode = barcode.substring("//".length);
+          }
+
           SendRequest request = SendRequest.create()..paymentRequest = barcode;
           print("Calling sendPaymentSync");
 
