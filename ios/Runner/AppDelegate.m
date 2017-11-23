@@ -15,12 +15,15 @@
   NSError* err = NULL;
   ClientStart(dir, &err);
 
+  NSLog(@"ClientStart returned: %@", err);
+
   // Override point for customization after application launch.
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   NSLog(@"applicationDidBecomeActive");
+  ClientResume();
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -38,6 +41,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
   NSLog(@"applicationDidEnterBackground");
+  ClientPause();
 }
 
 @end

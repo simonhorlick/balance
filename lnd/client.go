@@ -37,16 +37,16 @@ var (
 )
 
 var s *grpc.Server
+var lightningRpcServer *rpcServer
 
 // Start the grpc server.
 func Start(dataDir string) error {
+	// FIXME(simon): CAS
 	if s != nil {
 		log.Print("Backend already started")
 		return nil
 	}
 	log.Print("Starting backend")
-
-	s = grpc.NewServer()
 
 	initLogRotator(filepath.Join(dataDir, defaultLogFilename))
 
@@ -198,72 +198,53 @@ func Start(dataDir string) error {
 
 	// Initialize, and register our implementation of the gRPC interface
 	// exported by the rpcServer.
-	rpcServer := newRPCServer(server, nil)
-	//if err := rpcServer.Start(); err != nil {
-	//	return err
-	//}
-
-	//grpcServer := grpc.NewServer(serverOpts...)
-	lnrpc.RegisterLightningServer(s, rpcServer)
-
-	 //Next, Start the gRPC server listening for HTTP/2 connections.
-	lis, err := net.Listen("tcp", "localhost:10009")
-	if err != nil {
-		fmt.Printf("failed to listen: %v", err)
+	lightningRpcServer = newRPCServer(server, nil)
+	if err := lightningRpcServer.Start(); err != nil {
 		return err
 	}
-	go func() {
-		rpcsLog.Infof("RPC server listening on %s", lis.Addr())
-		s.Serve(lis)
-	}()
 
+	// FIXME(simon): Here we block until the wallet is synced. This is bad.
 	// If we're not in simnet mode, We'll wait until we're fully synced to
 	// continue the start up of the remainder of the daemon. This ensures
 	// that we don't accept any possibly invalid state transitions, or
 	// accept channels with spent funds.
 
-	go func() {
-		if true {
-			_, bestHeight, err := activeChainControl.chainIO.GetBestBlock()
-			if err != nil {
-				return
-			}
+	_, bestHeight, err := activeChainControl.chainIO.GetBestBlock()
+	if err != nil {
+		return err
+	}
 
-			ltndLog.Infof("Waiting for chain backend to finish sync, "+
-				"start_height=%v", bestHeight)
+	ltndLog.Infof("Waiting for chain backend to finish sync, "+
+		"start_height=%v", bestHeight)
 
-			for {
-				synced, err := activeChainControl.wallet.IsSynced()
-				if err != nil {
-					srvrLog.Errorf("unable to create to sync server: %v\n", err)
-					return
-				}
-
-				if synced {
-					break
-				}
-
-				time.Sleep(time.Second * 1)
-			}
-
-			_, bestHeight, err = activeChainControl.chainIO.GetBestBlock()
-			if err != nil {
-				return
-			}
-
-			ltndLog.Infof("Chain backend is fully synced (end_height=%v)!",
-				bestHeight)
+	for {
+		synced, err := activeChainControl.wallet.IsSynced()
+		if err != nil {
+			srvrLog.Errorf("unable to create to sync server: %v\n", err)
+			return err
 		}
 
-		// With all the relevant chains initialized, we can finally start the
-		// server itself.
-		if err := server.Start(); err != nil {
-			srvrLog.Errorf("unable to create to start server: %v\n", err)
-			return
+		if synced {
+			break
 		}
 
-		s.Serve(lis)
-	}()
+		time.Sleep(time.Second * 1)
+	}
+
+	_, bestHeight, err = activeChainControl.chainIO.GetBestBlock()
+	if err != nil {
+		return err
+	}
+
+	ltndLog.Infof("Chain backend is fully synced (end_height=%v)!",
+		bestHeight)
+
+	// With all the relevant chains initialized, we can finally start the
+	// server itself.
+	if err := server.Start(); err != nil {
+		srvrLog.Errorf("unable to create to start server: %v\n", err)
+		return err
+	}
 
 	// Force autopilot.
 	cfg.Autopilot.Active = true
@@ -289,12 +270,31 @@ func Start(dataDir string) error {
 	return nil
 }
 
+func Pause() {
+	// Kills the gRPC server and any tcp connections.
+	s.Stop()
+	s = nil
+}
+
+func Resume() {
+	// Create a new grpc server here, because grpc doesn't support resuming previous instances.
+	s = grpc.NewServer()
+
+	lnrpc.RegisterLightningServer(s, lightningRpcServer)
+
+	// Start the gRPC server listening for HTTP/2 connections.
+	lis, err := net.Listen("tcp", "localhost:10009")
+	if err != nil {
+		log.Printf("failed to listen: %v", err)
+	}
+	go func() {
+		rpcsLog.Infof("RPC server listening on %s", lis.Addr())
+		log.Printf("grpc server quit: %v", s.Serve(lis))
+	}()
+}
+
 func Stop() {
 	chanDB.Close()
-	//if chainCleanUp != nil {
-	//	defer chainCleanUp()
-	//}
-	//defer lis.Close()
 }
 
 func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string) (*chainControl, func(), error) {
