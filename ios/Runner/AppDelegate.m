@@ -8,14 +8,34 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [GeneratedPluginRegistrant registerWithRegistry:self];
 
-  // Start the in-memory LND server.
+  // The path we'll store all LND data.
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *dir = [paths objectAtIndex:0];
-
-  NSError* err = NULL;
-  ClientStart(dir, &err);
-
-  NSLog(@"ClientStart returned: %@", err);
+  
+  FlutterViewController* controller =
+  (FlutterViewController*)self.window.rootViewController;
+  
+  FlutterMethodChannel* lndChannel = [FlutterMethodChannel
+                                      methodChannelWithName:@"wallet_init_channel"
+                                      binaryMessenger:controller];
+  [lndChannel setMethodCallHandler:^(FlutterMethodCall* call,
+                                     FlutterResult result) {
+    if ([@"createMnemonic" isEqualToString:call.method]) {
+      NSError* err = NULL;
+      NSString* mnemonic = ClientCreateBip39Seed(&err);
+      result(mnemonic);
+    } else if ([@"start" isEqualToString:call.method]) {
+      NSLog(@"Calling ClientStart with argument '%@'", call.arguments);
+      NSError* err = NULL;
+      ClientStart(dir, call.arguments, &err);
+      NSLog(@"ClientStart returned: %@", err);
+      result(err);
+    } else if ([@"walletExists" isEqualToString:call.method]) {
+      result(@(ClientWalletExists(call.arguments)));
+    } else {
+      result(FlutterMethodNotImplemented);
+    }
+  }];
 
   // Override point for customization after application launch.
   return [super application:application didFinishLaunchingWithOptions:launchOptions];

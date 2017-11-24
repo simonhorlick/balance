@@ -11,6 +11,7 @@ import (
 	"github.com/lightningnetwork/lnd/lnwallet/btcwallet"
 	"github.com/roasbeef/btcd/chaincfg"
 	"github.com/lightningnetwork/lnd/lnwallet"
+	base "github.com/roasbeef/btcwallet/wallet"
 	"github.com/lightninglabs/neutrino"
 	"github.com/lightningnetwork/lnd/chainntnfs/neutrinonotify"
 	"github.com/lightningnetwork/lnd/routing/chainview"
@@ -40,7 +41,7 @@ var s *grpc.Server
 var lightningRpcServer *rpcServer
 
 // Start the grpc server.
-func Start(dataDir string) error {
+func Start(dataDir string, seed []byte) error {
 	log.Print("Starting backend")
 
 	initLogRotator(filepath.Join(dataDir, defaultLogFilename))
@@ -89,7 +90,7 @@ func Start(dataDir string) error {
 	// With the information parsed from the configuration, create valid
 	// instances of the pertinent interfaces required to operate the
 	// Lightning Network Daemon.
-	activeChainControl, _, err := newChainControlFromConfig2(chanDB, dataDir)
+	activeChainControl, _, err := newChainControlFromConfig2(chanDB, dataDir, seed)
 	if err != nil {
 		fmt.Printf("unable to create chain control: %v\n", err)
 		return err
@@ -199,68 +200,72 @@ func Start(dataDir string) error {
 	}
 
 	// FIXME(simon): Here we block until the wallet is synced. This is bad.
-	// If we're not in simnet mode, We'll wait until we're fully synced to
-	// continue the start up of the remainder of the daemon. This ensures
-	// that we don't accept any possibly invalid state transitions, or
-	// accept channels with spent funds.
+	go func() error {
+		// If we're not in simnet mode, We'll wait until we're fully synced to
+		// continue the start up of the remainder of the daemon. This ensures
+		// that we don't accept any possibly invalid state transitions, or
+		// accept channels with spent funds.
 
-	_, bestHeight, err := activeChainControl.chainIO.GetBestBlock()
-	if err != nil {
-		return err
-	}
-
-	ltndLog.Infof("Waiting for chain backend to finish sync, "+
-		"start_height=%v", bestHeight)
-
-	for {
-		synced, err := activeChainControl.wallet.IsSynced()
+		_, bestHeight, err := activeChainControl.chainIO.GetBestBlock()
 		if err != nil {
-			srvrLog.Errorf("unable to create to sync server: %v\n", err)
 			return err
 		}
 
-		if synced {
-			break
+		ltndLog.Infof("Waiting for chain backend to finish sync, "+
+			"start_height=%v", bestHeight)
+
+		for {
+			synced, err := activeChainControl.wallet.IsSynced()
+			if err != nil {
+				srvrLog.Errorf("unable to create to sync server: %v\n", err)
+				return err
+			}
+
+			if synced {
+				break
+			}
+
+			time.Sleep(time.Second * 1)
 		}
 
-		time.Sleep(time.Second * 1)
-	}
-
-	_, bestHeight, err = activeChainControl.chainIO.GetBestBlock()
-	if err != nil {
-		return err
-	}
-
-	ltndLog.Infof("Chain backend is fully synced (end_height=%v)!",
-		bestHeight)
-
-	// With all the relevant chains initialized, we can finally start the
-	// server itself.
-	if err := server.Start(); err != nil {
-		srvrLog.Errorf("unable to create to start server: %v\n", err)
-		return err
-	}
-
-	// Force autopilot.
-	cfg.Autopilot.Active = true
-	cfg.Autopilot.Allocation = 1.0 // Allocate entire wallet balance to LN channels.
-	cfg.Autopilot.MaxChannels = 5
-
-	// Now that the server has started, if the autopilot mode is currently
-	// active, then we'll initialize a fresh instance of it and start it.
-	if cfg.Autopilot.Active {
-		pilot, err := initAutoPilot(server, cfg.Autopilot)
+		_, bestHeight, err = activeChainControl.chainIO.GetBestBlock()
 		if err != nil {
-			ltndLog.Errorf("unable to create autopilot agent: %v",
-				err)
 			return err
 		}
-		if err := pilot.Start(); err != nil {
-			ltndLog.Errorf("unable to start autopilot agent: %v",
-				err)
+
+		ltndLog.Infof("Chain backend is fully synced (end_height=%v)!",
+			bestHeight)
+
+		// With all the relevant chains initialized, we can finally start the
+		// server itself.
+		if err := server.Start(); err != nil {
+			srvrLog.Errorf("unable to create to start server: %v\n", err)
 			return err
 		}
-	}
+
+		// Force autopilot.
+		cfg.Autopilot.Active = true
+		cfg.Autopilot.Allocation = 1.0 // Allocate entire wallet balance to LN channels.
+		cfg.Autopilot.MaxChannels = 16
+
+		// Now that the server has started, if the autopilot mode is currently
+		// active, then we'll initialize a fresh instance of it and start it.
+		if cfg.Autopilot.Active {
+			pilot, err := initAutoPilot(server, cfg.Autopilot)
+			if err != nil {
+				ltndLog.Errorf("unable to create autopilot agent: %v",
+					err)
+				return err
+			}
+			if err := pilot.Start(); err != nil {
+				ltndLog.Errorf("unable to start autopilot agent: %v",
+					err)
+				return err
+			}
+		}
+
+		return nil
+	}()
 
 	return nil
 }
@@ -292,7 +297,22 @@ func Stop() {
 	chanDB.Close()
 }
 
-func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string) (*chainControl, func(), error) {
+func WalletExists(dataDir string) bool {
+	network := chaincfg.TestNet3Params
+
+	netDir := btcwallet.NetworkDir(dataDir, &network)
+
+	loader := base.NewLoader(&network, netDir)
+	walletExists, err := loader.WalletExists()
+	if err != nil {
+		log.Printf("Failed to read wallet: %v", err)
+		return true
+	}
+
+	return walletExists
+}
+
+func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string, seed []byte) (*chainControl, func(), error) {
 	privateWalletPw := []byte("hello")
 	publicWalletPw := []byte("public")
 
@@ -307,18 +327,19 @@ func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string) (*chainCon
 
 	network := chaincfg.TestNet3Params
 
+	var (
+		err     error
+		cleanUp func()
+	)
+
 	walletConfig := &btcwallet.Config{
 		PrivatePass:  privateWalletPw,
 		PublicPass:   publicWalletPw,
 		DataDir:      dataDir,
 		NetParams:    &network,
 		FeeEstimator: feeEstimator,
+		HdSeed:       seed,
 	}
-
-	var (
-		err     error
-		cleanUp func()
-	)
 
 	// First we'll open the database file for neutrino, creating
 	// the database if needed.
@@ -367,6 +388,8 @@ func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string) (*chainCon
 		defer nodeDatabase.Close()
 	}
 
+	// FIXME(simon): We want to be able to show the user a BIP39 mnemonic
+	// when we first generate the wallet.
 	wc, err := btcwallet.New(*walletConfig)
 	if err != nil {
 		fmt.Printf("unable to create wallet controller: %v\n", err)
