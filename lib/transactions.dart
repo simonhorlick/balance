@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,130 +16,27 @@ class Transactions extends StatefulWidget {
   _TransactionsState createState() => new _TransactionsState();
 }
 
-class _TransactionsState extends State<Transactions> {
-  List<Payment> payments;
-  List<Transaction> transactions;
-  List<ActiveChannel> channels;
+class Tx {
+  Tx(this.description, this.amount, this.time, this.receive);
 
-  void initState() {
-    super.initState();
-    widget.stub
-        .getTransactions(GetTransactionsRequest.create())
-        .then((response) {
-      if (mounted) {
-        setState(() {
-          transactions = response.transactions;
-        });
-        print("Transactions: $transactions");
-      }
-    });
-    widget.stub.listChannels(ListChannelsRequest.create()).then((response) {
-      if (mounted) {
-        setState(() {
-          channels = response.channels;
-        });
-        print("Channels: $channels");
-      }
-    });
-    widget.stub.listPayments(ListPaymentsRequest.create()).then((response) {
-      // If the user navigates between the wallet and channel tabs, the
-      // transactions tab is quickly initialised where this method gets called
-      // then the tab flies out of view and is destroyed. As listPayments is
-      // likely still in-flight after the widget is destroyed, we need to check
-      // if it's still mounted here.
-      if (!mounted) {
-        print("NOT MOUNTED!");
-      } else {
-        setState(() {
-          payments = response.payments;
-        });
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return (payments == null ||
-            this.transactions == null ||
-            this.channels == null)
-        ? new Container()
-        : new TransactionsList(payments, transactions, channels);
-  }
+  final String description;
+  final Int64 amount;
+  final Int64 time;
+  final bool receive;
 }
 
-class TransactionsList extends StatelessWidget {
-  TransactionsList(this.payments, this.transactions, this.channels);
+class Chan {
+  Chan(this.ours);
 
-  final List<Payment> payments;
-  final List<Transaction> transactions;
-  final List<ActiveChannel> channels;
+  final ActiveChannel ours;
+}
 
-  Widget buildListTile(BuildContext context, Payment payment) {
-    return new MergeSemantics(
-      child: new ListTile(
-        isThreeLine: true,
-        dense: false,
-        leading: new ExcludeSemantics(child: new Icon(Icons.arrow_upward)),
-        title: new Text("LN payment", overflow: TextOverflow.ellipsis),
-        subtitle:
-            payment.fee > 0 ? new Text('fee ${payment.fee}') : new Container(),
-        trailing: new Text("${formatter.format(payment.value)}"),
-      ),
-    );
-  }
+class _TransactionsState extends State<Transactions> {
 
-  Widget buildTxTile(BuildContext context, Transaction tx) {
-    // These are the on-chain transactions, either channel funding tx's or
-    // wallet deposits.
+  List<Tx> everything;
 
-    var sentOrReceived = tx.amount > 0 ? "Deposit" : "Sent";
-    var icon = tx.amount > 0
-        ? new Icon(Icons.arrow_downward)
-        : new Icon(Icons.arrow_upward);
-
-    return new MergeSemantics(
-      child: new ListTile(
-        isThreeLine: true,
-        dense: false,
-        leading: new ExcludeSemantics(child: icon),
-        title: new Text("$sentOrReceived"),
-        subtitle: tx.totalFees > 0
-            ? new Text('fee ${tx.totalFees}', overflow: TextOverflow.ellipsis)
-            : new Container(),
-        trailing: new Text('${formatter.format(tx.amount.abs())}'),
-      ),
-    );
-  }
-
-  Widget buildFundingTile(BuildContext context, Transaction tx) {
-    // These are the on-chain transactions, either channel funding tx's or
-    // wallet deposits.
-
-    var sentOrReceived = tx.amount > 0 ? "Deposit" : "Channel Fee";
-    var icon = tx.amount > 0
-        ? new Icon(Icons.arrow_downward)
-        : new Icon(Icons.arrow_upward);
-
-    return new MergeSemantics(
-      child: new ListTile(
-        isThreeLine: true,
-        dense: false,
-        leading: new ExcludeSemantics(child: icon),
-        title: new Text("$sentOrReceived"),
-        subtitle: new Text(""),
-        trailing: new Text('${formatter.format(tx.totalFees)}'),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Iterable<Widget> paymentTiles =
-        payments.map((payment) => buildListTile(context, payment));
-
-    // Treat channel funding transactions separately from deposits and on-chain
-    // transactions.
-
+  List<Transaction> getAllNonFundingTransactions(
+      List<ActiveChannel> channels, List<Transaction> transactions) {
     var isFunding = (tx) {
       // determine if this is a funding tx
       for (ActiveChannel chan in channels) {
@@ -147,29 +47,107 @@ class TransactionsList extends StatelessWidget {
       return false;
     };
 
-    Iterable<Transaction> funding = transactions.where(isFunding);
-
-    Iterable<Widget> fundingTiles =
-        funding.map((tx) => buildFundingTile(context, tx));
-
-    Iterable<Widget> txTiles = transactions
+    return transactions
         .where((tx) => !isFunding(tx))
-        .map((tx) => buildTxTile(context, tx));
+        .toList();
+  }
 
-    var emptyTransactionsView = new Container(
-      child: new Center(child: new Text("No transactions.")),
+  List<Tx> listAllDepositsAndWithdrawls(
+      List<ActiveChannel> channels, List<Transaction> transactions) {
+    // GetTransactions returns a list of bitcoin transactions the wallet cares
+    // about. This includes things like channel funding transactions and bitcoin
+    // deposits that were made to the wallet.
+    // FIXME(simon): Pending transactions are currently not shown.
+    var trx = getAllNonFundingTransactions(channels, transactions);
+
+    return trx
+        .map((t) => new Tx(
+            t.amount > 0 ? "Deposit" : "Withdrawl",
+            t.amount.abs(),
+            t.timeStamp,
+            t.amount > 0))
+        .toList();
+  }
+
+  Future<List<Tx>> listAllPayments() async {
+    var payments = await widget.stub.listPayments(ListPaymentsRequest.create());
+
+    return payments.payments
+        .map((p) => new Tx("Payment", p.value, p.creationDate, false))
+        .toList();
+  }
+
+  List<Tx> listAllChannelOpeningFees(
+      List<ActiveChannel> channels, List<Transaction> transactions) {
+    var isFunding = (tx) {
+      // determine if this is a funding tx
+      for (ActiveChannel chan in channels) {
+        if (chan.channelPoint.contains(tx.txHash)) {
+          return true;
+        }
+      }
+      return false;
+    };
+
+    return transactions
+        .where((tx) => isFunding(tx))
+        .map((t) => new Tx(
+            "Network Fee",
+            t.totalFees,
+            t.timeStamp,
+            false))
+        .toList();
+  }
+
+  Future<List<Tx>> listEverything() async {
+    var chans = await widget.stub.listChannels(ListChannelsRequest.create());
+    var trx = await widget.stub
+        .getTransactions(GetTransactionsRequest.create());
+
+    var channelOpens = listAllChannelOpeningFees(chans.channels, trx.transactions);
+    var deposits = listAllDepositsAndWithdrawls(chans.channels, trx.transactions);
+    var payments = await listAllPayments();
+
+    return []
+      ..addAll(channelOpens)
+      ..addAll(deposits)
+      ..addAll(payments)
+      ..sort((a, b) => b.time.compareTo(a.time));
+  }
+
+  void initState() {
+    super.initState();
+
+    listEverything().then((transactions) {
+      if (!mounted) return;
+      setState(() {
+        everything = transactions;
+      });
+    });
+  }
+
+  Widget buildListTile(BuildContext context, Tx tx) {
+    var icon = tx.receive ?
+      new Icon(Icons.arrow_downward) :
+      new Icon(Icons.arrow_upward);
+
+    return new MergeSemantics(
+      child: new ListTile(
+        dense: false,
+        leading: new ExcludeSemantics(child: icon),
+        title: new Text("${tx.description}", overflow: TextOverflow.ellipsis),
+        trailing: new Text("${formatter.format(tx.amount)}"),
+      ),
     );
+  }
 
-    return paymentTiles.isEmpty
-        ? emptyTransactionsView
-        : new Scrollbar(
-            child: new ListView(
-              padding: new EdgeInsets.symmetric(vertical: 8.0),
-              children: []
-                ..addAll(paymentTiles)
-                ..addAll(fundingTiles)
-                ..addAll(txTiles),
-            ),
-          );
+  @override
+  Widget build(BuildContext context) {
+    return everything == null ? new Container() : new Scrollbar(
+      child: new ListView(
+        padding: new EdgeInsets.symmetric(vertical: 8.0),
+        children: everything.map((tx) => buildListTile(context, tx)).toList(),
+      ),
+    );
   }
 }
