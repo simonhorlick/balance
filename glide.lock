@@ -1,5 +1,5 @@
-hash: 579889f1c06c50b2f50a101ca4791abf94835a8dc9b581f61b19c45840aae074
-updated: 2017-11-20T21:20:24.776284+08:00
+hash: 9f823d6ecde35079661d42cf38dc771fe9cd8dfb72f14b861659b47c51e8e69a
+updated: 2017-11-28T17:54:12.045863+08:00
 imports:
 - name: github.com/aead/chacha20
   version: d31a916ded42d1640b9d89a26f8abd53cc96790c
@@ -64,14 +64,14 @@ imports:
 - name: github.com/kkdai/bstream
   version: f391b8402d23024e7c0f624b31267a89998fca95
 - name: github.com/lightninglabs/neutrino
-  version: 2fb43209a6f54fbf78ba71b50623503db611c371
+  version: 36dd930b83e6db89495e74fa7516a9fbe5ecfd60
   subpackages:
   - filterdb
   - headerfs
 - name: github.com/lightningnetwork/lightning-onion
   version: 18bf6612a0653a21daf1a08b4a59e54670a524a1
 - name: github.com/lightningnetwork/lnd
-  version: 53f1743be05ed29cd668bbf3b03208ef0be13ac3
+  version: b98e993d764f545f0dac9b4e9df9bc7ad0ae734e
   subpackages:
   - autopilot
   - brontide
@@ -101,7 +101,7 @@ imports:
   subpackages:
   - internal/socket
 - name: github.com/roasbeef/btcd
-  version: 2cabbb06420ead94822468af58c0cb82e9e17ffc
+  version: 300370be8e0a44dedc4eea6319c56c1df7014325
   subpackages:
   - addrmgr
   - blockchain
@@ -129,7 +129,7 @@ imports:
   - hdkeychain
   - txsort
 - name: github.com/roasbeef/btcwallet
-  version: 80e208085bb775908738a343e59e96193c66f5a9
+  version: 3037a033935cca719ba3c472870e7d080443a82f
   subpackages:
   - chain
   - internal/helpers
@@ -150,6 +150,8 @@ imports:
   version: 6724a57986aff9bff1a1770e9347036def7c89f6
 - name: github.com/tv42/zbase32
   version: 501572607d0273fc75b3b261fa4904d63f6ffa0e
+- name: github.com/tyler-smith/go-bip39
+  version: 8e7a99b3e716f36d3b080a9a70f9eb45abe4edcc
 - name: github.com/urfave/cli
   version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
 - name: golang.org/x/crypto
