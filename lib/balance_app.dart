@@ -23,6 +23,20 @@ class BalanceAppState extends State<BalanceApp> {
     super.initState();
     Daemon.start("");
     _stub = Daemon.connect();
+
+    // Add a well-known peer in case something goes wrong with bootstrapping.
+    var addr = LightningAddress.create()
+      ..host = "sg.horlick.me"
+      ..pubkey = "0294ceb8edf4b54da71caa506723dc8ab9c129ae19da4267f0e6d7cdcb396615b0";
+
+    _stub.connectPeer(ConnectPeerRequest.create()
+      ..perm = true
+      ..addr = addr).then((response) {
+      print("$response");
+    })
+    .catchError((error) {
+      print("error: $error");
+    });
   }
 
   @override
