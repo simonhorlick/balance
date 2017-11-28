@@ -2,7 +2,7 @@
 
 mkdir -p lnd
 
-TO_COPY=( breacharbiter.go chainparams.go chainregistry.go config.go fundingmanager.go invoiceregistry.go log.go nodesigner.go peer.go rpcserver.go server.go signal.go utxonursery.go nursery_store.go version.go pilot.go )
+TO_COPY=( breacharbiter.go chainparams.go chainregistry.go chancloser.go config.go fundingmanager.go invoiceregistry.go log.go nodesigner.go peer.go rpcserver.go server.go signal.go utxonursery.go nursery_store.go version.go pilot.go )
 
 for i in "${TO_COPY[@]}"
 do
