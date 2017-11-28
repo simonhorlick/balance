@@ -128,12 +128,11 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
     mnemonic.then((mnemonic) {
       // Create a new wallet with this mnemonic.
       Daemon.start(mnemonic.reduce((value, element) => value + " " + element));
-      var _stub = Daemon.connect();
 
       Navigator.of(context).pushReplacement(new PageRouteBuilder(
           opaque: false,
           pageBuilder: (BuildContext context, _, __) {
-            return new FundingScreen(_stub);
+            return new FundingScreen();
           },
           transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
             return new FadeTransition(
@@ -193,11 +192,14 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
   }
 }
 
-class FundingScreen extends StatelessWidget {
+class FundingScreen extends StatefulWidget {
+  @override
+  _FundingScreenState createState() => new _FundingScreenState();
+}
 
-  final LightningClient stub;
+class _FundingScreenState extends State<FundingScreen> {
 
-  FundingScreen(this.stub);
+  String address;
 
   _next(BuildContext context) {
     Navigator.of(context).pushReplacement(new PageRouteBuilder(
@@ -220,46 +222,32 @@ class FundingScreen extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    var stub = Daemon.connect();
+
+    var req = NewAddressRequest.create()..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
+    stub.newAddress(req).then((response) {
+      setState(() {
+        address = response.address;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var addressBuilder = new FutureBuilder<NewAddressResponse>(
-      future: stub.newAddress(NewAddressRequest.create()..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH),
-      builder: (BuildContext context, AsyncSnapshot<NewAddressResponse> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.waiting: return new Text('Generating address...', style: kNormalText);
-          default:
-            if (snapshot.hasError)
-              return new Text('Error: ${snapshot.error}');
-            else
-              return new Expanded(
-                child: new Center(
-                  child:
-                  new TextField(
-                    controller:
-                    new TextEditingController(text: "${snapshot.data.address}"),
-                  ),
-                ),
-              );
-        }
-      },
-    );
 
     var page = new Padding(
       padding: new EdgeInsets.all(20.0),
       child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
-            addressBuilder,
-            new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
             new Text(
-                "Send funds to the above address to begin using your wallet.",
+                "Send funds to the following address to begin using your wallet.\n\n"
+                    "This should take a few minutes, but could take up to an hour.",
                 style: kNormalText),
-            new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
-            new Text(
-                "This should take a few minutes, but could take up to an hour.",
-                style: kNormalText),
+            new Center(child: address == null ? new Text("Generating address...", style: kNormalText) : new TextField(controller: new TextEditingController(text: "$address"))),
           ]),
     );
 
