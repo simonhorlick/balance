@@ -11,6 +11,13 @@ import (
 // Start is called once when the application first starts.
 func Start(dataDir string, mnemonic string) error {
 	mutex.Lock()
+
+	if started {
+		log.Print("LND already started")
+		mutex.Unlock()
+		return nil
+	}
+
 	started = true
 	mutex.Unlock()
 

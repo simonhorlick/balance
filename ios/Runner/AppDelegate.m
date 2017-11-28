@@ -25,13 +25,13 @@
       NSString* mnemonic = ClientCreateBip39Seed(&err);
       result(mnemonic);
     } else if ([@"start" isEqualToString:call.method]) {
-      NSLog(@"Calling ClientStart with argument '%@'", call.arguments);
       NSError* err = NULL;
       ClientStart(dir, call.arguments, &err);
       NSLog(@"ClientStart returned: %@", err);
       result(err);
     } else if ([@"walletExists" isEqualToString:call.method]) {
-      result(@(ClientWalletExists(call.arguments)));
+      BOOL exists = ClientWalletExists(dir);
+      result(@(exists));
     } else {
       result(FlutterMethodNotImplemented);
     }

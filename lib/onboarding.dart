@@ -162,40 +162,31 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
            if (snapshot.hasError)
              return new Text('Error: ${snapshot.error}', style: kNormalText);
            else
-             return new Expanded(
-             child: new Center(
-               child: new Column(
-                   mainAxisSize: MainAxisSize.min,
-                   crossAxisAlignment: CrossAxisAlignment.center,
-                   children: snapshot.data
-                       .map((text) =>
-                   new Padding(
-                       padding: new EdgeInsets.all(4.0),
-                       child: new Text(text, style: kNormalText)))
-                       .toList()),
-             ),
+             return new Text(
+                   snapshot.data.reduce((a,b) => a + '\n' + b),
+                   textAlign: TextAlign.center,
+                   style: kNormalText,
            );
        }
       },
     );
 
     var page = new Padding(
-      padding: new EdgeInsets.all(20.0),
-      child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
+      padding: new EdgeInsets.fromLTRB(20.0, 30.0, 20.0, 0.0),
+      child:
+        new Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
             new Text(
-                "Carefully write down the following sequence of words on a piece of paper and store it in a safe place.",
+                "Carefully write down the following sequence of words on a piece of paper and store it in a safe place.\n\n"
+                "If your phone is lost or damaged, this will be the only way to recover your funds.\n\n",
                 style: kNormalText),
-            new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
-            new Text(
-                "If your phone is lost or damaged, this will be the only way to recover your funds.",
-                style: kNormalText),
-            new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
-            wordListBuilder
-          ]),
+            new Center(child: new FittedBox(
+                fit: BoxFit.scaleDown,
+                child: wordListBuilder
+            )),
+            ]
+        )
     );
 
     return new OnboardingPage(page, () => _next(context));

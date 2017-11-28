@@ -34,12 +34,6 @@ class BalanceAppState extends State<BalanceApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // Wait until we've loaded grpc before we attempt to draw anything else.
-    // This should just take a couple of millis.
-    if (_stub == null) {
-      return new Container();
-    }
-
     return new MaterialApp(
       title: 'Balance',
       theme: new ThemeData(primarySwatch: Colors.blue),

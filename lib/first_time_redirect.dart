@@ -18,16 +18,21 @@ class FirstTimeRedirect extends StatelessWidget {
     return new FutureBuilder<bool>(
       future: walletExists,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-        if (snapshot.hasError)
-          return new Text('Error: ${snapshot.error}');
-        else
-          return snapshot.data ?
-          new BalanceApp() :
-          new MaterialApp(
-            title: 'Balance',
-            theme: new ThemeData(primarySwatch: Colors.blue),
-            home: new HelloScreen(),
-          );
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting: return new Container();
+          default:
+            if (snapshot.hasError)
+              return new Text('Error: ${snapshot.error}');
+            else
+              return snapshot.data ?
+              new BalanceApp() :
+              new MaterialApp(
+                title: 'Balance',
+                theme: new ThemeData(primarySwatch: Colors.blue),
+                home: new HelloScreen(),
+              );
+        }
       },
     );
   }
