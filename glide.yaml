@@ -1,7 +1,7 @@
 package: github.com/simonhorlick/balance
 import:
 - package: github.com/lightningnetwork/lnd
-  version: 53f1743be05ed29cd668bbf3b03208ef0be13ac3
+  version: b98e993d764f545f0dac9b4e9df9bc7ad0ae734e
 - package: github.com/tyler-smith/go-bip39
   version: 8e7a99b3e716f36d3b080a9a70f9eb45abe4edcc
 - package: github.com/boltdb/bolt
@@ -19,7 +19,7 @@ import:
   - proto
 - package: github.com/howeyc/gopass
 - package: github.com/roasbeef/btcd
-  version: 2cabbb06420ead94822468af58c0cb82e9e17ffc
+  version: 300370be8e0a44dedc4eea6319c56c1df7014325
   subpackages:
   - blockchain
   - btcec
@@ -38,7 +38,7 @@ import:
   - hdkeychain
   - txsort
 - package: github.com/roasbeef/btcwallet
-  version: 80e208085bb775908738a343e59e96193c66f5a9
+  version: 3037a033935cca719ba3c472870e7d080443a82f
   subpackages:
   - chain
   - waddrmgr
@@ -75,7 +75,7 @@ import:
   subpackages:
   - chaincfg
 - package: github.com/lightninglabs/neutrino
-  version: 2fb43209a6f54fbf78ba71b50623503db611c371
+  version: 36dd930b83e6db89495e74fa7516a9fbe5ecfd60
 - package: gopkg.in/macaroon.v1
 - package: gopkg.in/macaroon-bakery.v1
 - package: github.com/juju/loggo
