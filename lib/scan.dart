@@ -72,6 +72,61 @@ class CamState extends State<Cam> {
 
   bool seenBarcode = false;
 
+  Future<Null> _showPaymentError(error) async {
+    return showDialog<Null>(
+      context: context,
+      barrierDismissible: true,
+      child: new AlertDialog(
+        title: new Text('Payment Failed'),
+        content: new SingleChildScrollView(
+          child: new ListBody(
+            children: <Widget>[
+              new Text('$error'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void barcodeScanned(String barcode) {
+    if (seenBarcode) return;
+    seenBarcode = true;
+
+    if (barcode.startsWith("lightning:")) {
+      barcode = barcode.substring("lightning:".length);
+    }
+    if (barcode.startsWith("//")) {
+      barcode = barcode.substring("//".length);
+    }
+
+    SendRequest request = SendRequest.create()..paymentRequest = barcode;
+    print("Calling sendPaymentSync");
+
+    widget.stub.sendPaymentSync(request).then((response) {
+      if (response.paymentError == "") {
+        // Success.
+        print("response is: $response");
+        Navigator.pop(context, barcode);
+      } else {
+        print("error is: ${response.paymentError}");
+        _showPaymentError(response.paymentError).then((_) {
+          Navigator.pop(context);
+        });
+      }
+    }).catchError((error) {
+      // Show the grpc error.
+      _showPaymentError(error.message).then((_) {
+        Navigator.pop(context);
+      });
+      print("failed to sendPaymentSync: ${error.message}");
+    });
+
+    setState(() {
+      this.barcode = barcode;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -89,30 +144,11 @@ class CamState extends State<Cam> {
         CameraFormat previewFormat = this.cameras.first.previewFormats.first;
         CameraFormat captureFormat = this.cameras.first.captureFormats.first;
 
-        this.cameras.first.open(previewFormat, captureFormat, (barcode) {
-          if (seenBarcode) return;
-          seenBarcode = true;
-
-          if (barcode.startsWith("lightning:")) {
-            barcode = barcode.substring("lightning:".length);
-          }
-          if (barcode.startsWith("//")) {
-            barcode = barcode.substring("//".length);
-          }
-
-          SendRequest request = SendRequest.create()..paymentRequest = barcode;
-          print("Calling sendPaymentSync");
-
-          widget.stub.sendPaymentSync(request).then((response) {
-            print("error is: ${response.paymentError}");
-            print("rest is: $response");
-            Navigator.pop(context, barcode);
-          }).catchError((error) => print("failed to sendPaymentSync: $error"));
-
-          setState(() {
-            this.barcode = barcode;
-          });
-        }).then((cameraId) {
+        this
+            .cameras
+            .first
+            .open(previewFormat, captureFormat, barcodeScanned)
+            .then((cameraId) {
           setState(() {
             this.camera = new Camera(cameraId);
             started = true;
