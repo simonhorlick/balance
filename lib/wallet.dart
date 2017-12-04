@@ -174,7 +174,7 @@ class SendReceive extends StatelessWidget {
   }
 
   void _navigateToReceive(BuildContext context) {
-    // TODO(simon): Implement.
+    Navigator.of(context).pushNamed("/receive");
   }
 }
 
