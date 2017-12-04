@@ -96,7 +96,7 @@ class _KeypadState extends State<Keypad> {
     });
   }
 
-  void _backspace(String ignored) {
+  void _backspace() {
     setState(() {
       if (_digits.length == 1) {
         _digits = "0";
@@ -149,7 +149,15 @@ class _KeypadState extends State<Keypad> {
           children: [
             new Key(".", _decimalPoint),
             new Key("0", _addDigit),
-            new Key("<", _backspace),
+
+            // The backspace button.
+            new GestureDetector(
+              onTap: _backspace,
+              behavior: HitTestBehavior.opaque,
+              child: new Padding(
+                padding: new EdgeInsets.all(20.0),
+                child: new Icon(Icons.backspace, color: Colors.white)),
+            )
           ],
         ),
         new Padding(
