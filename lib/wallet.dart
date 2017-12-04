@@ -35,7 +35,11 @@ const kBalanceSubText = const TextStyle(
     decoration: TextDecoration.none);
 
 const kTitleText = const TextStyle(
-    fontSize: 16.0, color: Colors.white, decoration: TextDecoration.none);
+    fontSize: 18.0,
+    color: Colors.white,
+    decoration: TextDecoration.underline,
+    decorationStyle: TextDecorationStyle.solid,
+    decorationColor: Colors.white);
 
 const kPaymentText = const TextStyle(
     fontWeight: FontWeight.normal,
@@ -65,30 +69,33 @@ class PaymentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Padding(
-      padding: new EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-      child: new Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                new Row(children: [
-                  new Icon(Icons.arrow_upward, size: 16.0),
-                  new SizedBox.fromSize(size: new Size(10.0, 0.0)),
-                  new Text(transaction.description, style: kPaymentText),
-                ]),
-                new Text(formatter.format(transaction.amount),
-                    style: kPriceText),
-              ],
-            ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                new Text(fiatFormatter.format(2.0), style: kSmallPriceText),
-              ],
-            ),
-          ]),
+    return new Container(
+      color: Colors.white,
+      child: new Padding(
+        padding: new EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        child: new Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  new Row(children: [
+                    new Icon(Icons.arrow_upward, size: 16.0),
+                    new SizedBox.fromSize(size: new Size(10.0, 0.0)),
+                    new Text(transaction.description, style: kPaymentText),
+                  ]),
+                  new Text(formatter.format(transaction.amount),
+                      style: kPriceText),
+                ],
+              ),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  new Text(fiatFormatter.format(2.0), style: kSmallPriceText),
+                ],
+              ),
+            ]),
+      ),
     );
   }
 }
@@ -101,8 +108,7 @@ class Header extends StatelessWidget {
       padding: new EdgeInsets.only(top: topInset),
       child: new SizedBox.fromSize(
           size: new Size.fromHeight(50.0),
-          child:
-              new Center(child: new Text("balance", style: kNormalWhiteText))),
+          child: new Center(child: new Text("balance", style: kTitleText))),
     );
   }
 }
@@ -236,7 +242,7 @@ class WalletImpl extends StatelessWidget {
     var balancePane = new Balance(walletBalance, channelBalance);
 
     return new Container(
-      color: Colors.white,
+      color: Colors.blue,
       child: new CustomScrollView(slivers: [
         new SliverFillViewport(
           delegate:
@@ -254,7 +260,10 @@ class WalletImpl extends StatelessWidget {
             childCount: payments.length,
           ),
         ),
-        new SliverPadding(padding: new EdgeInsets.only(bottom: 100.0))
+        new SliverToBoxAdapter(
+            child: new SizedBox.fromSize(
+                size: new Size.fromHeight(200.0),
+                child: new Container(color: Colors.white))),
       ]),
     );
   }
