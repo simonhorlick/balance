@@ -73,23 +73,6 @@ class AddressBox extends StatelessWidget {
   }
 }
 
-class BackButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new Align(
-        alignment: Alignment.centerLeft,
-        child: new GestureDetector(
-            onTap: () => _navigateBack(context),
-            child: new Padding(
-                padding: new EdgeInsets.all(10.0),
-                child: new Icon(Icons.arrow_back_ios))));
-  }
-
-  _navigateBack(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-}
-
 class TopupPage extends StatelessWidget {
   TopupPage(this.address);
 
@@ -101,7 +84,7 @@ class TopupPage extends StatelessWidget {
       body: new Padding(
         padding: MediaQuery.of(context).padding,
         child: new Column(children: [
-          new BackButton(),
+          new Align(alignment: Alignment.centerLeft, child: new BackButton()),
           new AddressBox(address),
         ]),
       ),
