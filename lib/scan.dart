@@ -45,9 +45,6 @@ class _CameraState extends State<StatefulWidget> {
   }
 }
 
-typedef Widget CameraWidgetBuilder(
-    BuildContext context, Future<CameraId> cameraId);
-
 class Cam extends StatefulWidget {
   Cam(this.stub);
 
