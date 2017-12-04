@@ -11,7 +11,7 @@ class Receive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      backgroundColor: const Color(0xFF24e036),
+      backgroundColor: Colors.blue,
       body: new Padding(
         padding: MediaQuery.of(context).padding,
         child: new Column(children: [
@@ -155,8 +155,8 @@ class _KeypadState extends State<Keypad> {
               onTap: _backspace,
               behavior: HitTestBehavior.opaque,
               child: new Padding(
-                padding: new EdgeInsets.all(20.0),
-                child: new Icon(Icons.backspace, color: Colors.white)),
+                  padding: new EdgeInsets.all(20.0),
+                  child: new Icon(Icons.backspace, color: Colors.white)),
             )
           ],
         ),

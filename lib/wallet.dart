@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
-import 'package:flutter/services.dart';
-
 class Tx {
   Tx(this.description, this.amount, this.time, this.receive);
 
@@ -18,46 +16,41 @@ class Tx {
   final bool receive;
 }
 
-const kNormalText = const TextStyle(
-    fontSize: 18.0, color: Colors.black, decoration: TextDecoration.none);
-const kNormalWhiteText = const TextStyle(
-    fontSize: 18.0, color: Colors.white, decoration: TextDecoration.none);
+const kBaseText = const TextStyle(
+  fontFamily: '.SF UI Display',
+  fontWeight: FontWeight.normal,
+  fontSize: 18.0,
+  color: Colors.white,
+);
 
-const kLargeWhiteText = const TextStyle(
-    fontSize: 24.0, color: Colors.white, decoration: TextDecoration.none);
+var kNormalWhiteText = kBaseText.copyWith(decoration: TextDecoration.none);
 
-const kBalanceText = const TextStyle(
-    fontSize: 28.0, color: Colors.white, decoration: TextDecoration.none);
+var kLargeWhiteText =
+    kBaseText.copyWith(fontSize: 24.0, decoration: TextDecoration.none);
 
-const kBalanceSubText = const TextStyle(
+var kBalanceText =
+    kBaseText.copyWith(fontSize: 32.0, decoration: TextDecoration.none);
+
+var kBalanceSubText = kBaseText.copyWith(
+    fontWeight: FontWeight.normal,
     fontSize: 16.0,
     color: const Color(0xE0FFFFFF),
     decoration: TextDecoration.none);
 
-const kTitleText = const TextStyle(
-    fontSize: 18.0,
-    color: Colors.white,
+var kTitleText = kBaseText.copyWith(
+    fontWeight: FontWeight.bold,
     decoration: TextDecoration.underline,
     decorationStyle: TextDecorationStyle.solid,
     decorationColor: Colors.white);
 
-const kPaymentText = const TextStyle(
-    fontWeight: FontWeight.normal,
-    fontSize: 18.0,
-    color: Colors.black,
-    decoration: TextDecoration.none);
+var kPaymentText =
+    kBaseText.copyWith(color: Colors.black, decoration: TextDecoration.none);
 
-const kPriceText = const TextStyle(
-    fontWeight: FontWeight.normal,
-    fontSize: 18.0,
-    color: Colors.black,
-    decoration: TextDecoration.none);
+var kPriceText =
+    kBaseText.copyWith(color: Colors.black, decoration: TextDecoration.none);
 
-const kSmallPriceText = const TextStyle(
-    fontWeight: FontWeight.normal,
-    fontSize: 16.0,
-    color: Colors.black87,
-    decoration: TextDecoration.none);
+var kSmallPriceText = kBaseText.copyWith(
+    fontSize: 16.0, color: Colors.black87, decoration: TextDecoration.none);
 
 var formatter = new NumberFormat("###,###", "en_US");
 var fiatFormatter = new NumberFormat("###,###.00", "en_US");
