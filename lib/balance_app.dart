@@ -1,4 +1,5 @@
 import 'package:balance/daemon.dart';
+import 'package:balance/topup.dart';
 import 'package:balance/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -57,6 +58,7 @@ class BalanceAppState extends State<BalanceApp> {
         '/welcome': (BuildContext context) => new Welcome(),
         '/wallet': (BuildContext context) => new Wallet(_stub),
         '/scan': (BuildContext context) => new Cam(_stub),
+        '/topup': (BuildContext context) => new Topup(_stub),
       },
     );
   }
