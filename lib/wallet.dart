@@ -152,7 +152,6 @@ class TopUp extends StatelessWidget {
 
 /// A button that expands the hit test area within the parent widget.
 class ExpandedButton extends StatelessWidget {
-
   ExpandedButton(this.text, this.onTap);
 
   final String text;
@@ -162,9 +161,9 @@ class ExpandedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Expanded(
       child: new GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: new Center(child: new Text(text, style: kNormalWhiteText))),
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: new Center(child: new Text(text, style: kNormalWhiteText))),
     );
   }
 }
@@ -257,30 +256,38 @@ class WalletImpl extends StatelessWidget {
   Widget build(BuildContext context) {
     var balancePane = new Balance(walletBalance, channelBalance);
 
-    return new Container(
-      color: Colors.blue,
-      child: new CustomScrollView(slivers: [
-        new SliverFillViewport(
-          delegate:
-              new SliverChildBuilderDelegate((BuildContext context, int index) {
-            return new WalletInfoPane(balancePane);
-          }, childCount: 1),
-          viewportFraction: 1.0,
-        ),
-        new SliverFixedExtentList(
-          itemExtent: 70.0,
-          delegate: new SliverChildBuilderDelegate(
-            (BuildContext context, int index) {
-              return new PaymentRow(payments[index]);
-            },
-            childCount: payments.length,
+    return new Stack(
+      children: [
+        // This element is shown when the user overscrolls the CustomScrollView.
+        // This ensures they see the correct background colour in the direction
+        // they're scrolling in.
+        new Flex(direction: Axis.vertical, children: [
+          new Expanded(child: new Container(color: Colors.blue)),
+          new Expanded(child: new Container(color: Colors.white)),
+        ]),
+        new CustomScrollView(slivers: [
+          new SliverFillViewport(
+            delegate: new SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+              return new WalletInfoPane(balancePane);
+            }, childCount: 1),
+            viewportFraction: 1.0,
           ),
-        ),
-        new SliverToBoxAdapter(
-            child: new SizedBox.fromSize(
-                size: new Size.fromHeight(200.0),
-                child: new Container(color: Colors.white))),
-      ]),
+          new SliverFixedExtentList(
+            itemExtent: 70.0,
+            delegate: new SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                return new PaymentRow(payments[index]);
+              },
+              childCount: payments.length,
+            ),
+          ),
+          new SliverToBoxAdapter(
+              child: new SizedBox.fromSize(
+                  size: new Size.fromHeight(200.0),
+                  child: new Container(color: Colors.white))),
+        ]),
+      ],
     );
   }
 }
