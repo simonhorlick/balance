@@ -112,12 +112,13 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
     var waitingForRpcs =
         channels == null || openingChannels == null || peers == null;
 
-    return waitingForRpcs
-        ? new Center(child: new Text("Loading channels"))
-        : (channels.isEmpty && openingChannels.isEmpty && peers.isEmpty)
-            ? new Center(child: new Text("No connections."))
-            : new Channels(
-                channels, openingChannels, peers, makeChannel, connect);
+    return new Scaffold(
+        body: waitingForRpcs
+            ? new Center(child: new Text("Loading channels"))
+            : (channels.isEmpty && openingChannels.isEmpty && peers.isEmpty)
+                ? new Center(child: new Text("No connections."))
+                : new Channels(
+                    channels, openingChannels, peers, makeChannel, connect));
   }
 }
 
@@ -199,13 +200,31 @@ class Channels extends StatelessWidget {
     Iterable<Widget> peerRows =
         peers.map((peer) => buildPeerTile(context, peer));
 
-    return new Scrollbar(
-      child: new ListView(
-          padding: new EdgeInsets.symmetric(vertical: 8.0),
-          children: []
-            ..addAll(openingListTiles)
-            ..addAll(channelTiles)
-            ..addAll(peerRows)),
+    return new Column(
+      children: [
+        new Padding(
+          padding: MediaQuery.of(context).padding,
+          child: new SizedBox.fromSize(
+              size: new Size.fromHeight(40.0),
+              child: new Stack(children: [
+                new BackButton(),
+                new Center(
+                    child: new Text(
+                  "Channels",
+                  style: new TextStyle(fontWeight: FontWeight.bold),
+                ))
+              ])),
+        ),
+        new Expanded(
+          child: new Scrollbar(
+            child: new ListView(
+                children: []
+                  ..addAll(openingListTiles)
+                  ..addAll(channelTiles)
+                  ..addAll(peerRows)),
+          ),
+        )
+      ],
     );
   }
 }
