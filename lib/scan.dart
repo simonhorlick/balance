@@ -42,7 +42,7 @@ class _CameraState extends State<StatefulWidget> {
   @override
   Widget build(BuildContext context) {
     return new Container(
-        decoration: new BoxDecoration(color: Colors.black),
+        color: Colors.black,
         child: new Texture(textureId: cameraId.textureId));
   }
 }
