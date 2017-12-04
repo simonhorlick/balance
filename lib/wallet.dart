@@ -117,13 +117,16 @@ class Header extends StatelessWidget {
 class Balance extends StatelessWidget {
   Balance(this.walletBalance, this.channelBalance);
 
+  // This is the value that is contained only within the wallet.
   final Int64 walletBalance;
+
+  // This is the value that is contained only within the channels.
   final Int64 channelBalance;
 
   @override
   Widget build(BuildContext context) {
     return new Column(children: [
-      new Text(formatter.format(walletBalance), style: kBalanceText),
+      new Text(formatter.format(walletBalance + channelBalance), style: kBalanceText),
       new SizedBox.fromSize(size: new Size.fromHeight(10.0)),
       new Text("spendable: " + formatter.format(channelBalance),
           style: kBalanceSubText),
