@@ -42,8 +42,7 @@ class _CameraState extends State<StatefulWidget> {
   @override
   Widget build(BuildContext context) {
     return new Container(
-        color: Colors.black,
-        child: new Texture(textureId: cameraId.textureId));
+        color: Colors.black, child: new Texture(textureId: cameraId.textureId));
   }
 }
 
@@ -162,58 +161,53 @@ class CamState extends State<Cam> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
-    return new Stack(children: [
-      // The camera sits at the bottom of the stack.
-      (camera == null) ? new Text("") : camera,
-      // Slightly darken the top of the screen, so the user can still read the
-      // status bar.
-      new Container(
-          decoration: new BoxDecoration(
-            gradient: new LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [const Color(0xA0000000), const Color(0x00000000)],
+    return new Scaffold(
+      body: new Stack(children: [
+        // The camera sits at the bottom of the stack.
+        (camera == null) ? new Container() : camera,
+        // Slightly darken the top of the screen, so the user can still read the
+        // status bar.
+        new Container(
+            decoration: new BoxDecoration(
+              gradient: new LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [const Color(0xA0000000), const Color(0x00000000)],
+              ),
+            ),
+            child: new SizedBox.fromSize(
+                size: new Size.fromHeight(100.0),
+                child: new Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      new BackButton(color: Colors.white),
+                      new GestureDetector(
+                        onTap: _showInvoiceDialog,
+                        child: new Padding(
+                            padding: new EdgeInsets.all(16.0),
+                            child: new Text("Paste Invoice",
+                                style: theme.textTheme.subhead
+                                    .copyWith(color: Colors.white))),
+                      ),
+                    ]))),
+        // A rounded rectangular region for placing a QR code to scan.
+        new Center(
+            child: new FractionallySizedBox(
+          widthFactor: 0.5,
+          heightFactor: 0.33,
+          child: new Container(
+            decoration: new BoxDecoration(
+              borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
+              border: new Border.all(width: 2.0, color: theme.accentColor),
+            ),
+            child: new SizedBox.fromSize(
+              size: new Size.fromHeight(100.0),
             ),
           ),
-          child: new SizedBox.fromSize(
-              size: new Size.fromHeight(100.0),
-              child: new Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    new GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: new Padding(
-                          padding: new EdgeInsets.all(16.0),
-                          child: new Text("Back",
-                              style: theme.textTheme.subhead
-                                  .copyWith(color: Colors.white))),
-                    ),
-                    new GestureDetector(
-                      onTap: _showInvoiceDialog,
-                      child: new Padding(
-                          padding: new EdgeInsets.all(16.0),
-                          child: new Text("Paste Invoice",
-                              style: theme.textTheme.subhead
-                                  .copyWith(color: Colors.white))),
-                    ),
-                  ]))),
-      // A rounded rectangular region for placing a QR code to scan.
-      new Center(
-          child: new FractionallySizedBox(
-        widthFactor: 0.5,
-        heightFactor: 0.33,
-        child: new Container(
-          decoration: new BoxDecoration(
-            borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
-            border: new Border.all(width: 2.0, color: theme.accentColor),
-          ),
-          child: new SizedBox.fromSize(
-            size: new Size.fromHeight(100.0),
-          ),
-        ),
-      )),
-    ]);
+        )),
+      ]),
+    );
   }
 
   void _showInvoiceDialog() {
