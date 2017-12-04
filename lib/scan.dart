@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/services.dart';
 
 enum DialogDemoAction {
   cancel,
@@ -129,9 +128,6 @@ class CamState extends State<Cam> {
   @override
   void initState() {
     super.initState();
-
-    // Make the status bar white.
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
 
     // Query the list of available cameras and create a Camera Widget.
     availableCameras().then((List<CameraDescription> available) {
