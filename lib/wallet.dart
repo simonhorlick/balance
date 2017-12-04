@@ -328,6 +328,8 @@ class _WalletState extends State<Wallet> {
 
   bool ready = false;
 
+  Timer pollingTimer;
+
   paymentToTx(Payment p) {
     return new Tx("Payment", p.value, p.creationDate, false);
   }
@@ -354,7 +356,15 @@ class _WalletState extends State<Wallet> {
   @override
   initState() {
     super.initState();
-    refresh();
+    pollingTimer = new Timer.periodic(new Duration(seconds: 5), (timer) {
+      refresh();
+    });
+  }
+
+  @override
+  void deactivate() {
+    pollingTimer.cancel();
+    super.deactivate();
   }
 
   @override
