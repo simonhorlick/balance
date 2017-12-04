@@ -115,8 +115,7 @@ class _ChannelWrapperState extends State<ChannelWrapper> {
     return waitingForRpcs
         ? new Center(child: new Text("Loading channels"))
         : (channels.isEmpty && openingChannels.isEmpty && peers.isEmpty)
-            ? new Center(
-                child: new Text("No connections."))
+            ? new Center(child: new Text("No connections."))
             : new Channels(
                 channels, openingChannels, peers, makeChannel, connect);
   }

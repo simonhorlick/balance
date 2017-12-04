@@ -7,7 +7,6 @@ import 'package:grpc/grpc.dart';
 const MethodChannel _kChannel = const MethodChannel('wallet_init_channel');
 
 class Daemon {
-
   // Checks whether a wallet has been created.
   static Future<bool> walletExists() async {
     return await _kChannel.invokeMethod('walletExists');
@@ -37,7 +36,6 @@ class Daemon {
     return new LightningClient(channel,
         options: new CallOptions(
             timeout:
-            new Duration(seconds: 15))); // some calls take a long time.
+                new Duration(seconds: 15))); // some calls take a long time.
   }
-
 }

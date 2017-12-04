@@ -115,7 +115,6 @@ class MnemonicScreen extends StatefulWidget {
 }
 
 class _MnemonicScreenState extends State<MnemonicScreen> {
-
   Future<List<String>> mnemonic;
 
   @override
@@ -134,13 +133,14 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
           pageBuilder: (BuildContext context, _, __) {
             return new FundingScreen();
           },
-          transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
+          transitionsBuilder:
+              (_, Animation<double> animation, __, Widget child) {
             return new FadeTransition(
               opacity: animation,
               child: new SlideTransition(
                 position: new Tween<Offset>(
-                    begin: const Offset(0.0, 0.1),
-                    end: const Offset(0.0, 0.0))
+                        begin: const Offset(0.0, 0.1),
+                        end: const Offset(0.0, 0.0))
                     .animate(animation),
                 child: child,
               ),
@@ -154,39 +154,36 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
     var wordListBuilder = new FutureBuilder<List<String>>(
       future: mnemonic,
       builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-       switch (snapshot.connectionState) {
-         case ConnectionState.none:
-         case ConnectionState.waiting: return new Text('Generating wallet...', style: kNormalText);
-         default:
-           if (snapshot.hasError)
-             return new Text('Error: ${snapshot.error}', style: kNormalText);
-           else
-             return new Text(
-                   snapshot.data.reduce((a,b) => a + '\n' + b),
-                   textAlign: TextAlign.center,
-                   style: kNormalText,
-           );
-       }
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+          case ConnectionState.waiting:
+            return new Text('Generating wallet...', style: kNormalText);
+          default:
+            if (snapshot.hasError)
+              return new Text('Error: ${snapshot.error}', style: kNormalText);
+            else
+              return new Text(
+                snapshot.data.reduce((a, b) => a + '\n' + b),
+                textAlign: TextAlign.center,
+                style: kNormalText,
+              );
+        }
       },
     );
 
     var page = new Padding(
-      padding: new EdgeInsets.fromLTRB(20.0, 30.0, 20.0, 0.0),
-      child:
-        new Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        padding: new EdgeInsets.fromLTRB(20.0, 30.0, 20.0, 0.0),
+        child: new Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-            new Text(
-                "Carefully write down the following sequence of words on a piece of paper and store it in a safe place.\n\n"
-                "If your phone is lost or damaged, this will be the only way to recover your funds.\n\n",
-                style: kNormalText),
-            new Center(child: new FittedBox(
-                fit: BoxFit.scaleDown,
-                child: wordListBuilder
-            )),
-            ]
-        )
-    );
+              new Text(
+                  "Carefully write down the following sequence of words on a piece of paper and store it in a safe place.\n\n"
+                  "If your phone is lost or damaged, this will be the only way to recover your funds.\n\n",
+                  style: kNormalText),
+              new Center(
+                  child: new FittedBox(
+                      fit: BoxFit.scaleDown, child: wordListBuilder)),
+            ]));
 
     return new OnboardingPage(page, () => _next(context));
   }
@@ -198,7 +195,6 @@ class FundingScreen extends StatefulWidget {
 }
 
 class _FundingScreenState extends State<FundingScreen> {
-
   String address;
 
   _next(BuildContext context) {
@@ -212,8 +208,8 @@ class _FundingScreenState extends State<FundingScreen> {
             opacity: animation,
             child: new SlideTransition(
               position: new Tween<Offset>(
-                  begin: const Offset(0.0, 0.1),
-                  end: const Offset(0.0, 0.0))
+                      begin: const Offset(0.0, 0.1),
+                      end: const Offset(0.0, 0.0))
                   .animate(animation),
               child: child,
             ),
@@ -226,7 +222,8 @@ class _FundingScreenState extends State<FundingScreen> {
     super.initState();
     var stub = Daemon.connect();
 
-    var req = NewAddressRequest.create()..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
+    var req = NewAddressRequest.create()
+      ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
     stub.newAddress(req).then((response) {
       setState(() {
         address = response.address;
@@ -236,7 +233,6 @@ class _FundingScreenState extends State<FundingScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     var page = new Padding(
       padding: new EdgeInsets.all(20.0),
       child: new Column(
@@ -245,9 +241,14 @@ class _FundingScreenState extends State<FundingScreen> {
           children: [
             new Text(
                 "Send funds to the following address to begin using your wallet.\n\n"
-                    "This should take a few minutes, but could take up to an hour.",
+                "This should take a few minutes, but could take up to an hour.",
                 style: kNormalText),
-            new Center(child: address == null ? new Text("Generating address...", style: kNormalText) : new TextField(controller: new TextEditingController(text: "$address"))),
+            new Center(
+                child: address == null
+                    ? new Text("Generating address...", style: kNormalText)
+                    : new TextField(
+                        controller:
+                            new TextEditingController(text: "$address"))),
           ]),
     );
 

@@ -6,11 +6,9 @@ import 'package:balance/onboarding.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-
 // Each time we start the app, we first check to see if this is the first time
 // the user has started the app. If so, we need to run the onboarding flow.
 class FirstTimeRedirect extends StatelessWidget {
-
   final Future<bool> walletExists = Daemon.walletExists();
 
   @override
@@ -20,18 +18,19 @@ class FirstTimeRedirect extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
-          case ConnectionState.waiting: return new Container();
+          case ConnectionState.waiting:
+            return new Container();
           default:
             if (snapshot.hasError)
               return new Text('Error: ${snapshot.error}');
             else
-              return snapshot.data ?
-              new BalanceApp() :
-              new MaterialApp(
-                title: 'Balance',
-                theme: new ThemeData(primarySwatch: Colors.blue),
-                home: new HelloScreen(),
-              );
+              return snapshot.data
+                  ? new BalanceApp()
+                  : new MaterialApp(
+                      title: 'Balance',
+                      theme: new ThemeData(primarySwatch: Colors.blue),
+                      home: new HelloScreen(),
+                    );
         }
       },
     );

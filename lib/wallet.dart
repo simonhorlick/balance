@@ -30,7 +30,9 @@ const kBalanceText = const TextStyle(
     fontSize: 28.0, color: Colors.white, decoration: TextDecoration.none);
 
 const kBalanceSubText = const TextStyle(
-    fontSize: 16.0, color: const Color(0xE0FFFFFF), decoration: TextDecoration.none);
+    fontSize: 16.0,
+    color: const Color(0xE0FFFFFF),
+    decoration: TextDecoration.none);
 
 const kTitleText = const TextStyle(
     fontSize: 16.0, color: Colors.white, decoration: TextDecoration.none);
@@ -100,7 +102,7 @@ class Header extends StatelessWidget {
       child: new SizedBox.fromSize(
           size: new Size.fromHeight(50.0),
           child:
-          new Center(child: new Text("balance", style: kNormalWhiteText))),
+              new Center(child: new Text("balance", style: kNormalWhiteText))),
     );
   }
 }
@@ -129,8 +131,9 @@ class TopUp extends StatelessWidget {
       padding: new EdgeInsets.only(top: 50.0),
       child: new Center(
         child: new GestureDetector(
-          onTap: () => _navigateToTopup(context),
-            child: new Text("＋ Top-up from bitcoin wallet", style: kBalanceSubText)),
+            onTap: () => _navigateToTopup(context),
+            child: new Text("＋ Top-up from bitcoin wallet",
+                style: kBalanceSubText)),
       ),
     );
   }
@@ -149,8 +152,12 @@ class SendReceive extends StatelessWidget {
       child: new Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          new GestureDetector(onTap: () => _navigateToSend(context), child: new Text("SEND", style: kNormalWhiteText)),
-          new GestureDetector(onTap: () => _navigateToReceive(context), child: new Text("RECEIVE", style: kNormalWhiteText)),
+          new GestureDetector(
+              onTap: () => _navigateToSend(context),
+              child: new Text("SEND", style: kNormalWhiteText)),
+          new GestureDetector(
+              onTap: () => _navigateToReceive(context),
+              child: new Text("RECEIVE", style: kNormalWhiteText)),
         ],
       ),
     );
@@ -174,7 +181,7 @@ class Footer extends StatelessWidget {
             color: Colors.white,
             child: new Center(
                 child:
-                new Icon(Icons.keyboard_arrow_down, color: Colors.blue))));
+                    new Icon(Icons.keyboard_arrow_down, color: Colors.blue))));
   }
 }
 
@@ -233,7 +240,7 @@ class WalletImpl extends StatelessWidget {
       child: new CustomScrollView(slivers: [
         new SliverFillViewport(
           delegate:
-          new SliverChildBuilderDelegate((BuildContext context, int index) {
+              new SliverChildBuilderDelegate((BuildContext context, int index) {
             return new WalletInfoPane(balancePane);
           }, childCount: 1),
           viewportFraction: 1.0,
@@ -241,7 +248,7 @@ class WalletImpl extends StatelessWidget {
         new SliverFixedExtentList(
           itemExtent: 70.0,
           delegate: new SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
+            (BuildContext context, int index) {
               return new PaymentRow(payments[index]);
             },
             childCount: payments.length,
@@ -254,7 +261,6 @@ class WalletImpl extends StatelessWidget {
 }
 
 class Wallet extends StatefulWidget {
-
   Wallet(this.stub);
 
   final LightningClient stub;
@@ -264,7 +270,6 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
-
   Int64 walletBalance;
   Int64 channelBalance;
 
@@ -277,17 +282,18 @@ class _WalletState extends State<Wallet> {
   }
 
   Future refresh() async {
-    var walletBalanceResponse = await widget.stub.walletBalance(WalletBalanceRequest.create());
-    var channelBalanceResponse = await widget.stub.channelBalance(ChannelBalanceRequest.create());
-    var paymentsResponse = await widget.stub.listPayments(ListPaymentsRequest.create());
+    var walletBalanceResponse =
+        await widget.stub.walletBalance(WalletBalanceRequest.create());
+    var channelBalanceResponse =
+        await widget.stub.channelBalance(ChannelBalanceRequest.create());
+    var paymentsResponse =
+        await widget.stub.listPayments(ListPaymentsRequest.create());
 
     setState(() {
       walletBalance = walletBalanceResponse.totalBalance;
       channelBalance = channelBalanceResponse.balance;
-      payments = paymentsResponse.payments
-          .map(paymentToTx)
-          .toList()
-          ..sort((a, b) => b.time.compareTo(a.time));
+      payments = paymentsResponse.payments.map(paymentToTx).toList()
+        ..sort((a, b) => b.time.compareTo(a.time));
       ready = true;
     });
 

@@ -16,7 +16,6 @@ class BalanceApp extends StatefulWidget {
 }
 
 class BalanceAppState extends State<BalanceApp> {
-
   LightningClient _stub;
 
   @override
@@ -28,14 +27,16 @@ class BalanceAppState extends State<BalanceApp> {
     // Add a well-known peer in case something goes wrong with bootstrapping.
     var addr = LightningAddress.create()
       ..host = "sg.horlick.me"
-      ..pubkey = "0294ceb8edf4b54da71caa506723dc8ab9c129ae19da4267f0e6d7cdcb396615b0";
+      ..pubkey =
+          "0294ceb8edf4b54da71caa506723dc8ab9c129ae19da4267f0e6d7cdcb396615b0";
 
-    _stub.connectPeer(ConnectPeerRequest.create()
-      ..perm = true
-      ..addr = addr).then((response) {
+    _stub
+        .connectPeer(ConnectPeerRequest.create()
+          ..perm = true
+          ..addr = addr)
+        .then((response) {
       print("$response");
-    })
-    .catchError((error) {
+    }).catchError((error) {
       print("error: $error");
     });
   }
