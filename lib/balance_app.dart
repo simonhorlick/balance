@@ -30,7 +30,7 @@ class BalanceAppState extends State<BalanceApp> {
     var addr = LightningAddress.create()
       ..host = "sg.horlick.me"
       ..pubkey =
-          "0294ceb8edf4b54da71caa506723dc8ab9c129ae19da4267f0e6d7cdcb396615b0";
+          "038b869a90060ca856ac80ec54c20acebca93df1869fbee9550efeb238b964558c";
 
     _stub
         .connectPeer(ConnectPeerRequest.create()
