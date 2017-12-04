@@ -1,5 +1,5 @@
-hash: 9f823d6ecde35079661d42cf38dc771fe9cd8dfb72f14b861659b47c51e8e69a
-updated: 2017-11-28T17:54:12.045863+08:00
+hash: beabbf855e2ab0e27baddcac5f613c9e0bdc937d36db653379a3bd426ccd99b0
+updated: 2017-12-04T09:27:37.983812+08:00
 imports:
 - name: github.com/aead/chacha20
   version: d31a916ded42d1640b9d89a26f8abd53cc96790c
@@ -71,7 +71,7 @@ imports:
 - name: github.com/lightningnetwork/lightning-onion
   version: 18bf6612a0653a21daf1a08b4a59e54670a524a1
 - name: github.com/lightningnetwork/lnd
-  version: b98e993d764f545f0dac9b4e9df9bc7ad0ae734e
+  version: e1893246bba34521ee0e5d8ee5bc6c692f9bc7eb
   subpackages:
   - autopilot
   - brontide

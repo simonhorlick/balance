@@ -1,4 +1,5 @@
 import 'package:balance/daemon.dart';
+import 'package:balance/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -51,10 +52,10 @@ class BalanceAppState extends State<BalanceApp> {
     return new MaterialApp(
       title: 'Balance',
       theme: new ThemeData(primarySwatch: Colors.blue),
-      home: new Tabs(_stub),
+      home: new Wallet(_stub),
       routes: <String, WidgetBuilder>{
         '/welcome': (BuildContext context) => new Welcome(),
-        '/tabs': (BuildContext context) => new Tabs(_stub),
+        '/wallet': (BuildContext context) => new Wallet(_stub),
         '/scan': (BuildContext context) => new Cam(_stub),
       },
     );
