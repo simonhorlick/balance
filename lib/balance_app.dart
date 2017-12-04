@@ -1,3 +1,4 @@
+import 'package:balance/channels.dart';
 import 'package:balance/daemon.dart';
 import 'package:balance/receive.dart';
 import 'package:balance/topup.dart';
@@ -61,6 +62,7 @@ class BalanceAppState extends State<BalanceApp> {
         '/scan': (BuildContext context) => new Cam(_stub),
         '/topup': (BuildContext context) => new Topup(_stub),
         '/receive': (BuildContext context) => new Receive(_stub),
+        '/channels': (BuildContext context) => new ChannelWrapper(_stub),
       },
     );
   }

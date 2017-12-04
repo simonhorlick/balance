@@ -101,7 +101,15 @@ class Header extends StatelessWidget {
       padding: new EdgeInsets.only(top: topInset),
       child: new SizedBox.fromSize(
           size: new Size.fromHeight(50.0),
-          child: new Center(child: new Text("balance", style: kTitleText))),
+          child: new Stack(children: [
+            new GestureDetector(
+              onTap: () => Scaffold.of(context).openDrawer(),
+              child: new Padding(
+                  padding: new EdgeInsets.all(12.0),
+                  child: new Icon(Icons.menu, color: Colors.white)),
+            ),
+            new Center(child: new Text("balance", style: kTitleText)),
+          ])),
     );
   }
 }
@@ -249,38 +257,41 @@ class WalletImpl extends StatelessWidget {
   Widget build(BuildContext context) {
     var balancePane = new Balance(walletBalance, channelBalance);
 
-    return new Stack(
-      children: [
-        // This element is shown when the user overscrolls the CustomScrollView.
-        // This ensures they see the correct background colour in the direction
-        // they're scrolling in.
-        new Flex(direction: Axis.vertical, children: [
-          new Expanded(child: new Container(color: Colors.blue)),
-          new Expanded(child: new Container(color: Colors.white)),
-        ]),
-        new CustomScrollView(slivers: [
-          new SliverFillViewport(
-            delegate: new SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-              return new WalletInfoPane(balancePane);
-            }, childCount: 1),
-            viewportFraction: 1.0,
-          ),
-          new SliverFixedExtentList(
-            itemExtent: 70.0,
-            delegate: new SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                return new PaymentRow(payments[index]);
-              },
-              childCount: payments.length,
+    return new Scaffold(
+      drawer: new Drawer(child: const Text("hello")),
+      body: new Stack(
+        children: [
+          // This element is shown when the user overscrolls the CustomScrollView.
+          // This ensures they see the correct background colour in the direction
+          // they're scrolling in.
+          new Flex(direction: Axis.vertical, children: [
+            new Expanded(child: new Container(color: Colors.blue)),
+            new Expanded(child: new Container(color: Colors.white)),
+          ]),
+          new CustomScrollView(slivers: [
+            new SliverFillViewport(
+              delegate: new SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return new WalletInfoPane(balancePane);
+              }, childCount: 1),
+              viewportFraction: 1.0,
             ),
-          ),
-          new SliverToBoxAdapter(
-              child: new SizedBox.fromSize(
-                  size: new Size.fromHeight(200.0),
-                  child: new Container(color: Colors.white))),
-        ]),
-      ],
+            new SliverFixedExtentList(
+              itemExtent: 70.0,
+              delegate: new SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return new PaymentRow(payments[index]);
+                },
+                childCount: payments.length,
+              ),
+            ),
+            new SliverToBoxAdapter(
+                child: new SizedBox.fromSize(
+                    size: new Size.fromHeight(200.0),
+                    child: new Container(color: Colors.white))),
+          ]),
+        ],
+      ),
     );
   }
 }
