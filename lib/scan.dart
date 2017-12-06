@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:intl/intl.dart';
 
 enum DialogDemoAction {
   cancel,
@@ -45,6 +46,54 @@ class _CameraState extends State<StatefulWidget> {
   }
 }
 
+// TODO(simon): Refactor this, it's used in a bunch of places.
+var formatter = new NumberFormat("###,###", "en_US");
+
+const kTitleText = const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
+const kAmountText = const TextStyle(fontSize: 32.0);
+const kDescriptionText = const TextStyle(fontSize: 16.0);
+const kDestText =
+    const TextStyle(fontSize: 10.0, color: const Color(0x80000000));
+
+class PaymentDetails extends StatelessWidget {
+  final Future<PayReq> details;
+
+  PaymentDetails(this.details);
+
+  @override
+  Widget build(BuildContext context) {
+    return new FutureBuilder<PayReq>(
+      future: details,
+      builder: (BuildContext context, AsyncSnapshot<PayReq> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return new Text('ConnectionState.none');
+          case ConnectionState.waiting:
+            return new Text('ConnectionState.waiting');
+          default:
+            if (snapshot.hasError)
+              return new Text('Error: ${snapshot.error}');
+            else
+              return new Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    new Text('SENDING', style: kTitleText),
+                    new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
+                    new Text('${formatter.format(snapshot.data.numSatoshis)}',
+                        style: kAmountText),
+                    new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
+                    new Text('${snapshot.data.description}',
+                        textAlign: TextAlign.center, style: kDescriptionText),
+                    new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
+                    new Text('destination: ${snapshot.data.destination}',
+                        textAlign: TextAlign.center, style: kDestText),
+                  ]);
+        }
+      },
+    );
+  }
+}
+
 class PaymentProgressScreen extends StatefulWidget {
   final String paymentRequest;
   final LightningClient stub;
@@ -59,6 +108,8 @@ class PaymentProgressScreen extends StatefulWidget {
 class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
   String paymentError;
 
+  Future<PayReq> details;
+
   @override
   initState() {
     super.initState();
@@ -66,7 +117,7 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
     _sendPayment(widget.paymentRequest).then((paymentErrorResult) {
       if (paymentErrorResult == "") {
         // Success.
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       } else {
         setState(() {
           paymentError = paymentErrorResult;
@@ -76,6 +127,11 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
       setState(() {
         paymentError = "${grpcError.message}";
       });
+    });
+
+    setState(() {
+      details = widget.stub
+          .decodePayReq(PayReqString.create()..payReq = widget.paymentRequest);
     });
   }
 
@@ -91,14 +147,12 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
     var kTitleText = new TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold);
 
     var mainText = paymentError == null
-        ? new Text("Sending payment...") // TODO(simon): show payment details here
-        : new Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          new Text("Payment Failed", style: kTitleText),
-          new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
-          new Text(paymentError),
-        ]);
+        ? new PaymentDetails(details)
+        : new Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            new Text("Payment Failed", style: kTitleText),
+            new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
+            new Text(paymentError),
+          ]);
 
     return new Scaffold(
       body: new GestureDetector(
@@ -114,7 +168,7 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
   }
 
   void _dismiss() {
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(false);
   }
 }
 
@@ -196,11 +250,16 @@ class CamState extends State<Cam> {
   // Starts the progress screen. This initiates the actual payment and displays
   // updates on its progress.
   Future<Null> _showProgressScreen(String paymentRequest) async {
-    Navigator.of(context).push(new MaterialPageRoute<String>(
+    var result = await Navigator.of(context).push(new MaterialPageRoute<String>(
           builder: (BuildContext context) =>
               new PaymentProgressScreen(paymentRequest, widget.stub),
           fullscreenDialog: true,
         ));
+
+    // Was the payment successful?
+    if (result == true) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _confirmAndPay(String paymentRequest) {
@@ -274,8 +333,8 @@ class CamState extends State<Cam> {
   }
 
   Future<Null> _showInvoiceDialog() async {
-    var invoice = await Navigator.of(context).push(
-            new MaterialPageRoute<String>(
+    var invoice =
+        await Navigator.of(context).push(new MaterialPageRoute<String>(
               builder: (BuildContext context) => new FullScreenInvoice(),
               fullscreenDialog: true,
             ));
@@ -316,7 +375,8 @@ class FullScreenInvoiceState extends State<FullScreenInvoice> {
   String invoice;
   @override
   Widget build(BuildContext context) {
-    var textStyle = Theme.of(context).textTheme.subhead.copyWith(color: Colors.white);
+    var textStyle =
+        Theme.of(context).textTheme.subhead.copyWith(color: Colors.white);
 
     return new Scaffold(
       appBar: new AppBar(title: const Text("Paste Invoice"), actions: <Widget>[
