@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:balance/rates.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 
@@ -206,16 +207,14 @@ class PaymentRequestScreen extends StatefulWidget {
 
 class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
   Future<AddInvoiceResponse> response;
+  Rates rates = new FakeRates();
 
   @override
   initState() {
     super.initState();
 
     var amountFiat = double.parse(widget.digits);
-    var fiatPerBitcoin = 12689.87;
-    var satoshisPerBitcoin = 1e8;
-
-    var satoshis = ((satoshisPerBitcoin * amountFiat) / fiatPerBitcoin).ceil();
+    var satoshis = rates.satoshis(amountFiat);
 
     setState(() {
       response = widget.stub.addInvoice(Invoice.create()

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:balance/rates.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 
@@ -60,6 +61,7 @@ class PaymentRow extends StatelessWidget {
   PaymentRow(this.transaction);
 
   final Tx transaction;
+  final Rates rates = new FakeRates();
 
   @override
   Widget build(BuildContext context) {
@@ -87,11 +89,13 @@ class PaymentRow extends StatelessWidget {
                 ],
               ),
               new Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   new Text(
                       "${dateFormatter.format(new DateTime.fromMillisecondsSinceEpoch(transaction.time.toInt()*1000))}",
                       style: kSmallPriceText),
+                  new Text(
+                      "\$${fiatFormatter.format(rates.fiat(transaction.amount.toInt()))}")
                 ],
               ),
             ]),
