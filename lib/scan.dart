@@ -45,6 +45,57 @@ class _CameraState extends State<StatefulWidget> {
   }
 }
 
+class PaymentProgressScreen extends StatefulWidget {
+  final String paymentRequest;
+  final LightningClient stub;
+
+  PaymentProgressScreen(this.paymentRequest, this.stub);
+
+  @override
+  _PaymentProgressScreenState createState() =>
+      new _PaymentProgressScreenState();
+}
+
+class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
+  String paymentError;
+
+  @override
+  initState() {
+    super.initState();
+
+    _sendPayment(widget.paymentRequest).then((paymentErrorResult) {
+      if (paymentErrorResult == "") {
+        // Success.
+        Navigator.of(context).pop();
+      } else {
+        setState(() {
+          paymentError = paymentErrorResult;
+        });
+      }
+    });
+  }
+
+  Future<String> _sendPayment(String paymentRequest) async {
+    var response = await widget.stub
+        .sendPaymentSync(SendRequest.create()..paymentRequest = paymentRequest);
+
+    return response.paymentError;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var mainText = paymentError == null
+        ? new Text("Sending payment...")
+        : new Text(paymentError);
+
+    return new Scaffold(
+      body: new Center(
+        child: mainText,
+      ),
+    );
+  }
+}
+
 class Cam extends StatefulWidget {
   Cam(this.stub);
 
@@ -57,36 +108,26 @@ class Cam extends StatefulWidget {
 }
 
 class CamState extends State<Cam> {
-  bool opening = false;
   Camera camera;
   List<CameraDescription> cameras = new List();
-  bool started;
-  String filename;
-  int pictureCount = 0;
   String barcode;
 
   bool seenBarcode = false;
 
-  Future<Null> _showPaymentError(error) async {
-    return showDialog<Null>(
-      context: context,
-      barrierDismissible: true,
-      child: new AlertDialog(
-        title: new Text('Payment Failed'),
-        content: new SingleChildScrollView(
-          child: new ListBody(
-            children: <Widget>[
-              new Text('$error'),
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<Null> _showProgressScreen(String paymentRequest) async {
+    Navigator.of(context).push(new MaterialPageRoute<String>(
+          builder: (BuildContext context) =>
+              new PaymentProgressScreen(paymentRequest, widget.stub),
+          fullscreenDialog: true,
+        ));
   }
 
   void barcodeScanned(String barcode) {
-    if (seenBarcode) return;
-    seenBarcode = true;
+    if (seenBarcode) {
+      return;
+    } else {
+      seenBarcode = true;
+    }
 
     if (barcode.startsWith("lightning:")) {
       barcode = barcode.substring("lightning:".length);
@@ -95,30 +136,16 @@ class CamState extends State<Cam> {
       barcode = barcode.substring("//".length);
     }
 
-    SendRequest request = SendRequest.create()..paymentRequest = barcode;
-    print("Calling sendPaymentSync");
-
-    widget.stub.sendPaymentSync(request).then((response) {
-      if (response.paymentError == "") {
-        // Success.
-        print("response is: $response");
-        Navigator.pop(context, barcode);
-      } else {
-        print("error is: ${response.paymentError}");
-        _showPaymentError(response.paymentError).then((_) {
-          Navigator.pop(context);
-        });
-      }
-    }).catchError((error) {
-      // Show the grpc error.
-      _showPaymentError(error.message).then((_) {
-        Navigator.pop(context);
-      });
-      print("failed to sendPaymentSync: ${error.message}");
-    });
-
     setState(() {
       this.barcode = barcode;
+    });
+
+    _confirmAmountDialog().then((action) {
+      if (action == DialogDemoAction.pay) {
+        _showProgressScreen(barcode);
+      } else if (action == DialogDemoAction.cancel) {
+        // nothing to do.
+      }
     });
   }
 
@@ -143,7 +170,6 @@ class CamState extends State<Cam> {
             .then((cameraId) {
           setState(() {
             this.camera = new Camera(cameraId);
-            started = true;
           });
         });
       }
