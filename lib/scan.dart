@@ -168,7 +168,10 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
   }
 
   void _dismiss() {
-    Navigator.of(context).pop(false);
+    // Only allow dismissing the screen if the payment failed.
+    if (paymentError != null) {
+      Navigator.of(context).pop(false);
+    }
   }
 }
 
