@@ -253,7 +253,7 @@ class CamState extends State<Cam> {
   // Starts the progress screen. This initiates the actual payment and displays
   // updates on its progress.
   Future<Null> _showProgressScreen(String paymentRequest) async {
-    var result = await Navigator.of(context).push(new MaterialPageRoute<String>(
+    var result = await Navigator.of(context).push(new MaterialPageRoute<bool>(
           builder: (BuildContext context) =>
               new PaymentProgressScreen(paymentRequest, widget.stub),
           fullscreenDialog: true,
