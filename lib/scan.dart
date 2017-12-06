@@ -266,16 +266,7 @@ class CamState extends State<Cam> {
   }
 
   void _confirmAndPay(String paymentRequest) {
-    _confirmAmountDialog().then((action) {
-      if (action == DialogDemoAction.pay) {
-        _showProgressScreen(paymentRequest);
-      } else if (action == DialogDemoAction.cancel) {
-        // Reset the barcode scanner so we can continue scanning.
-        setState(() {
-          seenBarcode = false;
-        });
-      }
-    });
+    _showProgressScreen(paymentRequest);
   }
 
   void _barcodeScanned(String barcode) {
