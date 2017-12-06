@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
@@ -18,7 +21,7 @@ class Receive extends StatelessWidget {
           new Align(
               alignment: Alignment.centerLeft,
               child: new BackButton(color: Colors.white)),
-          new Keypad(),
+          new Keypad(stub),
         ]),
       ),
     );
@@ -52,6 +55,10 @@ class Key extends StatelessWidget {
 }
 
 class RequestButton extends StatelessWidget {
+  final GestureTapCallback _onTap;
+
+  RequestButton(this._onTap);
+
   @override
   Widget build(BuildContext context) {
     return new Flex(
@@ -59,18 +66,25 @@ class RequestButton extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         new Expanded(
-            child: new Container(
-                decoration: new BoxDecoration(color: new Color(0x20FFFFFF)),
-                child: new Padding(
-                    padding: new EdgeInsets.fromLTRB(0.0, 25.0, 0.0, 25.0),
-                    child: new Center(
-                        child: new Text("REQUEST", style: kButtonStyle))))),
+            child: new GestureDetector(
+          onTap: _onTap,
+          child: new Container(
+              decoration: new BoxDecoration(color: new Color(0x20FFFFFF)),
+              child: new Padding(
+                  padding: new EdgeInsets.fromLTRB(0.0, 25.0, 0.0, 25.0),
+                  child: new Center(
+                      child: new Text("REQUEST", style: kButtonStyle)))),
+        )),
       ],
     );
   }
 }
 
 class Keypad extends StatefulWidget {
+  final LightningClient stub;
+
+  Keypad(this.stub);
+
   @override
   _KeypadState createState() => new _KeypadState();
 }
@@ -118,7 +132,8 @@ class _KeypadState extends State<Keypad> {
               new Padding(
                   padding: new EdgeInsets.only(top: 8.0),
                   child: new Text("\$", style: kAmountCurrencyStyle)),
-              new Text(_digits, style: kAmountStyle)
+              new Text(_digits,
+                  overflow: TextOverflow.fade, style: kAmountStyle)
             ]),
         new Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -162,9 +177,88 @@ class _KeypadState extends State<Keypad> {
         ),
         new Padding(
           padding: new EdgeInsets.fromLTRB(25.0, 0.0, 25.0, 0.0),
-          child: new RequestButton(),
+          child: new RequestButton(_request),
         )
       ],
+    );
+  }
+
+  Future<Null> _request() async {
+    var result = await Navigator.of(context).push(new MaterialPageRoute<bool>(
+          builder: (BuildContext context) =>
+              new PaymentRequestScreen(_digits, widget.stub),
+          fullscreenDialog: true,
+        ));
+  }
+}
+
+const kTitleText = const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
+
+class PaymentRequestScreen extends StatefulWidget {
+  final String digits;
+  final LightningClient stub;
+
+  PaymentRequestScreen(this.digits, this.stub);
+
+  @override
+  _PaymentRequestScreenState createState() => new _PaymentRequestScreenState();
+}
+
+class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
+  Future<AddInvoiceResponse> response;
+
+  @override
+  initState() {
+    super.initState();
+
+    var amountFiat = double.parse(widget.digits);
+    var fiatPerBitcoin = 12689.87;
+    var satoshisPerBitcoin = 1e8;
+
+    var satoshis = ((satoshisPerBitcoin * amountFiat) / fiatPerBitcoin).ceil();
+
+    setState(() {
+      response = widget.stub.addInvoice(Invoice.create()
+        ..memo = ""
+        ..value = new Int64(satoshis));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      body: new Column(
+        children: [
+          new Align(alignment: Alignment.centerLeft, child: new BackButton()),
+          new FutureBuilder<AddInvoiceResponse>(
+            future: response,
+            builder: (BuildContext context,
+                AsyncSnapshot<AddInvoiceResponse> snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  return new Text('ConnectionState.none');
+                case ConnectionState.waiting:
+                  return new Text('ConnectionState.waiting');
+                default:
+                  if (snapshot.hasError)
+                    return new Text('Error: ${snapshot.error}');
+                  else
+                    return new Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          new Text('REQUEST', style: kTitleText),
+                          new SizedBox.fromSize(
+                              size: new Size.fromHeight(40.0)),
+                          new TextField(
+                            controller: new TextEditingController(
+                                text: "${snapshot.data.paymentRequest}"),
+                          )
+                        ]);
+              }
+            },
+          )
+        ],
+      ),
     );
   }
 }

@@ -74,7 +74,11 @@ class PaymentRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   new Row(children: [
-                    new Icon(Icons.arrow_upward, size: 16.0),
+                    new Icon(
+                        transaction.receive
+                            ? Icons.arrow_downward
+                            : Icons.arrow_upward,
+                        size: 16.0),
                     new SizedBox.fromSize(size: new Size(10.0, 0.0)),
                     new Text(transaction.description, style: kPaymentText),
                   ]),
@@ -254,11 +258,11 @@ class WalletInfoPane extends StatelessWidget {
 }
 
 class WalletImpl extends StatelessWidget {
-  WalletImpl(this.walletBalance, this.channelBalance, this.payments);
+  WalletImpl(this.walletBalance, this.channelBalance, this.transactions);
 
   final Int64 walletBalance;
   final Int64 channelBalance;
-  final List<Tx> payments;
+  final List<Tx> transactions;
 
   @override
   Widget build(BuildContext context) {
@@ -299,9 +303,9 @@ class WalletImpl extends StatelessWidget {
               itemExtent: 70.0,
               delegate: new SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  return new PaymentRow(payments[index]);
+                  return new PaymentRow(transactions[index]);
                 },
-                childCount: payments.length,
+                childCount: transactions.length,
               ),
             ),
             new SliverToBoxAdapter(
@@ -328,14 +332,18 @@ class _WalletState extends State<Wallet> {
   Int64 walletBalance;
   Int64 channelBalance;
 
-  List<Tx> payments;
+  List<Tx> transactions;
 
   bool ready = false;
 
   Timer pollingTimer;
 
   paymentToTx(Payment p) {
-    return new Tx("Payment", p.value, p.creationDate, false);
+    return new Tx("Sent", p.value, p.creationDate, false);
+  }
+
+  invoiceToTx(Invoice inv) {
+    return new Tx("Received", inv.value, inv.creationDate, true);
   }
 
   Future refresh() async {
@@ -345,11 +353,21 @@ class _WalletState extends State<Wallet> {
         await widget.stub.channelBalance(ChannelBalanceRequest.create());
     var paymentsResponse =
         await widget.stub.listPayments(ListPaymentsRequest.create());
+    var invoicesResponse =
+        await widget.stub.listInvoices(ListInvoiceRequest.create());
 
     setState(() {
       walletBalance = walletBalanceResponse.totalBalance;
       channelBalance = channelBalanceResponse.balance;
-      payments = paymentsResponse.payments.map(paymentToTx).toList()
+
+      var invoices = invoicesResponse.invoices
+          .where((inv) => inv.settled)
+          .map(invoiceToTx)
+          .toList();
+      var payments = paymentsResponse.payments.map(paymentToTx).toList();
+
+      transactions = invoices
+        ..addAll(payments)
         ..sort((a, b) => b.time.compareTo(a.time));
       ready = true;
     });
@@ -377,6 +395,6 @@ class _WalletState extends State<Wallet> {
       return new Container();
     }
 
-    return new WalletImpl(walletBalance, channelBalance, payments);
+    return new WalletImpl(walletBalance, channelBalance, transactions);
   }
 }
