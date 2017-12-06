@@ -1,5 +1,5 @@
-hash: beabbf855e2ab0e27baddcac5f613c9e0bdc937d36db653379a3bd426ccd99b0
-updated: 2017-12-04T09:27:37.983812+08:00
+hash: 900ef0761a8415576aa60f4b0863a7cc208b3a569a7420ee29d8995b6cf47e4c
+updated: 2017-12-05T17:07:42.907145+08:00
 imports:
 - name: github.com/aead/chacha20
   version: d31a916ded42d1640b9d89a26f8abd53cc96790c
@@ -40,7 +40,7 @@ imports:
 - name: github.com/go-errors/errors
   version: 8fa88b06e5974e97fbf9899a7f86a344bfd1f105
 - name: github.com/golang/protobuf
-  version: 130e6b02ab059e7b717a096f397c5b60111cae74
+  version: ab9f9a6dab164b7d1246e0e688b0ab7b94d8553e
   subpackages:
   - jsonpb
   - proto
@@ -71,7 +71,9 @@ imports:
 - name: github.com/lightningnetwork/lightning-onion
   version: 18bf6612a0653a21daf1a08b4a59e54670a524a1
 - name: github.com/lightningnetwork/lnd
-  version: e1893246bba34521ee0e5d8ee5bc6c692f9bc7eb
+  version: 68cae44ae8398f5913547382a634067f7f8a3a00
+  repo: git@github.com:simonhorlick/lnd.git
+  vcs: git
   subpackages:
   - autopilot
   - brontide
@@ -170,7 +172,7 @@ imports:
   - salsa20/salsa
   - scrypt
 - name: golang.org/x/net
-  version: 1087133bc4af3073e18add999345c6ae75918503
+  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
   subpackages:
   - context
   - http2
@@ -180,18 +182,18 @@ imports:
   - lex/httplex
   - trace
 - name: golang.org/x/sys
-  version: 686000749eaec0b8855b8eef5336cf63899fe51d
+  version: ab9e364efd8b52800ff7ee48a9ffba4e0ed78dfb
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: c01e4764d870b77f8abe5096ee19ad20d80e8075
+  version: 18c65dde6afd36dbc39197ca72008895b8dfbfb6
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: f676e0f3ac6395ff1a529ae59a6670878a8371a6
+  version: ee236bd376b077c7a89f260c026c4735b195e459
   subpackages:
   - googleapis/api/annotations
   - googleapis/rpc/status
