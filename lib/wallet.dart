@@ -362,9 +362,9 @@ class _WalletState extends State<Wallet> {
   }
 
   @override
-  void deactivate() {
+  void dispose() {
     pollingTimer.cancel();
-    super.deactivate();
+    super.dispose();
   }
 
   @override
