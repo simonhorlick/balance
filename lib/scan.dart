@@ -72,6 +72,10 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
           paymentError = paymentErrorResult;
         });
       }
+    }).catchError((grpcError) {
+      setState(() {
+        paymentError = "${grpcError.message}";
+      });
     });
   }
 
@@ -84,15 +88,91 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var kTitleText = new TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold);
+
     var mainText = paymentError == null
-        ? new Text("Sending payment...")
-        : new Text(paymentError);
+        ? new Text("Sending payment...") // TODO(simon): show payment details here
+        : new Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          new Text("Payment Failed", style: kTitleText),
+          new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
+          new Text(paymentError),
+        ]);
 
     return new Scaffold(
-      body: new Center(
-        child: mainText,
+      body: new GestureDetector(
+        onTap: _dismiss,
+        child: new Padding(
+          padding: new EdgeInsets.all(20.0),
+          child: new Center(
+            child: mainText,
+          ),
+        ),
       ),
     );
+  }
+
+  void _dismiss() {
+    Navigator.of(context).pop();
+  }
+}
+
+class TopBar extends StatelessWidget {
+  final Function _showInvoiceDialog;
+
+  TopBar(this._showInvoiceDialog);
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    var textStyle = theme.textTheme.subhead.copyWith(color: Colors.white);
+
+    // Slightly darken the top of the screen, so the user can still read the
+    // status bar.
+    return new Container(
+        decoration: new BoxDecoration(
+          gradient: new LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [const Color(0xA0000000), const Color(0x00000000)],
+          ),
+        ),
+        child: new SizedBox.fromSize(
+            size: new Size.fromHeight(100.0),
+            child: new Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  new BackButton(color: Colors.white),
+                  new GestureDetector(
+                    onTap: _showInvoiceDialog,
+                    child: new Padding(
+                        padding: new EdgeInsets.all(16.0),
+                        child: new Text("Paste Invoice", style: textStyle)),
+                  ),
+                ])));
+  }
+}
+
+/// A rounded rectangular region for placing a QR code to scan.
+class GuideOverlay extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Center(
+        child: new FractionallySizedBox(
+      widthFactor: 0.5,
+      heightFactor: 0.33,
+      child: new Container(
+        decoration: new BoxDecoration(
+          borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
+          border: new Border.all(width: 2.0, color: Colors.blue),
+        ),
+        child: new SizedBox.fromSize(
+          size: new Size.fromHeight(100.0),
+        ),
+      ),
+    ));
   }
 }
 
@@ -110,10 +190,11 @@ class Cam extends StatefulWidget {
 class CamState extends State<Cam> {
   Camera camera;
   List<CameraDescription> cameras = new List();
-  String barcode;
 
   bool seenBarcode = false;
 
+  // Starts the progress screen. This initiates the actual payment and displays
+  // updates on its progress.
   Future<Null> _showProgressScreen(String paymentRequest) async {
     Navigator.of(context).push(new MaterialPageRoute<String>(
           builder: (BuildContext context) =>
@@ -122,7 +203,21 @@ class CamState extends State<Cam> {
         ));
   }
 
-  void barcodeScanned(String barcode) {
+  void _confirmAndPay(String paymentRequest) {
+    _confirmAmountDialog().then((action) {
+      if (action == DialogDemoAction.pay) {
+        _showProgressScreen(paymentRequest);
+      } else if (action == DialogDemoAction.cancel) {
+        // Reset the barcode scanner so we can continue scanning.
+        setState(() {
+          seenBarcode = false;
+        });
+      }
+    });
+  }
+
+  void _barcodeScanned(String barcode) {
+    // Only use the first occurrence of a barcode.
     if (seenBarcode) {
       return;
     } else {
@@ -136,17 +231,7 @@ class CamState extends State<Cam> {
       barcode = barcode.substring("//".length);
     }
 
-    setState(() {
-      this.barcode = barcode;
-    });
-
-    _confirmAmountDialog().then((action) {
-      if (action == DialogDemoAction.pay) {
-        _showProgressScreen(barcode);
-      } else if (action == DialogDemoAction.cancel) {
-        // nothing to do.
-      }
-    });
+    _confirmAndPay(barcode);
   }
 
   @override
@@ -166,7 +251,7 @@ class CamState extends State<Cam> {
         this
             .cameras
             .first
-            .open(previewFormat, captureFormat, barcodeScanned)
+            .open(previewFormat, captureFormat, _barcodeScanned)
             .then((cameraId) {
           setState(() {
             this.camera = new Camera(cameraId);
@@ -178,80 +263,25 @@ class CamState extends State<Cam> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
     return new Scaffold(
       body: new Stack(children: [
         // The camera sits at the bottom of the stack.
         (camera == null) ? new Container() : camera,
-        // Slightly darken the top of the screen, so the user can still read the
-        // status bar.
-        new Container(
-            decoration: new BoxDecoration(
-              gradient: new LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [const Color(0xA0000000), const Color(0x00000000)],
-              ),
-            ),
-            child: new SizedBox.fromSize(
-                size: new Size.fromHeight(100.0),
-                child: new Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      new BackButton(color: Colors.white),
-                      new GestureDetector(
-                        onTap: _showInvoiceDialog,
-                        child: new Padding(
-                            padding: new EdgeInsets.all(16.0),
-                            child: new Text("Paste Invoice",
-                                style: theme.textTheme.subhead
-                                    .copyWith(color: Colors.white))),
-                      ),
-                    ]))),
-        // A rounded rectangular region for placing a QR code to scan.
-        new Center(
-            child: new FractionallySizedBox(
-          widthFactor: 0.5,
-          heightFactor: 0.33,
-          child: new Container(
-            decoration: new BoxDecoration(
-              borderRadius: new BorderRadius.all(new Radius.circular(5.0)),
-              border: new Border.all(width: 2.0, color: theme.accentColor),
-            ),
-            child: new SizedBox.fromSize(
-              size: new Size.fromHeight(100.0),
-            ),
-          ),
-        )),
+        new TopBar(_showInvoiceDialog),
+        new GuideOverlay(),
       ]),
     );
   }
 
-  void _showInvoiceDialog() {
-    Navigator
-        .push(
-            context,
+  Future<Null> _showInvoiceDialog() async {
+    var invoice = await Navigator.of(context).push(
             new MaterialPageRoute<String>(
               builder: (BuildContext context) => new FullScreenInvoice(),
               fullscreenDialog: true,
-            ))
-        .then((invoice) {
-      if (invoice != null) {
-        // TODO(simon): Decode payment request here and display the details.
-        _confirmAmountDialog().then((value) {
-          if (value == DialogDemoAction.pay) {
-            SendRequest request = SendRequest.create()
-              ..paymentRequest = invoice;
-            widget.stub.sendPaymentSync(request).then((response) {
-              print(response);
-              Navigator.pop(context, invoice);
-            });
-          }
-        });
-      }
-    });
+            ));
+    if (invoice != null) {
+      _confirmAndPay(invoice);
+    }
   }
 
   Future<DialogDemoAction> _confirmAmountDialog() {
@@ -286,10 +316,12 @@ class FullScreenInvoiceState extends State<FullScreenInvoice> {
   String invoice;
   @override
   Widget build(BuildContext context) {
+    var textStyle = Theme.of(context).textTheme.subhead.copyWith(color: Colors.white);
+
     return new Scaffold(
       appBar: new AppBar(title: const Text("Paste Invoice"), actions: <Widget>[
         new FlatButton(
-            child: new Text('PAY'),
+            child: new Text('PAY', style: textStyle),
             onPressed: () {
               Navigator.pop(context, invoice);
             })
