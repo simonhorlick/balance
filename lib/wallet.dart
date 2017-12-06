@@ -54,6 +54,7 @@ var kSmallPriceText = kBaseText.copyWith(
 
 var formatter = new NumberFormat("###,###", "en_US");
 var fiatFormatter = new NumberFormat("###,###.00", "en_US");
+var dateFormatter = new DateFormat("dd/MM 'at' HH:mm:ss", "en_US");
 
 class PaymentRow extends StatelessWidget {
   PaymentRow(this.transaction);
@@ -84,7 +85,9 @@ class PaymentRow extends StatelessWidget {
               new Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  new Text(fiatFormatter.format(2.0), style: kSmallPriceText),
+                  new Text(
+                      "${dateFormatter.format(new DateTime.fromMillisecondsSinceEpoch(transaction.time.toInt()*1000))}",
+                      style: kSmallPriceText),
                 ],
               ),
             ]),
@@ -126,7 +129,8 @@ class Balance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Column(children: [
-      new Text(formatter.format(walletBalance + channelBalance), style: kBalanceText),
+      new Text(formatter.format(walletBalance + channelBalance),
+          style: kBalanceText),
       new SizedBox.fromSize(size: new Size.fromHeight(10.0)),
       new Text("spendable: " + formatter.format(channelBalance),
           style: kBalanceSubText),
