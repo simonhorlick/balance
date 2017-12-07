@@ -57,14 +57,17 @@ class AddressBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Expanded(
-      child: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new Text("Your wallet address is:"),
-          new TextField(
-            controller: new TextEditingController(text: "$address"),
-          ),
-        ],
+      child: new Padding(
+        padding: new EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Text("Your wallet address is:"),
+            new TextField(
+              controller: new TextEditingController(text: "$address"),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -79,10 +82,7 @@ class TopupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new Padding(
-        padding: new EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
-            left: 20.0,
-            right: 20.0),
+        padding: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: new Column(children: [
           new Align(alignment: Alignment.centerLeft, child: new BackButton()),
           new AddressBox(address),
