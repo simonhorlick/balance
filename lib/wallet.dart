@@ -308,7 +308,7 @@ class WalletImpl extends StatelessWidget {
                     size: new Size.fromHeight(70.0),
                     child: new PaymentRow(transactions[txIndex]));
               }
-            })),
+            }, childCount: transactions.length+1)),
             new SliverToBoxAdapter(
                 child: new SizedBox.fromSize(
                     size: new Size.fromHeight(200.0),
