@@ -79,7 +79,10 @@ class TopupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new Padding(
-        padding: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+        padding: new EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top,
+            left: 20.0,
+            right: 20.0),
         child: new Column(children: [
           new Align(alignment: Alignment.centerLeft, child: new BackButton()),
           new AddressBox(address),
