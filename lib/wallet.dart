@@ -296,22 +296,19 @@ class WalletImpl extends StatelessWidget {
             new Expanded(child: new Container(color: Colors.white)),
           ]),
           new CustomScrollView(slivers: [
-            new SliverFillViewport(
-              delegate: new SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                return new WalletInfoPane(balancePane);
-              }, childCount: 1),
-              viewportFraction: 1.0,
-            ),
-            new SliverFixedExtentList(
-              itemExtent: 70.0,
-              delegate: new SliverChildBuilderDelegate(
+            new SliverList(delegate: new SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  return new PaymentRow(transactions[index]);
-                },
-                childCount: transactions.length,
-              ),
-            ),
+              if (index == 0) {
+                return new SizedBox.fromSize(
+                    size: MediaQuery.of(context).size,
+                    child: new WalletInfoPane(balancePane));
+              } else {
+                var txIndex = index - 1;
+                return new SizedBox.fromSize(
+                    size: new Size.fromHeight(70.0),
+                    child: new PaymentRow(transactions[txIndex]));
+              }
+            })),
             new SliverToBoxAdapter(
                 child: new SizedBox.fromSize(
                     size: new Size.fromHeight(200.0),
