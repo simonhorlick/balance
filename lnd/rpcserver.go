@@ -1465,8 +1465,11 @@ func (r *rpcServer) ListChannels(ctx context.Context,
 
 		channelID := lnwire.NewChanIDFromOutPoint(&chanPoint)
 		var linkActive bool
-		if _, err := r.server.htlcSwitch.GetLink(channelID); err == nil {
-			linkActive = true
+		if link, err := r.server.htlcSwitch.GetLink(channelID); err == nil {
+			// A channel is only considered active if it is known
+			// by the switch *and* able to forward
+			// incoming/outgoing payments.
+			linkActive = link.EligibleToForward()
 		}
 
 		// As this is required for display purposes, we'll calculate
@@ -1494,6 +1497,7 @@ func (r *rpcServer) ListChannels(ctx context.Context,
 			TotalSatoshisReceived: int64(dbChannel.TotalMSatReceived.ToSatoshis()),
 			NumUpdates:            localCommit.CommitHeight,
 			PendingHtlcs:          make([]*lnrpc.HTLC, len(localCommit.Htlcs)),
+			CsvDelay:              uint32(dbChannel.LocalChanCfg.CsvDelay),
 		}
 
 		for i, htlc := range localCommit.Htlcs {
