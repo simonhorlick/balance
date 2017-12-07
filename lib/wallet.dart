@@ -296,8 +296,9 @@ class WalletImpl extends StatelessWidget {
             new Expanded(child: new Container(color: Colors.white)),
           ]),
           new CustomScrollView(slivers: [
-            new SliverList(delegate: new SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
+            new SliverList(
+                delegate: new SliverChildBuilderDelegate(
+                    (BuildContext context, int index) {
               if (index == 0) {
                 return new SizedBox.fromSize(
                     size: MediaQuery.of(context).size,
@@ -308,7 +309,7 @@ class WalletImpl extends StatelessWidget {
                     size: new Size.fromHeight(70.0),
                     child: new PaymentRow(transactions[txIndex]));
               }
-            }, childCount: transactions.length+1)),
+            }, childCount: transactions.length + 1)),
             new SliverToBoxAdapter(
                 child: new SizedBox.fromSize(
                     size: new Size.fromHeight(200.0),
