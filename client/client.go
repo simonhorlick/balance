@@ -6,6 +6,7 @@ import (
 	"log"
 	b39 "github.com/tyler-smith/go-bip39"
 	"github.com/roasbeef/btcutil/hdkeychain"
+	"time"
 )
 
 // Start is called once when the application first starts.
@@ -82,6 +83,9 @@ func Resume() {
 	running = true
 
 	lnd.Resume()
+
+	// This is a nasty hack to wait until the grpc server has started listening.
+	time.Sleep(100 * time.Millisecond)
 }
 
 func WalletExists(dataDir string) bool {
