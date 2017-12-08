@@ -53,10 +53,10 @@ var kPriceText =
     kBaseText.copyWith(color: Colors.black, decoration: TextDecoration.none);
 
 var kSmallPriceText = kBaseText.copyWith(
-    fontSize: 16.0, color: Colors.black87, decoration: TextDecoration.none);
+    fontSize: 16.0, color: Colors.black54, decoration: TextDecoration.none);
 
 var formatter = new NumberFormat("###,###", "en_US");
-var fiatFormatter = new NumberFormat("###,###.00", "en_US");
+var fiatFormatter = new NumberFormat.currency(symbol: "\$");
 var dateFormatter = new DateFormat("dd/MM 'at' HH:mm:ss", "en_US");
 
 class PaymentRow extends StatelessWidget {
@@ -67,40 +67,45 @@ class PaymentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var icon = new Padding(
+      padding: new EdgeInsets.fromLTRB(0.0, 10.0, 10.0, 10.0),
+      child: new Icon(
+          transaction.receive ? Icons.arrow_downward : Icons.arrow_upward,
+          size: 16.0),
+    );
+
+    var details = new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+      new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(transaction.description, style: kPaymentText),
+          new Text(formatter.format(transaction.amount), style: kPriceText),
+        ],
+      ),
+      new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          new Text(
+              "${dateFormatter.format(new DateTime.fromMillisecondsSinceEpoch(transaction.time.toInt()*1000))}",
+              style: kSmallPriceText),
+          new Text(
+              "${fiatFormatter.format(rates.fiat(transaction.amount.toInt()))}",
+              style: kSmallPriceText)
+        ],
+      ),
+    ]);
+
     return new Container(
       color: Colors.white,
       child: new Padding(
         padding: new EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        child: new Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: new Row(
             children: [
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  new Row(children: [
-                    new Icon(
-                        transaction.receive
-                            ? Icons.arrow_downward
-                            : Icons.arrow_upward,
-                        size: 16.0),
-                    new SizedBox.fromSize(size: new Size(10.0, 0.0)),
-                    new Text(transaction.description, style: kPaymentText),
-                  ]),
-                  new Text(formatter.format(transaction.amount),
-                      style: kPriceText),
-                ],
-              ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  new Text(
-                      "${dateFormatter.format(new DateTime.fromMillisecondsSinceEpoch(transaction.time.toInt()*1000))}",
-                      style: kSmallPriceText),
-                  new Text(
-                      "\$${fiatFormatter.format(rates.fiat(transaction.amount.toInt()))}")
-                ],
-              ),
-            ]),
+          icon,
+          new Expanded(child: details),
+        ]),
       ),
     );
   }
@@ -267,7 +272,8 @@ class WalletInfoPane extends StatelessWidget {
 }
 
 class WalletImpl extends StatelessWidget {
-  WalletImpl(this.walletBalance, this.channelBalance, this.transactions, this.heightOrError);
+  WalletImpl(this.walletBalance, this.channelBalance, this.transactions,
+      this.heightOrError);
 
   final Int64 walletBalance;
   final Int64 channelBalance;
@@ -393,7 +399,7 @@ class _WalletState extends DaemonPoller<Wallet> {
       });
     });
 
-      return null;
+    return null;
   }
 
   @override
@@ -402,6 +408,7 @@ class _WalletState extends DaemonPoller<Wallet> {
       return new Container();
     }
 
-    return new WalletImpl(walletBalance, channelBalance, transactions, heightOrError);
+    return new WalletImpl(
+        walletBalance, channelBalance, transactions, heightOrError);
   }
 }
