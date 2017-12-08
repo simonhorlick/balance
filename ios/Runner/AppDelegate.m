@@ -12,6 +12,11 @@
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *dir = [paths objectAtIndex:0];
   
+  // Log stderr to a file.
+  NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];
+  NSString *logFilePath = [dir stringByAppendingPathComponent:fileName];
+  freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+
   FlutterViewController* controller =
   (FlutterViewController*)self.window.rootViewController;
   
