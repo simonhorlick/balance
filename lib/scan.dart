@@ -383,18 +383,21 @@ class FullScreenInvoiceState extends State<FullScreenInvoice> {
       body: new Form(
           child: new ListView(
         children: <Widget>[
-          new TextField(
-            decoration: const InputDecoration(
-              hintText:
-                  'For example, lnbc2500u1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpuaztrnwngzn3kdzw5hydlzf03qdgm2hdq27cqv3agm2awhz5se903vruatfhq77w3ls4evs3ch9zw97j25emudupq63nyw24cg27h2rspfj9srp',
-              labelText: 'Invoice Text',
+          new Padding(
+            padding: new EdgeInsets.all(10.0),
+            child: new TextField(
+              decoration: const InputDecoration(
+                hintText:
+                    'For example, lnbc2500u1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpuaztrnwngzn3kdzw5hydlzf03qdgm2hdq27cqv3agm2awhz5se903vruatfhq77w3ls4evs3ch9zw97j25emudupq63nyw24cg27h2rspfj9srp',
+                labelText: 'Invoice Text',
+              ),
+              onChanged: (value) {
+                setState(() {
+                  invoice = value;
+                });
+              },
+              maxLines: 3,
             ),
-            onChanged: (value) {
-              setState(() {
-                invoice = value;
-              });
-            },
-            maxLines: 3,
           )
         ],
       )),
