@@ -14,9 +14,8 @@ FlutterMethodChannel* lndChannel;
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *dir = [paths objectAtIndex:0];
 
-  // Log stderr to a file.
-  NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];
-  NSString *logFilePath = [dir stringByAppendingPathComponent:fileName];
+  // Redirect stderr to a file, note that it will no longer appear in the console.
+  NSString *logFilePath = [dir stringByAppendingPathComponent:@"app.log"];
   freopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
 
   FlutterViewController* controller =
