@@ -251,7 +251,7 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
                             new SizedBox.fromSize(
                                 size: new Size.fromHeight(40.0)),
                             new Text(
-                                'Copy the following payment request text and pass it to the payee:'),
+                                'Copy the following payment request text and pass it to the person paying:'),
                             new SizedBox.fromSize(
                                 size: new Size.fromHeight(20.0)),
                             new TextField(
