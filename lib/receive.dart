@@ -242,17 +242,24 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
                   if (snapshot.hasError)
                     return new Text('Error: ${snapshot.error}');
                   else
-                    return new Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          new Text('REQUEST', style: kTitleText),
-                          new SizedBox.fromSize(
-                              size: new Size.fromHeight(40.0)),
-                          new TextField(
-                            controller: new TextEditingController(
-                                text: "${snapshot.data.paymentRequest}"),
-                          )
-                        ]);
+                    return new Padding(
+                      padding: new EdgeInsets.all(10.0),
+                      child: new Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            new Text('REQUEST', style: kTitleText),
+                            new SizedBox.fromSize(
+                                size: new Size.fromHeight(40.0)),
+                            new Text(
+                                'Copy the following payment request text and pass it to the payee:'),
+                            new SizedBox.fromSize(
+                                size: new Size.fromHeight(20.0)),
+                            new TextField(
+                              controller: new TextEditingController(
+                                  text: "${snapshot.data.paymentRequest}"),
+                            )
+                          ]),
+                    );
               }
             },
           )
