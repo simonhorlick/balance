@@ -7,12 +7,10 @@ import 'package:grpc/grpc.dart';
 
 const MethodChannel _kChannel = const MethodChannel('wallet_init_channel');
 
-
 /// A DaemonPoller begins polling LND when the widget is initialised, pauses
 /// when the application is backgrounded, and resumes when the application is
 /// back again.
 abstract class DaemonPoller<T extends StatefulWidget> extends State<T> {
-
   Timer timer;
 
   @override
@@ -44,11 +42,9 @@ abstract class DaemonPoller<T extends StatefulWidget> extends State<T> {
   }
 
   Future<Null> refresh();
-
 }
 
 class Daemon {
-
   static List<DaemonPoller> listeners = new List();
 
   /// Register for app lifecycle events and immediately dispatch a resume

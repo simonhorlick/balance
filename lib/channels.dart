@@ -20,7 +20,8 @@ class ChannelWrapper extends StatefulWidget {
   _ChannelWrapperState createState() => new _ChannelWrapperState();
 }
 
-class _ChannelWrapperState extends State<ChannelWrapper> with DaemonPoller<ChannelWrapper> {
+class _ChannelWrapperState extends State<ChannelWrapper>
+    with DaemonPoller<ChannelWrapper> {
   List<ActiveChannel> channels;
   List<PendingChannelResponse_ClosedChannel> closedChannels;
   List<PendingChannelResponse_PendingOpenChannel> openingChannels;

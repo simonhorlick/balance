@@ -74,9 +74,8 @@ class PaymentRow extends StatelessWidget {
           size: 16.0),
     );
 
-    var details = new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+    var details =
+        new Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       new Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -101,8 +100,7 @@ class PaymentRow extends StatelessWidget {
       color: Colors.white,
       child: new Padding(
         padding: new EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-        child: new Row(
-            children: [
+        child: new Row(children: [
           icon,
           new Expanded(child: details),
         ]),
