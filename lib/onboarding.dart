@@ -223,6 +223,12 @@ class _FundingScreenState extends State<FundingScreen> {
     var req = NewAddressRequest.create()
       ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
     stub.newAddress(req).then((response) {
+      // If the user has tapped next before we've generated a new address, then
+      // we need to silently ignore the new address, we can't show it anyway.
+      if (!this.mounted) {
+        return;
+      }
+
       setState(() {
         address = response.address;
       });
