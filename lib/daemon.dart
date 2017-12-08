@@ -22,9 +22,14 @@ abstract class DaemonPoller<T extends StatefulWidget> extends State<T> {
 
   void _resume() {
     print("DaemonPoller: application resumed, starting timer");
-    timer = new Timer.periodic(new Duration(seconds: 5), (timer) {
-      refresh();
-    });
+
+    if (timer != null && timer.isActive) {
+      print("DaemonPoller: error: timer already exists");
+    } else {
+      timer = new Timer.periodic(new Duration(seconds: 5), (timer) {
+        refresh();
+      });
+    }
     refresh();
   }
 
@@ -45,14 +50,17 @@ abstract class DaemonPoller<T extends StatefulWidget> extends State<T> {
 }
 
 class Daemon {
-  static List<DaemonPoller> listeners = new List();
+  static Set<DaemonPoller> listeners = new Set();
 
   /// Register for app lifecycle events and immediately dispatch a resume
   /// callback.
   static void addListener(DaemonPoller daemonPoller) {
-    print("Adding listener $daemonPoller");
-    listeners.add(daemonPoller);
-    daemonPoller._resume();
+    if (listeners.contains(daemonPoller)) {
+      print("Already listening for $daemonPoller");
+    } else {
+      listeners.add(daemonPoller);
+      daemonPoller._resume();
+    }
   }
 
   static removeListener(DaemonPoller daemonPoller) {
