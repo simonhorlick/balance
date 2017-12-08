@@ -3,6 +3,8 @@
 
 #include <Client/Client.h>
 
+FlutterMethodChannel* lndChannel;
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -11,7 +13,7 @@
   // The path we'll store all LND data.
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *dir = [paths objectAtIndex:0];
-  
+
   // Log stderr to a file.
   NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];
   NSString *logFilePath = [dir stringByAppendingPathComponent:fileName];
@@ -20,8 +22,7 @@
   FlutterViewController* controller =
   (FlutterViewController*)self.window.rootViewController;
   
-  FlutterMethodChannel* lndChannel = [FlutterMethodChannel
-                                      methodChannelWithName:@"wallet_init_channel"
+  lndChannel = [FlutterMethodChannel methodChannelWithName:@"wallet_init_channel"
                                       binaryMessenger:controller];
   [lndChannel setMethodCallHandler:^(FlutterMethodCall* call,
                                      FlutterResult result) {
@@ -49,6 +50,7 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application {
   NSLog(@"applicationDidBecomeActive");
   ClientResume();
+  [lndChannel invokeMethod:@"resume" arguments:nil];
   [super applicationDidBecomeActive:application];
 }
 
@@ -70,6 +72,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
   NSLog(@"applicationDidEnterBackground");
+  [lndChannel invokeMethod:@"pause" arguments:nil];
   ClientPause();
   [super applicationDidEnterBackground:application];
 }

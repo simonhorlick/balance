@@ -6,6 +6,8 @@
 	<string>Allow camera permissions in order to scan barcodes</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+  <key>UIFileSharingEnabled</key>
+	<true/>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

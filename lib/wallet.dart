@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:balance/daemon.dart';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:balance/rates.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:grpc/grpc.dart';
 
 import 'package:intl/intl.dart';
 
@@ -126,13 +128,15 @@ class Header extends StatelessWidget {
 }
 
 class Balance extends StatelessWidget {
-  Balance(this.walletBalance, this.channelBalance);
+  Balance(this.walletBalance, this.channelBalance, this.heightOrError);
 
   // This is the value that is contained only within the wallet.
   final Int64 walletBalance;
 
   // This is the value that is contained only within the channels.
   final Int64 channelBalance;
+
+  final String heightOrError;
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +146,7 @@ class Balance extends StatelessWidget {
       new SizedBox.fromSize(size: new Size.fromHeight(10.0)),
       new Text("spendable: " + formatter.format(channelBalance),
           style: kBalanceSubText),
+      new Text(heightOrError, style: kBalanceSubText),
     ]);
   }
 }
@@ -262,15 +267,16 @@ class WalletInfoPane extends StatelessWidget {
 }
 
 class WalletImpl extends StatelessWidget {
-  WalletImpl(this.walletBalance, this.channelBalance, this.transactions);
+  WalletImpl(this.walletBalance, this.channelBalance, this.transactions, this.heightOrError);
 
   final Int64 walletBalance;
   final Int64 channelBalance;
   final List<Tx> transactions;
+  final String heightOrError;
 
   @override
   Widget build(BuildContext context) {
-    var balancePane = new Balance(walletBalance, channelBalance);
+    var balancePane = new Balance(walletBalance, channelBalance, heightOrError);
 
     var drawItems = new ListView(children: [
       new Text("Balance",
@@ -330,7 +336,7 @@ class Wallet extends StatefulWidget {
   _WalletState createState() => new _WalletState();
 }
 
-class _WalletState extends State<Wallet> {
+class _WalletState extends State<Wallet> with DaemonPoller<Wallet> {
   Int64 walletBalance;
   Int64 channelBalance;
 
@@ -338,7 +344,7 @@ class _WalletState extends State<Wallet> {
 
   bool ready = false;
 
-  Timer pollingTimer;
+  String heightOrError = "pending";
 
   paymentToTx(Payment p) {
     return new Tx("Sent", p.value, p.creationDate, false);
@@ -348,7 +354,8 @@ class _WalletState extends State<Wallet> {
     return new Tx("Received", inv.value, inv.creationDate, true);
   }
 
-  Future refresh() async {
+  @override
+  Future<Null> _refresh() async {
     var walletBalanceResponse =
         await widget.stub.walletBalance(WalletBalanceRequest.create());
     var channelBalanceResponse =
@@ -374,21 +381,17 @@ class _WalletState extends State<Wallet> {
       ready = true;
     });
 
-    return null;
-  }
-
-  @override
-  initState() {
-    super.initState();
-    pollingTimer = new Timer.periodic(new Duration(seconds: 5), (timer) {
-      refresh();
+    widget.stub.getInfo(GetInfoRequest.create()).then((response) {
+      setState(() {
+        heightOrError = "height: ${response.blockHeight}";
+      });
+    }).catchError((error) {
+      setState(() {
+        heightOrError = "error: ${error.message}";
+      });
     });
-  }
 
-  @override
-  void dispose() {
-    pollingTimer.cancel();
-    super.dispose();
+      return null;
   }
 
   @override
@@ -397,6 +400,6 @@ class _WalletState extends State<Wallet> {
       return new Container();
     }
 
-    return new WalletImpl(walletBalance, channelBalance, transactions);
+    return new WalletImpl(walletBalance, channelBalance, transactions, heightOrError);
   }
 }

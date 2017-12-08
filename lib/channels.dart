@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:balance/daemon.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 
@@ -19,32 +20,20 @@ class ChannelWrapper extends StatefulWidget {
   _ChannelWrapperState createState() => new _ChannelWrapperState();
 }
 
-class _ChannelWrapperState extends State<ChannelWrapper> {
+class _ChannelWrapperState extends State<ChannelWrapper> with DaemonPoller<ChannelWrapper> {
   List<ActiveChannel> channels;
   List<PendingChannelResponse_ClosedChannel> closedChannels;
   List<PendingChannelResponse_PendingOpenChannel> openingChannels;
   List<PendingChannelResponse_ForceClosedChannel> forceClosedChannels;
 
-  Timer pollingTimer;
-
   List<Peer> peers;
 
   @override
-  initState() {
-    super.initState();
+  Future<Null> _refresh() {
     refreshChannels();
     refreshPeers();
 
-    pollingTimer = new Timer.periodic(new Duration(seconds: 5), (timer) {
-      refreshChannels();
-      refreshPeers();
-    });
-  }
-
-  @override
-  void deactivate() {
-    pollingTimer.cancel();
-    super.deactivate();
+    return null;
   }
 
   void refreshChannels() {

@@ -2,11 +2,70 @@ import 'dart:async';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:grpc/grpc.dart';
 
 const MethodChannel _kChannel = const MethodChannel('wallet_init_channel');
 
+
+/// A mixin that begins polling LND when the widget is initialised, pauses when
+/// the application is backgrounded, and resumes when the application is back
+/// again.
+abstract class DaemonPoller<T extends StatefulWidget> extends State<T> {
+
+  Timer timer;
+
+  @override
+  initState() {
+    super.initState();
+    print("DaemonPoller: registering lifecycle callbacks");
+    Daemon.registerListener(_pause, _resume);
+  }
+
+  void _resume() {
+    print("DaemonPoller: application resumed, starting timer");
+    timer = new Timer.periodic(new Duration(seconds: 5), (timer) {
+      _refresh();
+    });
+    _refresh();
+  }
+
+  void _pause() {
+    print("DaemonPoller: application paused, cancelling timer");
+    timer.cancel();
+  }
+
+  @override
+  dispose() {
+    print("DaemonPoller: widget is being disposed, cancelling timer");
+    Daemon.removeListener();
+    timer.cancel();
+    super.dispose();
+  }
+
+  Future<Null> _refresh();
+
+}
+
 class Daemon {
+
+  /// Register for app lifecycle events and immediately dispatch a resume
+  /// callback.
+  static registerListener(void pause(), void resume()) {
+    _kChannel.setMethodCallHandler((call) {
+      if (call.method == "resume") {
+        resume();
+      } else if (call.method == "pause") {
+        pause();
+      }
+    });
+    resume();
+  }
+
+  static removeListener() {
+    _kChannel.setMethodCallHandler(null);
+  }
+
   // Checks whether a wallet has been created.
   static Future<bool> walletExists() async {
     return await _kChannel.invokeMethod('walletExists');
