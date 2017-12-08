@@ -8,26 +8,26 @@ import 'package:grpc/grpc.dart';
 const MethodChannel _kChannel = const MethodChannel('wallet_init_channel');
 
 
-/// A mixin that begins polling LND when the widget is initialised, pauses when
-/// the application is backgrounded, and resumes when the application is back
-/// again.
+/// A DaemonPoller begins polling LND when the widget is initialised, pauses
+/// when the application is backgrounded, and resumes when the application is
+/// back again.
 abstract class DaemonPoller<T extends StatefulWidget> extends State<T> {
 
   Timer timer;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
     print("DaemonPoller: registering lifecycle callbacks");
-    Daemon.registerListener(_pause, _resume);
+    Daemon.addListener(this);
   }
 
   void _resume() {
     print("DaemonPoller: application resumed, starting timer");
     timer = new Timer.periodic(new Duration(seconds: 5), (timer) {
-      _refresh();
+      refresh();
     });
-    _refresh();
+    refresh();
   }
 
   void _pause() {
@@ -36,34 +36,32 @@ abstract class DaemonPoller<T extends StatefulWidget> extends State<T> {
   }
 
   @override
-  dispose() {
+  void dispose() {
     print("DaemonPoller: widget is being disposed, cancelling timer");
-    Daemon.removeListener();
+    Daemon.removeListener(this);
     timer.cancel();
     super.dispose();
   }
 
-  Future<Null> _refresh();
+  Future<Null> refresh();
 
 }
 
 class Daemon {
 
+  static List<DaemonPoller> listeners = new List();
+
   /// Register for app lifecycle events and immediately dispatch a resume
   /// callback.
-  static registerListener(void pause(), void resume()) {
-    _kChannel.setMethodCallHandler((call) {
-      if (call.method == "resume") {
-        resume();
-      } else if (call.method == "pause") {
-        pause();
-      }
-    });
-    resume();
+  static void addListener(DaemonPoller daemonPoller) {
+    print("Adding listener $daemonPoller");
+    listeners.add(daemonPoller);
+    daemonPoller._resume();
   }
 
-  static removeListener() {
-    _kChannel.setMethodCallHandler(null);
+  static removeListener(DaemonPoller daemonPoller) {
+    print("Removing listener $daemonPoller");
+    listeners.remove(daemonPoller);
   }
 
   // Checks whether a wallet has been created.
@@ -84,6 +82,16 @@ class Daemon {
 
   // Initialises the wallet and uses the given mnemonic as the HD seed.
   static Future<Null> start(String mnemonic) async {
+    // Attach a method call handler so we can receive callbacks from native
+    // code.
+    _kChannel.setMethodCallHandler((call) {
+      if (call.method == "resume") {
+        listeners.forEach((poller) => poller._resume());
+      } else if (call.method == "pause") {
+        listeners.forEach((poller) => poller._pause());
+      }
+    });
+
     return await _kChannel.invokeMethod('start', mnemonic);
   }
 

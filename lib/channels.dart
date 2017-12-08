@@ -29,7 +29,9 @@ class _ChannelWrapperState extends State<ChannelWrapper> with DaemonPoller<Chann
   List<Peer> peers;
 
   @override
-  Future<Null> _refresh() {
+  Future<Null> refresh() {
+    print("channels: Refreshing state");
+
     refreshChannels();
     refreshPeers();
 

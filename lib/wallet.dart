@@ -336,7 +336,7 @@ class Wallet extends StatefulWidget {
   _WalletState createState() => new _WalletState();
 }
 
-class _WalletState extends State<Wallet> with DaemonPoller<Wallet> {
+class _WalletState extends DaemonPoller<Wallet> {
   Int64 walletBalance;
   Int64 channelBalance;
 
@@ -355,7 +355,9 @@ class _WalletState extends State<Wallet> with DaemonPoller<Wallet> {
   }
 
   @override
-  Future<Null> _refresh() async {
+  Future<Null> refresh() async {
+    print("wallet: Refreshing state");
+
     var walletBalanceResponse =
         await widget.stub.walletBalance(WalletBalanceRequest.create());
     var channelBalanceResponse =
