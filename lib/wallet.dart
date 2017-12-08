@@ -169,7 +169,6 @@ class TopUp extends StatelessWidget {
   }
 
   _navigateToTopup(BuildContext context) {
-    // TODO(simon): Implement.
     Navigator.of(context).pushNamed("/topup");
   }
 }
