@@ -343,6 +343,8 @@ class _WalletState extends DaemonPoller<Wallet> {
   Int64 walletBalance;
   Int64 channelBalance;
 
+  GetInfoResponse info;
+
   List<Tx> transactions;
 
   bool ready = false;
@@ -357,44 +359,70 @@ class _WalletState extends DaemonPoller<Wallet> {
     return new Tx("Received", inv.value, inv.creationDate, true);
   }
 
+  /// Called if the chain has just become synchronised.
+  void hasSyncedToChain() {
+    // Add a well-known peer in case something goes wrong with bootstrapping.
+    var addr = LightningAddress.create()
+      ..host = "172.104.59.47"
+      ..pubkey =
+          "038b869a90060ca856ac80ec54c20acebca93df1869fbee9550efeb238b964558c";
+
+    // This has to happen after the chain backend has finished syncing or the
+    // rpc will fail.
+    widget.stub
+        .connectPeer(ConnectPeerRequest.create()
+          ..perm = true
+          ..addr = addr)
+        .then((response) {
+      print("connected: $response");
+    }).catchError((error) {
+      print("error connecting to peer: $error");
+    });
+  }
+
   @override
   Future<Null> refresh() async {
     print("wallet: Refreshing state");
 
-    var walletBalanceResponse =
-        await widget.stub.walletBalance(WalletBalanceRequest.create());
-    var channelBalanceResponse =
-        await widget.stub.channelBalance(ChannelBalanceRequest.create());
-    var paymentsResponse =
-        await widget.stub.listPayments(ListPaymentsRequest.create());
-    var invoicesResponse =
-        await widget.stub.listInvoices(ListInvoiceRequest.create());
+    try {
+      var walletBalanceResponse =
+          await widget.stub.walletBalance(WalletBalanceRequest.create());
+      var channelBalanceResponse =
+          await widget.stub.channelBalance(ChannelBalanceRequest.create());
+      var paymentsResponse =
+          await widget.stub.listPayments(ListPaymentsRequest.create());
+      var invoicesResponse =
+          await widget.stub.listInvoices(ListInvoiceRequest.create());
+      var infoResponse = await widget.stub.getInfo(GetInfoRequest.create());
 
-    setState(() {
-      walletBalance = walletBalanceResponse.totalBalance;
-      channelBalance = channelBalanceResponse.balance;
+      if (info != null && !info.syncedToChain && infoResponse.syncedToChain) {
+        hasSyncedToChain();
+      }
 
-      var invoices = invoicesResponse.invoices
-          .where((inv) => inv.settled)
-          .map(invoiceToTx)
-          .toList();
-      var payments = paymentsResponse.payments.map(paymentToTx).toList();
-
-      transactions = invoices
-        ..addAll(payments)
-        ..sort((a, b) => b.time.compareTo(a.time));
-      ready = true;
-    });
-
-    widget.stub.getInfo(GetInfoRequest.create()).then((response) {
       setState(() {
-        heightOrError = "height: ${response.blockHeight}";
+        walletBalance = walletBalanceResponse.totalBalance;
+        channelBalance = channelBalanceResponse.balance;
+
+        var invoices = invoicesResponse.invoices
+            .where((inv) => inv.settled)
+            .map(invoiceToTx)
+            .toList();
+        var payments = paymentsResponse.payments.map(paymentToTx).toList();
+
+        transactions = invoices
+          ..addAll(payments)
+          ..sort((a, b) => b.time.compareTo(a.time));
+
+        info = infoResponse;
+
+        heightOrError =
+            "height: ${info.blockHeight}\nchannels: ${info.numPendingChannels}/${info.numActiveChannels}\npeers: ${info.numPeers}";
+
+        ready = true;
       });
-    }).catchError((error) {
-      setState(() {
-        heightOrError = "error: ${error.message}";
-      });
-    });
+    } catch (error) {
+      print("$error");
+    }
 
     return null;
   }

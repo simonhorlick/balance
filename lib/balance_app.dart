@@ -19,33 +19,13 @@ class BalanceApp extends StatefulWidget {
 class BalanceAppState extends State<BalanceApp> {
   LightningClient _stub;
 
+  bool syncedToChain = false;
+
   @override
   initState() {
     super.initState();
     Daemon.start("");
     _stub = Daemon.connect();
-
-    // Add a well-known peer in case something goes wrong with bootstrapping.
-    var addr = LightningAddress.create()
-      ..host = "sg.horlick.me"
-      ..pubkey =
-          "038b869a90060ca856ac80ec54c20acebca93df1869fbee9550efeb238b964558c";
-
-    _stub
-        .connectPeer(ConnectPeerRequest.create()
-          ..perm = true
-          ..addr = addr)
-        .then((response) {
-      print("$response");
-    }).catchError((error) {
-      print("error: $error");
-    });
-  }
-
-  @override
-  dispose() {
-    super.dispose();
-    // TODO(simon): Close channel here?
   }
 
   // This widget is the root of your application.
