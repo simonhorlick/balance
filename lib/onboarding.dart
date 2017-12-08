@@ -30,7 +30,6 @@ class OnboardingPage extends StatelessWidget {
                   child: new Container(
                       decoration: new BoxDecoration(
                         color: const Color(0xFF007AFF),
-                        borderRadius: new BorderRadius.circular(8.0),
                       ),
                       child: new Center(
                           child: new Text("Next",
@@ -48,14 +47,10 @@ const kTitleText = const TextStyle(
     fontSize: 50.0,
     color: Colors.black,
     fontWeight: FontWeight.w900,
+    decoration: TextDecoration.underline,
+    decorationStyle: TextDecorationStyle.solid,
+    decorationColor: Colors.black,
     letterSpacing: -3.0);
-
-const kTitleAccentText = const TextStyle(
-    fontSize: 50.0,
-    color: Colors.redAccent,
-    fontWeight: FontWeight.w900,
-    letterSpacing: -3.0,
-    height: 0.6);
 
 const kNormalText = const TextStyle(fontSize: 18.0, color: Colors.black);
 
@@ -71,7 +66,7 @@ class HelloScreen extends StatelessWidget {
             opacity: animation,
             child: new SlideTransition(
               position: new Tween<Offset>(
-                      begin: const Offset(0.0, 0.1),
+                      begin: const Offset(1.0, 0.0),
                       end: const Offset(0.0, 0.0))
                   .animate(animation),
               child: child,
@@ -88,8 +83,7 @@ class HelloScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            new Text("Welcome to", style: kTitleText),
-            new Text("Balance", style: kTitleText),
+            new Text("balance", style: kTitleText),
             new SizedBox.fromSize(size: new Size.fromHeight(40.0)),
             new Text(
                 "Balance is a new way of sending value cheaply and instantly.",
@@ -139,7 +133,7 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
               opacity: animation,
               child: new SlideTransition(
                 position: new Tween<Offset>(
-                        begin: const Offset(0.0, 0.1),
+                        begin: const Offset(1.0, 0.0),
                         end: const Offset(0.0, 0.0))
                     .animate(animation),
                 child: child,
@@ -197,6 +191,8 @@ class FundingScreen extends StatefulWidget {
 class _FundingScreenState extends State<FundingScreen> {
   String address;
 
+  var stub = Daemon.connect();
+
   _next(BuildContext context) {
     Navigator.of(context).pushReplacement(new PageRouteBuilder(
         opaque: false,
@@ -208,7 +204,7 @@ class _FundingScreenState extends State<FundingScreen> {
             opacity: animation,
             child: new SlideTransition(
               position: new Tween<Offset>(
-                      begin: const Offset(0.0, 0.1),
+                      begin: const Offset(1.0, 0.0),
                       end: const Offset(0.0, 0.0))
                   .animate(animation),
               child: child,
@@ -220,14 +216,21 @@ class _FundingScreenState extends State<FundingScreen> {
   @override
   void initState() {
     super.initState();
-    var stub = Daemon.connect();
+    refresh();
+  }
 
+  void refresh() {
     var req = NewAddressRequest.create()
       ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
     stub.newAddress(req).then((response) {
       setState(() {
         address = response.address;
       });
+    }).catchError((error) {
+      print("error: $error");
+
+      // Retry, eventually it'll work.
+      refresh();
     });
   }
 
