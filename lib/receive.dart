@@ -98,6 +98,8 @@ class Keypad extends StatefulWidget {
 class _KeypadState extends State<Keypad> {
   String _digits = "0";
 
+  Future<Rates> rates;
+
   void _addDigit(String digit) {
     setState(() {
       _digits += digit;
@@ -124,6 +126,14 @@ class _KeypadState extends State<Keypad> {
         _digits = _digits.substring(0, _digits.length - 1);
       }
     });
+  }
+
+  @override
+  initState() {
+    super.initState();
+
+    // Find the FX rate now while the user is typing the amount.
+    rates = BitstampRates.create();
   }
 
   @override
@@ -192,7 +202,7 @@ class _KeypadState extends State<Keypad> {
   Future<Null> _request() async {
     Navigator.of(context).pushReplacement(new MaterialPageRoute<bool>(
           builder: (BuildContext context) =>
-              new PaymentRequestScreen(_digits, widget.stub),
+              new PaymentRequestScreen(_digits, widget.stub, rates),
           fullscreenDialog: true,
         ));
   }
@@ -205,8 +215,9 @@ const kNormalText = const TextStyle(fontSize: 16.0, color: Colors.white);
 class PaymentRequestScreen extends StatefulWidget {
   final String digits;
   final LightningClient stub;
+  final Future<Rates> rates;
 
-  PaymentRequestScreen(this.digits, this.stub);
+  PaymentRequestScreen(this.digits, this.stub, this.rates);
 
   @override
   _PaymentRequestScreenState createState() => new _PaymentRequestScreenState();
@@ -214,18 +225,25 @@ class PaymentRequestScreen extends StatefulWidget {
 
 class _PaymentRequestScreenState extends DaemonPoller<PaymentRequestScreen> {
   AddInvoiceResponse response;
-  Rates rates = new FakeRates();
-
+  String errorText;
   bool settled = false;
 
   @override
   initState() {
     super.initState();
 
-    var amountFiat = double.parse(widget.digits);
-    var satoshis = rates.satoshis(amountFiat);
+    widget.rates.then((fxRates) {
+      print("Rate is currently ${fxRates.fiat(kSatoshisPerBitcoin)}");
+      var amountFiat = double.parse(widget.digits);
+      var satoshis = fxRates.satoshis(amountFiat);
 
-    createInvoice(satoshis);
+      createInvoice(satoshis);
+    }).catchError((error) {
+      print("error: $error");
+      setState(() {
+        errorText = error.toString();
+      });
+    });
   }
 
   @override
@@ -253,13 +271,18 @@ class _PaymentRequestScreenState extends DaemonPoller<PaymentRequestScreen> {
   }
 
   Future<Null> createInvoice(int satoshis) async {
-    var invoiceResponse = await widget.stub.addInvoice(Invoice.create()
-      ..memo = ""
-      ..value = new Int64(satoshis));
-
-    setState(() {
-      response = invoiceResponse;
-    });
+    try {
+      var invoiceResponse = await widget.stub.addInvoice(Invoice.create()
+        ..memo = ""
+        ..value = new Int64(satoshis));
+      setState(() {
+        response = invoiceResponse;
+      });
+    } catch (error) {
+      setState(() {
+        errorText = error.message;
+      });
+    }
 
     return null;
   }
@@ -268,8 +291,15 @@ class _PaymentRequestScreenState extends DaemonPoller<PaymentRequestScreen> {
   Widget build(BuildContext context) {
     var content;
 
-    if (response == null) {
-      content = new Container();
+    if (errorText != null) {
+      content = new Padding(
+        padding: new EdgeInsets.all(20.0),
+        child: new Center(child: new Text("$errorText", style: kNormalText)),
+      );
+    } else if (response == null) {
+      content = new Center(
+          child:
+              new Text("Fetching current exchange rate.", style: kNormalText));
     } else if (settled == false) {
       content = new Expanded(child: new Page(response.paymentRequest));
     } else {
