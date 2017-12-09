@@ -5,53 +5,6 @@ import 'package:qr/qr.dart';
 
 import 'package:flutter/services.dart';
 
-class QrContainer extends StatefulWidget {
-  final String address;
-  final TextStyle textStyle;
-  final Color qrColor;
-
-  QrContainer(this.address, this.textStyle, this.qrColor);
-
-  @override
-  _QrContainerState createState() => new _QrContainerState();
-}
-
-class _QrContainerState extends State<QrContainer> {
-  bool isCopied = false;
-
-  @override
-  Widget build(BuildContext context) {
-    var copyText = isCopied
-        ? new Text("Copied to clipboard.", style: widget.textStyle)
-        : new Text("You can long press on the QR code to copy it.",
-            style: widget.textStyle);
-
-    return new Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      new Padding(
-        padding: new EdgeInsets.only(bottom: 20.0),
-        child: new Text(
-            "Send funds to the following address to begin using your wallet.\n\n"
-            "This should take a few minutes, but could take up to an hour.",
-            style: widget.textStyle),
-      ),
-      new Expanded(
-          child: new AspectRatio(
-              aspectRatio: 1.0,
-              child: new QrCodeWidget(
-                data: widget.address,
-                color: Colors.black,
-                onCopied: () => setState(() {
-                      isCopied = true;
-                    }),
-              ))),
-      new Padding(
-          padding: new EdgeInsets.only(top: 20.0),
-          child: new SizedBox.fromSize(
-              size: new Size.fromHeight(50.0), child: copyText)),
-    ]);
-  }
-}
-
 typedef void OnCopiedCallback();
 
 class QrCodeWidget extends StatelessWidget {

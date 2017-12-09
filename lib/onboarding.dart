@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:grpc/grpc.dart' hide ConnectionState;
 
 // An OnboardingPage consists of a main body with a "next" button at the bottom
 // of the screen, allowing the user to progress through the onboarding.
@@ -191,7 +192,7 @@ class FundingScreen extends StatefulWidget {
 }
 
 class _FundingScreenState extends State<FundingScreen> {
-  String address;
+  ResponseFuture<NewAddressResponse> address;
   bool isCopied = false;
 
   var stub = Daemon.connect();
@@ -223,24 +224,14 @@ class _FundingScreenState extends State<FundingScreen> {
   }
 
   void refresh() {
-    var req = NewAddressRequest.create()
-      ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH;
-    stub.newAddress(req).then((response) {
-      // If the user has tapped next before we've generated a new address, then
-      // we need to silently ignore the new address, we can't show it anyway.
-      if (!this.mounted) {
-        return;
-      }
-
-      setState(() {
-        address = response.address;
-      });
-    }).catchError((error) {
+    try {
+      address = stub.newAddress(NewAddressRequest.create()
+        ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH);
+    } catch (error) {
       print("error: $error");
-
       // Retry, eventually it'll work.
       refresh();
-    });
+    }
   }
 
   @override
@@ -251,8 +242,7 @@ class _FundingScreenState extends State<FundingScreen> {
             style: kNormalText);
 
     var addressBuilder = new FutureBuilder<NewAddressResponse>(
-      future: stub.newAddress(NewAddressRequest.create()
-        ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH),
+      future: address,
       builder:
           (BuildContext context, AsyncSnapshot<NewAddressResponse> snapshot) {
         switch (snapshot.connectionState) {

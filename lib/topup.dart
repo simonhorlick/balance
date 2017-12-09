@@ -6,6 +6,7 @@ import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/r
 import 'package:balance/qr.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
+import 'package:grpc/src/shared.dart';
 
 import 'package:intl/intl.dart';
 
@@ -13,16 +14,35 @@ import 'package:flutter/services.dart';
 
 const kNormalText = const TextStyle(color: Colors.white, fontSize: 16.0);
 
-class Topup extends StatelessWidget {
+class Topup extends StatefulWidget {
   final LightningClient stub;
 
   Topup(this.stub);
 
   @override
+  _TopupState createState() => new _TopupState();
+}
+
+class _TopupState extends State<Topup> {
+  bool isCopied = false;
+
+  ResponseFuture<NewAddressResponse> addressResponse;
+
+  @override
+  initState() {
+    addressResponse = widget.stub.newAddress(NewAddressRequest.create()
+      ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var copyText = isCopied
+        ? new Text("Copied to clipboard.", style: kNormalText)
+        : new Text("You can long press on the QR code to copy it.",
+            style: kNormalText);
+
     var addressBuilder = new FutureBuilder<NewAddressResponse>(
-      future: stub.newAddress(NewAddressRequest.create()
-        ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH),
+      future: addressResponse,
       builder:
           (BuildContext context, AsyncSnapshot<NewAddressResponse> snapshot) {
         switch (snapshot.connectionState) {
@@ -36,8 +56,24 @@ class Topup extends StatelessWidget {
                   child:
                       new Text('Error: ${snapshot.error}', style: kNormalText));
             else
-              return new QrContainer(
-                  snapshot.data.address, kNormalText, Colors.white);
+              return new Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    new Expanded(
+                        child: new AspectRatio(
+                            aspectRatio: 1.0,
+                            child: new QrCodeWidget(
+                              data: snapshot.data.address,
+                              color: Colors.white,
+                              onCopied: () => setState(() {
+                                    isCopied = true;
+                                  }),
+                            ))),
+                    new Padding(
+                        padding: new EdgeInsets.only(top: 20.0),
+                        child: new SizedBox.fromSize(
+                            size: new Size.fromHeight(50.0), child: copyText)),
+                  ]);
         }
       },
     );
