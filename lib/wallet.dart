@@ -425,8 +425,11 @@ class _WalletState extends DaemonPoller<Wallet> {
 
         info = infoResponse;
 
-        heightOrError =
-            "height: ${info.blockHeight}\nchannels: ${info.numPendingChannels}/${info.numActiveChannels}\npeers: ${info.numPeers}\nnet: nodes ${networkInfo.numNodes}, chans=${networkInfo.numChannels}";
+        // TODO(simon): Add an initial sync progress. Also show number of
+        // channels synced.
+        //heightOrError =
+        //    "height: ${info.blockHeight}\nchannels: ${info.numPendingChannels}/${info.numActiveChannels}\npeers: ${info.numPeers}\nnet: nodes ${networkInfo.numNodes}, chans=${networkInfo.numChannels}";
+        heightOrError = "";
 
         ready = true;
       });
