@@ -36,22 +36,8 @@ class Topup extends StatelessWidget {
                   child:
                       new Text('Error: ${snapshot.error}', style: kNormalText));
             else
-              return new Padding(
-                padding: new EdgeInsets.all(20.0),
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      new FitWidth(
-                          child: new QrCodeWidget(
-                              data: snapshot.data.address,
-                              color: Colors.white)),
-                      new Padding(
-                          padding: new EdgeInsets.only(top: 20.0),
-                          child: new Text(
-                              "You can long press on the QR code to copy it.",
-                              style: kNormalText)),
-                    ]),
-              );
+              return new QrContainer(
+                  snapshot.data.address, kNormalText, Colors.white);
         }
       },
     );
@@ -64,7 +50,9 @@ class Topup extends StatelessWidget {
           new Align(
               alignment: Alignment.centerLeft,
               child: new BackButton(color: Colors.white)),
-          new Expanded(child: addressBuilder),
+          new Expanded(
+              child: new Padding(
+                  padding: new EdgeInsets.all(20.0), child: addressBuilder)),
         ]),
       ),
     );

@@ -249,10 +249,12 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
                   case ConnectionState.none:
                     return new Text('', style: kNormalText);
                   case ConnectionState.waiting:
-                    return new Text('Generating invoice...', style: kNormalText);
+                    return new Text('Generating invoice...',
+                        style: kNormalText);
                   default:
                     if (snapshot.hasError)
-                      return new Text('Error: ${snapshot.error}', style: kNormalText);
+                      return new Text('Error: ${snapshot.error}',
+                          style: kNormalText);
                     else
                       return new Page(snapshot.data.paymentRequest);
                 }
