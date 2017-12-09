@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:balance/qr.dart';
 import 'package:balance/rates.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -193,7 +194,8 @@ class _KeypadState extends State<Keypad> {
   }
 }
 
-const kTitleText = const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
+const kTitleText = const TextStyle(
+    fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
 
 class PaymentRequestScreen extends StatefulWidget {
   final String digits;
@@ -226,45 +228,67 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: new Column(
-        children: [
-          new Align(alignment: Alignment.centerLeft, child: new BackButton()),
-          new FutureBuilder<AddInvoiceResponse>(
-            future: response,
-            builder: (BuildContext context,
-                AsyncSnapshot<AddInvoiceResponse> snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.none:
-                  return new Text('ConnectionState.none');
-                case ConnectionState.waiting:
-                  return new Text('ConnectionState.waiting');
-                default:
-                  if (snapshot.hasError)
-                    return new Text('Error: ${snapshot.error}');
-                  else
-                    return new Padding(
-                      padding: new EdgeInsets.all(10.0),
-                      child: new Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            new Text('REQUEST', style: kTitleText),
-                            new SizedBox.fromSize(
-                                size: new Size.fromHeight(40.0)),
-                            new Text(
-                                'Copy the following payment request text and pass it to the person paying:'),
-                            new SizedBox.fromSize(
-                                size: new Size.fromHeight(20.0)),
-                            new TextField(
-                              controller: new TextEditingController(
-                                  text: "${snapshot.data.paymentRequest}"),
-                            )
-                          ]),
-                    );
-              }
-            },
-          )
-        ],
-      ),
+        backgroundColor: Colors.blue,
+        body: new Column(children: [
+          new Padding(
+              padding:
+                  new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              child: new Align(
+                  alignment: Alignment.centerLeft,
+                  child: new BackButton(color: Colors.white))),
+          new Expanded(
+            child: new FutureBuilder<AddInvoiceResponse>(
+              future: response,
+              builder: (BuildContext context,
+                  AsyncSnapshot<AddInvoiceResponse> snapshot) {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    return new Text('ConnectionState.none');
+                  case ConnectionState.waiting:
+                    return new Text('ConnectionState.waiting');
+                  default:
+                    if (snapshot.hasError)
+                      return new Text('Error: ${snapshot.error}');
+                    else
+                      return new Page(snapshot.data.paymentRequest);
+                }
+              },
+            ),
+          ),
+        ]));
+  }
+}
+
+class FitWidth extends StatelessWidget {
+  final Widget child;
+
+  FitWidth({this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return new Row(mainAxisSize: MainAxisSize.max, children: [
+      new Expanded(
+        child: new AspectRatio(aspectRatio: 1.0, child: child),
+      )
+    ]);
+  }
+}
+
+class Page extends StatelessWidget {
+  final String paymentRequest;
+
+  Page(this.paymentRequest);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        new Text('REQUEST', style: kTitleText),
+        new Padding(
+            padding: new EdgeInsets.all(20.0),
+            child: new FitWidth(child: new QrCodeWidget(paymentRequest)))
+      ],
     );
   }
 }

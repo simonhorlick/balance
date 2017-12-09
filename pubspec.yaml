@@ -16,6 +16,10 @@ dependencies:
   protobuf: 0.6.0
   intl: "^0.15.2"
   http: '>=0.11.3+12'
+  qr:
+    git:
+      url: git://github.com/kevmoo/qr.dart.git
+      ref: d38c6d7290d06a46b88c0811da1e0abca1c21135
 
 dev_dependencies:
   flutter_test:
