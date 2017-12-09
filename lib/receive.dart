@@ -39,11 +39,13 @@ const kButtonStyle = const TextStyle(fontSize: 18.0, color: Colors.white);
 
 var fiatFormatter = new NumberFormat("###,###", "en_US");
 
+typedef void KeyTapCallback(text);
+
 class Key extends StatelessWidget {
   Key(this.text, this._addDigit);
 
   final String text;
-  final Function _addDigit;
+  final KeyTapCallback _addDigit;
 
   @override
   Widget build(BuildContext context) {
@@ -245,12 +247,12 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
                   AsyncSnapshot<AddInvoiceResponse> snapshot) {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
-                    return new Text('ConnectionState.none');
+                    return new Text('', style: kNormalText);
                   case ConnectionState.waiting:
-                    return new Text('ConnectionState.waiting');
+                    return new Text('Generating invoice...', style: kNormalText);
                   default:
                     if (snapshot.hasError)
-                      return new Text('Error: ${snapshot.error}');
+                      return new Text('Error: ${snapshot.error}', style: kNormalText);
                     else
                       return new Page(snapshot.data.paymentRequest);
                 }
