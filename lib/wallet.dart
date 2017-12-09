@@ -361,6 +361,8 @@ class _WalletState extends DaemonPoller<Wallet> {
 
   /// Called if the chain has just become synchronised.
   void hasSyncedToChain() {
+    print("wallet: hasSyncedToChain");
+
     // Add a well-known peer in case something goes wrong with bootstrapping.
     var addr = LightningAddress.create()
       ..host = "172.104.59.47"
@@ -395,7 +397,7 @@ class _WalletState extends DaemonPoller<Wallet> {
           await widget.stub.listInvoices(ListInvoiceRequest.create());
       var infoResponse = await widget.stub.getInfo(GetInfoRequest.create());
 
-      if (info != null && !info.syncedToChain && infoResponse.syncedToChain) {
+      if (infoResponse.syncedToChain && (info == null || !info.syncedToChain)) {
         hasSyncedToChain();
       }
 
