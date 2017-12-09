@@ -6,8 +6,9 @@ import 'package:flutter/services.dart';
 
 class QrCodeWidget extends StatelessWidget {
   final String data;
+  final Color color;
 
-  QrCodeWidget(this.data);
+  QrCodeWidget({this.data, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +32,17 @@ class QrCodeWidget extends StatelessWidget {
         print("Copied the following to the clipboard: $data");
       },
       child: new CustomPaint(
-        painter: new Sky(code),
+        painter: new QrCodePainter(code, color),
       ),
     );
   }
 }
 
-class Sky extends CustomPainter {
+class QrCodePainter extends CustomPainter {
   final QrCode code;
+  final Color color;
 
-  Sky(this.code);
+  QrCodePainter(this.code, this.color);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -58,9 +60,7 @@ class Sky extends CustomPainter {
         canvas.drawRect(
           moduleRect,
           new Paint()
-            ..color = code.isDark(i, j)
-                ? const Color(0xFFFFFFFF)
-                : const Color(0x00FFFFFF)
+            ..color = code.isDark(i, j) ? color : const Color(0x00FFFFFF)
             ..isAntiAlias = false,
         );
       }

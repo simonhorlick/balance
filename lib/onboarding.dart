@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:balance/balance_app.dart';
 import 'package:balance/daemon.dart';
+import 'package:balance/fit_width.dart';
+import 'package:balance/qr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -255,9 +257,14 @@ class _FundingScreenState extends State<FundingScreen> {
             new Center(
                 child: address == null
                     ? new Text("Generating address...", style: kNormalText)
-                    : new TextField(
-                        controller:
-                            new TextEditingController(text: "$address"))),
+                    : new FitWidth(
+                        child: new QrCodeWidget(
+                            data: address, color: Colors.black))),
+            new Text(
+                address == null
+                    ? ""
+                    : "You can long press on the QR code to copy it.",
+                style: kNormalText),
           ]),
     );
 

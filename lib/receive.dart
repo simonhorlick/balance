@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:balance/fit_width.dart';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:balance/qr.dart';
 import 'package:balance/rates.dart';
@@ -259,21 +260,6 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
   }
 }
 
-class FitWidth extends StatelessWidget {
-  final Widget child;
-
-  FitWidth({this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return new Row(mainAxisSize: MainAxisSize.max, children: [
-      new Expanded(
-        child: new AspectRatio(aspectRatio: 1.0, child: child),
-      )
-    ]);
-  }
-}
-
 class Page extends StatelessWidget {
   final String paymentRequest;
 
@@ -287,7 +273,9 @@ class Page extends StatelessWidget {
         new Text('REQUEST', style: kTitleText),
         new Padding(
             padding: new EdgeInsets.all(20.0),
-            child: new FitWidth(child: new QrCodeWidget(paymentRequest)))
+            child: new FitWidth(
+                child: new QrCodeWidget(
+                    data: paymentRequest, color: Colors.white)))
       ],
     );
   }
