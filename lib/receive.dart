@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:balance/daemon.dart';
 import 'package:balance/fit_width.dart';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:balance/qr.dart';
@@ -189,7 +190,7 @@ class _KeypadState extends State<Keypad> {
   }
 
   Future<Null> _request() async {
-    var result = await Navigator.of(context).push(new MaterialPageRoute<bool>(
+    Navigator.of(context).pushReplacement(new MaterialPageRoute<bool>(
           builder: (BuildContext context) =>
               new PaymentRequestScreen(_digits, widget.stub),
           fullscreenDialog: true,
@@ -211,9 +212,11 @@ class PaymentRequestScreen extends StatefulWidget {
   _PaymentRequestScreenState createState() => new _PaymentRequestScreenState();
 }
 
-class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
-  Future<AddInvoiceResponse> response;
+class _PaymentRequestScreenState extends DaemonPoller<PaymentRequestScreen> {
+  AddInvoiceResponse response;
   Rates rates = new FakeRates();
+
+  bool settled = false;
 
   @override
   initState() {
@@ -222,15 +225,57 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
     var amountFiat = double.parse(widget.digits);
     var satoshis = rates.satoshis(amountFiat);
 
+    createInvoice(satoshis);
+  }
+
+  @override
+  Future<Null> refresh() async {
+    if (response != null) {
+      var payReq = response.rHash;
+
+      var inv =
+          await widget.stub.lookupInvoice(PaymentHash.create()..rHash = payReq);
+
+      print("$inv");
+
+      setState(() {
+        settled = inv.settled;
+      });
+
+      if (inv.settled) {
+        print("Settled");
+      } else {
+        print("Not Settled");
+      }
+    }
+
+    return null;
+  }
+
+  Future<Null> createInvoice(int satoshis) async {
+    var invoiceResponse = await widget.stub.addInvoice(Invoice.create()
+      ..memo = ""
+      ..value = new Int64(satoshis));
+
     setState(() {
-      response = widget.stub.addInvoice(Invoice.create()
-        ..memo = ""
-        ..value = new Int64(satoshis));
+      response = invoiceResponse;
     });
+
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
+    var content;
+
+    if (response == null) {
+      content = new Container();
+    } else if (settled == false) {
+      content = new Expanded(child: new Page(response.paymentRequest));
+    } else {
+      content = new Expanded(child: new PaidPage());
+    }
+
     return new Scaffold(
         backgroundColor: Colors.blue,
         body: new Column(children: [
@@ -240,28 +285,24 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
               child: new Align(
                   alignment: Alignment.centerLeft,
                   child: new BackButton(color: Colors.white))),
-          new Expanded(
-            child: new FutureBuilder<AddInvoiceResponse>(
-              future: response,
-              builder: (BuildContext context,
-                  AsyncSnapshot<AddInvoiceResponse> snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                    return new Text('', style: kNormalText);
-                  case ConnectionState.waiting:
-                    return new Text('Generating invoice...',
-                        style: kNormalText);
-                  default:
-                    if (snapshot.hasError)
-                      return new Text('Error: ${snapshot.error}',
-                          style: kNormalText);
-                    else
-                      return new Page(snapshot.data.paymentRequest);
-                }
-              },
-            ),
-          ),
+          content,
         ]));
+  }
+}
+
+class PaidPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        new Text('INVOICE', style: kTitleText),
+        new Padding(
+            padding: new EdgeInsets.all(20.0),
+            child: new Text('Payment received.',
+                style: kNormalText, textAlign: TextAlign.center)),
+      ],
+    );
   }
 }
 
