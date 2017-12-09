@@ -197,6 +197,7 @@ class _KeypadState extends State<Keypad> {
 
 const kTitleText = const TextStyle(
     fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
+const kNormalText = const TextStyle(fontSize: 16.0, color: Colors.white);
 
 class PaymentRequestScreen extends StatefulWidget {
   final String digits;
@@ -270,7 +271,11 @@ class Page extends StatelessWidget {
     return new Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        new Text('REQUEST', style: kTitleText),
+        new Text('INVOICE', style: kTitleText),
+        new Padding(
+            padding: new EdgeInsets.all(20.0),
+            child: new Text('Please pay the invoice by scanning the QR code.',
+                style: kNormalText, textAlign: TextAlign.center)),
         new Padding(
             padding: new EdgeInsets.all(20.0),
             child: new FitWidth(
