@@ -171,7 +171,7 @@ class Balance extends StatelessWidget {
           new Padding(
               padding: new EdgeInsets.only(left: 10.0),
               child:
-                  new Text("Downloading blockchain", style: kBalanceSubText)),
+                  new Text("Downloading blockchain (height ${info.blockHeight})", style: kBalanceSubText)),
         ],
       ));
     }
