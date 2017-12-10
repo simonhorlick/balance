@@ -133,7 +133,7 @@ class Header extends StatelessWidget {
 }
 
 class Balance extends StatelessWidget {
-  Balance(this.walletBalance, this.channelBalance, this.heightOrError);
+  Balance(this.walletBalance, this.channelBalance, this.info);
 
   // This is the value that is contained only within the wallet.
   final Int64 walletBalance;
@@ -141,19 +141,68 @@ class Balance extends StatelessWidget {
   // This is the value that is contained only within the channels.
   final Int64 channelBalance;
 
-  final String heightOrError;
+  final GetInfoResponse info;
 
   @override
   Widget build(BuildContext context) {
-    return new Column(children: [
-      new Text(formatter.format(walletBalance + channelBalance),
+    var elements = new List<Widget>();
+
+    // Always show the balance at the top of the screen.
+    elements.add(new Padding(
+      padding: new EdgeInsets.only(bottom: 10.0),
+      child: new Text(formatter.format(walletBalance + channelBalance),
           style: kBalanceText),
-      new SizedBox.fromSize(size: new Size.fromHeight(10.0)),
-      new Text("spendable: " + formatter.format(channelBalance),
-          style: kBalanceSubText),
-      new Text(heightOrError,
-          style: kBalanceSubText, textAlign: TextAlign.center),
-    ]);
+    ));
+
+    // If the chain backend hasn't finished syncing yet, then show a progress
+    // indicator.
+    if (!info.syncedToChain) {
+      elements.add(new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          new SizedBox(
+              width: 10.0,
+              height: 10.0,
+              child: new CircularProgressIndicator(
+                strokeWidth: 1.0,
+                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+              )),
+          new Padding(
+              padding: new EdgeInsets.only(left: 10.0),
+              child:
+                  new Text("Downloading blockchain", style: kBalanceSubText)),
+        ],
+      ));
+    }
+
+    // If the user doesn't have any channels yet, then display a "connecting to
+    // network" message.
+    if (info.numActiveChannels == 0) {
+      elements.add(new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          new SizedBox(
+              width: 10.0,
+              height: 10.0,
+              child: new CircularProgressIndicator(
+                strokeWidth: 1.0,
+                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+              )),
+          new Padding(
+              padding: new EdgeInsets.only(left: 10.0),
+              child: new Text("Connecting to network", style: kBalanceSubText)),
+        ],
+      ));
+    }
+
+    // If we're synced and have at least one channel, then display the spendable
+    // amount that we have in our channels.
+    if (info.syncedToChain && info.numActiveChannels > 0) {
+      elements.add(new Text("Spendable: " + formatter.format(channelBalance),
+          style: kBalanceSubText));
+    }
+
+    return new Column(children: elements);
   }
 }
 
@@ -273,17 +322,17 @@ class WalletInfoPane extends StatelessWidget {
 
 class WalletImpl extends StatelessWidget {
   WalletImpl(this.walletBalance, this.channelBalance, this.transactions,
-      this.heightOrError, this.rates);
+      this.info, this.rates);
 
   final Int64 walletBalance;
   final Int64 channelBalance;
   final List<Tx> transactions;
-  final String heightOrError;
+  final GetInfoResponse info;
   final Rates rates;
 
   @override
   Widget build(BuildContext context) {
-    var balancePane = new Balance(walletBalance, channelBalance, heightOrError);
+    var balancePane = new Balance(walletBalance, channelBalance, info);
 
     var drawItems = new ListView(children: [
       new Text("Balance",
@@ -353,8 +402,6 @@ class _WalletState extends DaemonPoller<Wallet> {
 
   bool ready = false;
 
-  String heightOrError = "pending";
-
   Rates rates;
 
   paymentToTx(Payment p) {
@@ -402,8 +449,6 @@ class _WalletState extends DaemonPoller<Wallet> {
       var invoicesResponse =
           await widget.stub.listInvoices(ListInvoiceRequest.create());
       var infoResponse = await widget.stub.getInfo(GetInfoRequest.create());
-      var networkInfo =
-          await widget.stub.getNetworkInfo(NetworkInfoRequest.create());
 
       if (infoResponse.syncedToChain && (info == null || !info.syncedToChain)) {
         hasSyncedToChain();
@@ -424,12 +469,6 @@ class _WalletState extends DaemonPoller<Wallet> {
           ..sort((a, b) => b.time.compareTo(a.time));
 
         info = infoResponse;
-
-        // TODO(simon): Add an initial sync progress. Also show number of
-        // channels synced.
-        //heightOrError =
-        //    "height: ${info.blockHeight}\nchannels: ${info.numPendingChannels}/${info.numActiveChannels}\npeers: ${info.numPeers}\nnet: nodes ${networkInfo.numNodes}, chans=${networkInfo.numChannels}";
-        heightOrError = "";
 
         ready = true;
       });
@@ -455,6 +494,6 @@ class _WalletState extends DaemonPoller<Wallet> {
     }
 
     return new WalletImpl(
-        walletBalance, channelBalance, transactions, heightOrError, rates);
+        walletBalance, channelBalance, transactions, info, rates);
   }
 }
