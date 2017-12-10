@@ -120,12 +120,13 @@ class Header extends StatelessWidget {
       child: new SizedBox.fromSize(
           size: new Size.fromHeight(50.0),
           child: new Stack(children: [
-            new GestureDetector(
-              onTap: () => Scaffold.of(context).openDrawer(),
-              child: new Padding(
-                  padding: new EdgeInsets.all(12.0),
-                  child: new Icon(Icons.menu, color: Colors.white)),
-            ),
+            // TODO(simon): Add back later when we have something to show here.
+            //new GestureDetector(
+            //  onTap: () => Scaffold.of(context).openDrawer(),
+            //  child: new Padding(
+            //      padding: new EdgeInsets.all(12.0),
+            //      child: new Icon(Icons.menu, color: Colors.white)),
+            //),
             new Center(child: new Text("balance", style: kTitleText)),
           ])),
     );
@@ -344,10 +345,10 @@ class WalletImpl extends StatelessWidget {
     ]);
 
     return new Scaffold(
-      drawer: new Drawer(
-          child: new Padding(
-              padding: new EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
-              child: drawItems)),
+//      drawer: new Drawer(
+//          child: new Padding(
+//              padding: new EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
+//              child: drawItems)),
       body: new Stack(
         children: [
           // This element is shown when the user overscrolls the CustomScrollView.
