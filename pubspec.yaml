@@ -20,6 +20,7 @@ dependencies:
     git:
       url: git://github.com/kevmoo/qr.dart.git
       ref: d38c6d7290d06a46b88c0811da1e0abca1c21135
+  url_launcher: 1.0.3
 
 dev_dependencies:
   flutter_test:

@@ -7,6 +7,8 @@ import 'package:balance/qr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:grpc/grpc.dart' hide ConnectionState;
 
@@ -234,6 +236,15 @@ class _FundingScreenState extends State<FundingScreen> {
     }
   }
 
+  _launchURL() async {
+    const url = 'https://testnet.manu.backend.hamburg/faucet';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var copyText = isCopied
@@ -280,6 +291,11 @@ class _FundingScreenState extends State<FundingScreen> {
                         padding: new EdgeInsets.only(top: 20.0),
                         child: new SizedBox.fromSize(
                             size: new Size.fromHeight(50.0), child: copyText)),
+                    new GestureDetector(
+                        onTap: _launchURL,
+                        child: new Text(
+                            "Click here to go to the testnet faucet.",
+                            style: kNormalText)),
                   ]);
         }
       },
