@@ -1,4 +1,3 @@
-import 'package:balance/fit_width.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:qr/qr.dart';
@@ -7,25 +6,38 @@ import 'package:flutter/services.dart';
 
 typedef void OnCopiedCallback();
 
+const kMaxQrCodeLength = 230;
+
+// The color used for a non-dark module in the QR code.
+const kTransparentColor = const Color(0x00FFFFFF);
+
+/// A QrCodeWidget constructs and draws a square QR-code of up to
+/// kMaxQrCodeLength bytes.
 class QrCodeWidget extends StatelessWidget {
+
+  // The data the QR code holds.
   final String data;
+
+  // The primary colour of the QR code, the rest of the space will be transparent.
   final Color color;
+
+  // An optional callback for if the user has copied the QR code to the
+  // clipboard by using a long-press gesture.
   final OnCopiedCallback onCopied;
 
-  QrCodeWidget({this.data, this.color, this.onCopied});
+  QrCodeWidget({this.data, this.color, this.onCopied}) {
+    // This QR code generator hard-codes the version, this isn't currently a
+    // problem because all QR codes we generate have a pre-determined length
+    // below the max length limit.
+    if (data.length > kMaxQrCodeLength) {
+      throw new ArgumentError("QR code data is too long");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // According to the table on http://www.qrcode.com/en/about/version.html
-    // it's possible to store the following:
-    //  typeNumber size
-    //           5  154
-    //           6  195
-    //           7  224
-    //           8  279
-    //           9  335
-    //          10  395
-
+    // See http://www.qrcode.com/en/about/version.html for more details on QR
+    // code generation.
     var code = new QrCode(9, QrErrorCorrectLevel.L);
     code.addData(data);
     code.make();
@@ -45,6 +57,8 @@ class QrCodeWidget extends StatelessWidget {
   }
 }
 
+
+/// A QrCodePainter fills the provided space with a square QR-code.
 class QrCodePainter extends CustomPainter {
   final QrCode code;
   final Color color;
@@ -67,7 +81,7 @@ class QrCodePainter extends CustomPainter {
         canvas.drawRect(
           moduleRect,
           new Paint()
-            ..color = code.isDark(i, j) ? color : const Color(0x00FFFFFF)
+            ..color = code.isDark(i, j) ? color : kTransparentColor
             ..isAntiAlias = false,
         );
       }
