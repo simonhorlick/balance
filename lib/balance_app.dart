@@ -1,11 +1,10 @@
-import 'package:balance/channels.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
 import 'package:balance/daemon.dart';
 import 'package:balance/receive.dart';
 import 'package:balance/topup.dart';
 import 'package:balance/wallet.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
 import 'package:balance/scan.dart';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
@@ -40,7 +39,6 @@ class BalanceAppState extends State<BalanceApp> {
         '/scan': (BuildContext context) => new Cam(_stub),
         '/topup': (BuildContext context) => new Topup(_stub),
         '/receive': (BuildContext context) => new Receive(_stub),
-        '/channels': (BuildContext context) => new ChannelWrapper(_stub),
       },
     );
   }
