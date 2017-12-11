@@ -1482,15 +1482,32 @@ func (r *rpcServer) ListChannels(ctx context.Context,
 		commitBaseWeight := blockchain.GetTransactionWeight(utx)
 		commitWeight := commitBaseWeight + lnwallet.WitnessCommitmentTxWeight
 
+		localBalance := localCommit.LocalBalance
+		remoteBalance := localCommit.RemoteBalance
+		commitFee := localCommit.CommitFee
+
+		// As an artefact of our usage of mSAT internally, either party
+		// may end up in a state where they're holding a fractional
+		// amount of satoshis which can't be expressed within the
+		// actual commitment output. Since we round down when going
+		// from mSAT -> SAT, we may at any point be adding an
+		// additional SAT to miners fees. We'll detect this, and
+		// display the proper commitment fee in this case.
+		externalCommitFee := (dbChannel.Capacity - localBalance.ToSatoshis() -
+			remoteBalance.ToSatoshis())
+		if commitFee != externalCommitFee {
+			commitFee = externalCommitFee
+		}
+
 		channel := &lnrpc.ActiveChannel{
 			Active:                peerOnline && linkActive,
 			RemotePubkey:          nodeID,
 			ChannelPoint:          chanPoint.String(),
 			ChanId:                chanID,
 			Capacity:              int64(dbChannel.Capacity),
-			LocalBalance:          int64(localCommit.LocalBalance.ToSatoshis()),
-			RemoteBalance:         int64(localCommit.RemoteBalance.ToSatoshis()),
-			CommitFee:             int64(localCommit.CommitFee),
+			LocalBalance:          int64(localBalance.ToSatoshis()),
+			RemoteBalance:         int64(remoteBalance.ToSatoshis()),
+			CommitFee:             int64(commitFee),
 			CommitWeight:          commitWeight,
 			FeePerKw:              int64(localCommit.FeePerKw),
 			TotalSatoshisSent:     int64(dbChannel.TotalMSatSent.ToSatoshis()),
@@ -1790,7 +1807,7 @@ func (r *rpcServer) SendPayment(paymentStream lnrpc.Lightning_SendPaymentServer)
 
 				err = paymentStream.Send(&lnrpc.SendResponse{
 					PaymentPreimage: preImage[:],
-					PaymentRoute:    marshalRoute(route),
+					PaymentRoute:    marshallRoute(route),
 				})
 				if err != nil {
 					errChan <- err
@@ -1925,7 +1942,7 @@ func (r *rpcServer) SendPaymentSync(ctx context.Context,
 
 	return &lnrpc.SendResponse{
 		PaymentPreimage: preImage[:],
-		PaymentRoute:    marshalRoute(route),
+		PaymentRoute:    marshallRoute(route),
 	}, nil
 }
 
@@ -2123,6 +2140,11 @@ func createRPCInvoice(invoice *channeldb.Invoice) (*lnrpc.Invoice, error) {
 		fallbackAddr = decoded.FallbackAddr.String()
 	}
 
+	settleDate := int64(0)
+	if !invoice.SettleDate.IsZero() {
+		settleDate = invoice.SettleDate.Unix()
+	}
+
 	// Expiry time will default to 3600 seconds if not specified
 	// explicitly.
 	expiry := int64(decoded.Expiry().Seconds())
@@ -2140,6 +2162,7 @@ func createRPCInvoice(invoice *channeldb.Invoice) (*lnrpc.Invoice, error) {
 		RPreimage:       preimage[:],
 		Value:           int64(satAmt),
 		CreationDate:    invoice.CreationDate.Unix(),
+		SettleDate:      settleDate,
 		Settled:         invoice.Terms.Settled,
 		PaymentRequest:  paymentRequest,
 		DescriptionHash: descHash,
@@ -2349,6 +2372,11 @@ func (r *rpcServer) GetTransactions(ctx context.Context,
 		Transactions: make([]*lnrpc.Transaction, len(transactions)),
 	}
 	for i, tx := range transactions {
+		var destAddresses []string
+		for _, destAddress := range tx.DestAddresses {
+			destAddresses = append(destAddresses, destAddress.EncodeAddress())
+		}
+
 		txDetails.Transactions[i] = &lnrpc.Transaction{
 			TxHash:           tx.Hash.String(),
 			Amount:           int64(tx.Value),
@@ -2357,6 +2385,7 @@ func (r *rpcServer) GetTransactions(ctx context.Context,
 			BlockHeight:      tx.BlockHeight,
 			TimeStamp:        tx.Timestamp,
 			TotalFees:        tx.TotalFees,
+			DestAddresses:    destAddresses,
 		}
 	}
 
@@ -2636,13 +2665,13 @@ func (r *rpcServer) QueryRoutes(ctx context.Context,
 		Routes: make([]*lnrpc.Route, len(routes)),
 	}
 	for i, route := range routes {
-		routeResp.Routes[i] = marshalRoute(route)
+		routeResp.Routes[i] = marshallRoute(route)
 	}
 
 	return routeResp, nil
 }
 
-func marshalRoute(route *routing.Route) *lnrpc.Route {
+func marshallRoute(route *routing.Route) *lnrpc.Route {
 	resp := &lnrpc.Route{
 		TotalTimeLock: route.TotalTimeLock,
 		TotalFees:     int64(route.TotalFees.ToSatoshis()),
