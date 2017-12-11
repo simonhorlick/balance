@@ -5,11 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:intl/intl.dart';
 
-enum DialogDemoAction {
-  cancel,
-  pay,
-}
-
 class Camera extends StatefulWidget {
   final CameraId cameraId;
 
@@ -332,28 +327,6 @@ class CamState extends State<Cam> {
     if (invoice != null) {
       _confirmAndPay(invoice);
     }
-  }
-
-  Future<DialogDemoAction> _confirmAmountDialog() {
-    return showDialog(
-      context: context,
-      child: new AlertDialog(
-          content: new Text(
-            "Are you sure?",
-          ),
-          actions: <Widget>[
-            new FlatButton(
-                child: const Text('CANCEL'),
-                onPressed: () {
-                  Navigator.pop(context, DialogDemoAction.cancel);
-                }),
-            new FlatButton(
-                child: const Text('PAY'),
-                onPressed: () {
-                  Navigator.pop(context, DialogDemoAction.pay);
-                })
-          ]),
-    );
   }
 }
 
