@@ -9,25 +9,28 @@ import 'package:balance/scan.dart';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 
-// This is the "normal" app flow, where we can assume LND is available.
+// This is the "normal" app flow, where we can assume the wallet has been
+// and initialised is available for use.
 class BalanceApp extends StatefulWidget {
   @override
   BalanceAppState createState() => new BalanceAppState();
 }
 
 class BalanceAppState extends State<BalanceApp> {
+  // The client stub for communicating with LND.
   LightningClient _stub;
-
-  bool syncedToChain = false;
 
   @override
   initState() {
     super.initState();
+
+    // Start LND and start listening for rpcs.
     Daemon.start("");
+
+    // Create an rpc client.
     _stub = Daemon.connect();
   }
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
