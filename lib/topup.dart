@@ -30,6 +30,7 @@ class _TopupState extends State<Topup> {
 
   @override
   initState() {
+    super.initState();
     addressResponse = widget.stub.newAddress(NewAddressRequest.create()
       ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH);
   }
