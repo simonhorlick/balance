@@ -478,6 +478,7 @@ class _WalletState extends DaemonPoller<Wallet> {
   @override
   Widget build(BuildContext context) {
     if (!ready) {
+      // TODO(simon): Show something here while everything's loading.
       return new Container();
     }
 
