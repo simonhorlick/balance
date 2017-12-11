@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:intl/intl.dart';
 
+/// A camera preview widget.
 class Camera extends StatefulWidget {
   final CameraId cameraId;
 
@@ -17,7 +18,10 @@ class Camera extends StatefulWidget {
 }
 
 class _CameraState extends State<StatefulWidget> {
+  // A reference to the camera that's being displayed.
   final CameraId cameraId;
+
+  // Whether the camera is currently showing or not.
   bool isPlaying = true;
 
   _CameraState(this.cameraId);
@@ -50,6 +54,8 @@ const kDescriptionText = const TextStyle(fontSize: 16.0);
 const kDestText =
     const TextStyle(fontSize: 10.0, color: const Color(0x80000000));
 
+/// PaymentDetails displays the information contained within a payment request
+/// to the user.
 class PaymentDetails extends StatelessWidget {
   final Future<PayReq> details;
 
@@ -88,6 +94,7 @@ class PaymentDetails extends StatelessWidget {
   }
 }
 
+/// A PaymentProgressScreen attempts to pay the given payment request
 class PaymentProgressScreen extends StatefulWidget {
   final String paymentRequest;
   final LightningClient stub;
@@ -100,9 +107,11 @@ class PaymentProgressScreen extends StatefulWidget {
 }
 
 class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
-  String paymentError;
-
+  // The in-progress call to decodePayReq.
   Future<PayReq> details;
+
+  // An error string to display to the user in case something goes wrong.
+  String paymentError;
 
   @override
   initState() {
@@ -140,6 +149,7 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
   Widget build(BuildContext context) {
     var kTitleText = new TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold);
 
+    // Either show the payment details, or an error message.
     var mainText = paymentError == null
         ? new PaymentDetails(details)
         : new Column(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -169,6 +179,7 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
   }
 }
 
+/// The top navigation bar for the QR code scanner.
 class TopBar extends StatelessWidget {
   final Function _showInvoiceDialog;
 
@@ -227,18 +238,22 @@ class GuideOverlay extends StatelessWidget {
   }
 }
 
-class Cam extends StatefulWidget {
-  Cam(this.stub);
+/// The main QR-code scanner screen. A Scanner attempts to start the
+/// back-facing camera and listens for QR codes. If a QR code is seen, we pass
+/// it straight to the PaymentProgressScreen which attempts to pay the payment
+/// request.
+class Scanner extends StatefulWidget {
+  Scanner(this.stub);
 
   final LightningClient stub;
 
   @override
-  CamState createState() {
-    return new CamState();
+  _ScannerState createState() {
+    return new _ScannerState();
   }
 }
 
-class CamState extends State<Cam> {
+class _ScannerState extends State<Scanner> {
   Camera camera;
   List<CameraDescription> cameras = new List();
 
@@ -256,10 +271,6 @@ class CamState extends State<Cam> {
         ));
   }
 
-  void _confirmAndPay(String paymentRequest) {
-    _showProgressScreen(paymentRequest);
-  }
-
   void _barcodeScanned(String barcode) {
     // Only use the first occurrence of a barcode.
     if (seenBarcode) {
@@ -275,7 +286,7 @@ class CamState extends State<Cam> {
       barcode = barcode.substring("//".length);
     }
 
-    _confirmAndPay(barcode);
+    _showProgressScreen(barcode);
   }
 
   @override
@@ -324,11 +335,13 @@ class CamState extends State<Cam> {
               fullscreenDialog: true,
             ));
     if (invoice != null) {
-      _confirmAndPay(invoice);
+      _showProgressScreen(invoice);
     }
   }
 }
 
+/// A FullScreenInvoice allows the user to paste an invoice string for the case
+/// where scanning a QR code is not practical.
 class FullScreenInvoice extends StatefulWidget {
   @override
   FullScreenInvoiceState createState() => new FullScreenInvoiceState();
@@ -371,10 +384,5 @@ class FullScreenInvoiceState extends State<FullScreenInvoice> {
         ],
       )),
     );
-  }
-
-  String _validateInvoice(String value) {
-    // TODO(simon): Implement.
-    return null;
   }
 }

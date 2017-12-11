@@ -39,7 +39,7 @@ class BalanceAppState extends State<BalanceApp> {
       home: new Wallet(_stub),
       routes: <String, WidgetBuilder>{
         '/wallet': (BuildContext context) => new Wallet(_stub),
-        '/scan': (BuildContext context) => new Cam(_stub),
+        '/scan': (BuildContext context) => new Scanner(_stub),
         '/topup': (BuildContext context) => new Topup(_stub),
         '/receive': (BuildContext context) => new Receive(_stub),
       },
