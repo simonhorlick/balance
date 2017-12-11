@@ -62,9 +62,8 @@ class PaymentDetails extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<PayReq> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
-            return new Text('ConnectionState.none');
           case ConnectionState.waiting:
-            return new Text('ConnectionState.waiting');
+            return new Text('Decoding payment request');
           default:
             if (snapshot.hasError)
               return new Text('Error: ${snapshot.error}');
