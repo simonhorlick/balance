@@ -1,19 +1,14 @@
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:balance/fit_width.dart';
-import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
-import 'package:balance/qr.dart';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
-import 'package:grpc/src/shared.dart';
+import 'package:grpc/grpc.dart' hide ConnectionState;
 
-import 'package:intl/intl.dart';
+import 'package:balance/qr.dart';
 
-import 'package:flutter/services.dart';
+import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 
 const kNormalText = const TextStyle(color: Colors.white, fontSize: 16.0);
 
+/// Topup displays a QR code of a bitcoin address for depositing bitcoin from
+/// an external source such as a wallet or exchange.
 class Topup extends StatefulWidget {
   final LightningClient stub;
 
@@ -24,8 +19,10 @@ class Topup extends StatefulWidget {
 }
 
 class _TopupState extends State<Topup> {
+  // Whether the user has copied the address to the devices clipboard.
   bool isCopied = false;
 
+  // The result of a call to newAddress.
   ResponseFuture<NewAddressResponse> addressResponse;
 
   @override
@@ -42,6 +39,7 @@ class _TopupState extends State<Topup> {
         : new Text("You can long press on the QR code to copy it.",
             style: kNormalText);
 
+    // Once the rpc has finished, show the QR code.
     var addressBuilder = new FutureBuilder<NewAddressResponse>(
       future: addressResponse,
       builder:
