@@ -10,6 +10,34 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
+const kAmountStyle = const TextStyle(fontSize: 80.0, color: Colors.white);
+const kAmountCurrencyStyle =
+    const TextStyle(fontSize: 50.0, color: Colors.white);
+const kKeyStyle = const TextStyle(fontSize: 32.0, color: Colors.white);
+const kButtonStyle = const TextStyle(fontSize: 18.0, color: Colors.white);
+
+const kTitleText = const TextStyle(
+    fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
+const kNormalText = const TextStyle(fontSize: 16.0, color: Colors.white);
+
+// FIXME(simon): This shouldn't be fixed to USD.
+var fiatFormatter = new NumberFormat("###,###", "en_US");
+
+/// A callback that is invoked when the user taps a keypad button.
+typedef void KeyTapCallback(text);
+
+/// The main "receive" screen. This is the flow that merchants will use to
+/// accept lightning payments, yet still be able to price in their home
+/// currency.
+///
+/// The high-level flow is as follows, the merchant:
+///   1. enters the sale price in USD
+///   2. hits request
+///   3. shows the generated QR-code to the customer
+///   4. checks back to ensure the payment has completed successfully
+///
+/// The first page in the flow, and this widget, implement a keypad for entering
+/// the sale price.
 class Receive extends StatelessWidget {
   Receive(this.stub);
 
@@ -32,16 +60,7 @@ class Receive extends StatelessWidget {
   }
 }
 
-const kAmountStyle = const TextStyle(fontSize: 80.0, color: Colors.white);
-const kAmountCurrencyStyle =
-    const TextStyle(fontSize: 50.0, color: Colors.white);
-const kKeyStyle = const TextStyle(fontSize: 32.0, color: Colors.white);
-const kButtonStyle = const TextStyle(fontSize: 18.0, color: Colors.white);
-
-var fiatFormatter = new NumberFormat("###,###", "en_US");
-
-typedef void KeyTapCallback(text);
-
+/// A key on the keypad.
 class Key extends StatelessWidget {
   Key(this.text, this._addDigit);
 
@@ -60,6 +79,7 @@ class Key extends StatelessWidget {
   }
 }
 
+/// A RequestButton is a large and prominent button at the bottom of the screen.
 class RequestButton extends StatelessWidget {
   final GestureTapCallback _onTap;
 
@@ -86,6 +106,10 @@ class RequestButton extends StatelessWidget {
   }
 }
 
+/// A Keypad enables the user to enter a price in fiat currency. Therefore it's
+/// also necessary to include a decimal point to allow cents.
+///
+/// The _KeypadState stores the currently typed value.
 class Keypad extends StatefulWidget {
   final LightningClient stub;
 
@@ -208,10 +232,8 @@ class _KeypadState extends State<Keypad> {
   }
 }
 
-const kTitleText = const TextStyle(
-    fontSize: 18.0, fontWeight: FontWeight.bold, color: Colors.white);
-const kNormalText = const TextStyle(fontSize: 16.0, color: Colors.white);
-
+/// The PaymentRequestScreen creates an invoice from the supplied price, then
+/// shows an InvoicePage.
 class PaymentRequestScreen extends StatefulWidget {
   final String digits;
   final LightningClient stub;
@@ -224,8 +246,13 @@ class PaymentRequestScreen extends StatefulWidget {
 }
 
 class _PaymentRequestScreenState extends DaemonPoller<PaymentRequestScreen> {
+  // The invoice that was generated.
   AddInvoiceResponse response;
+
+  // An error message if the invoice could not be generated.
   String errorText;
+
+  // Whether the invoice has been paid.
   bool settled = false;
 
   @override
@@ -301,7 +328,7 @@ class _PaymentRequestScreenState extends DaemonPoller<PaymentRequestScreen> {
           child:
               new Text("Fetching current exchange rate.", style: kNormalText));
     } else if (settled == false) {
-      content = new Expanded(child: new Page(response.paymentRequest));
+      content = new Expanded(child: new InvoicePage(response.paymentRequest));
     } else {
       content = new Expanded(child: new PaidPage());
     }
@@ -320,6 +347,7 @@ class _PaymentRequestScreenState extends DaemonPoller<PaymentRequestScreen> {
   }
 }
 
+/// A simple page notifying the merchant that the invoice has been paid.
 class PaidPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -336,10 +364,12 @@ class PaidPage extends StatelessWidget {
   }
 }
 
-class Page extends StatelessWidget {
+/// An InvoicePage displays a QR code that the customer must scan.
+class InvoicePage extends StatelessWidget {
+  // The BOLT #11 payment request string.
   final String paymentRequest;
 
-  Page(this.paymentRequest);
+  InvoicePage(this.paymentRequest);
 
   @override
   Widget build(BuildContext context) {
