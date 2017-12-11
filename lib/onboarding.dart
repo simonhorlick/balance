@@ -58,6 +58,7 @@ const kTitleText = const TextStyle(
     letterSpacing: -3.0);
 
 const kNormalText = const TextStyle(fontSize: 18.0, color: Colors.black);
+const kMnemonicNormalText = const TextStyle(fontSize: 16.0, color: Colors.black);
 
 class HelloScreen extends StatelessWidget {
   void _next(BuildContext context) {
@@ -164,7 +165,7 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
               return new Text(
                 snapshot.data.reduce((a, b) => a + '\n' + b),
                 textAlign: TextAlign.center,
-                style: kNormalText,
+                style: kMnemonicNormalText,
               );
         }
       },
