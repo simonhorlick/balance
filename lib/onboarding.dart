@@ -239,7 +239,7 @@ class _FundingScreenState extends State<FundingScreen> {
   _launchURL() async {
     const url = 'https://testnet.manu.backend.hamburg/faucet';
     if (await canLaunch(url)) {
-      await launch(url);
+      await launch(url, forceSafariVC: false);
     } else {
       throw 'Could not launch $url';
     }
