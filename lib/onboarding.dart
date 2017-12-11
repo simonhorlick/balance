@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:balance/balance_app.dart';
 import 'package:balance/daemon.dart';
-import 'package:balance/fit_width.dart';
 import 'package:balance/qr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
