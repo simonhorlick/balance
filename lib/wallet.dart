@@ -174,11 +174,10 @@ class Balance extends StatelessWidget {
                   new Text("Downloading blockchain (height ${info.blockHeight})", style: kBalanceSubText)),
         ],
       ));
-    }
+    } else if (info.numActiveChannels == 0) {
+      // If the user doesn't have any channels yet, then display a "connecting to
+      // network" message.
 
-    // If the user doesn't have any channels yet, then display a "connecting to
-    // network" message.
-    if (info.numActiveChannels == 0) {
       elements.add(new Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -194,11 +193,10 @@ class Balance extends StatelessWidget {
               child: new Text("Connecting to network", style: kBalanceSubText)),
         ],
       ));
-    }
+    } else {
+      // If we're synced and have at least one channel, then display the spendable
+      // amount that we have in our channels.
 
-    // If we're synced and have at least one channel, then display the spendable
-    // amount that we have in our channels.
-    if (info.syncedToChain && info.numActiveChannels > 0) {
       elements.add(new Text("Spendable: " + formatter.format(channelBalance),
           style: kBalanceSubText));
     }
@@ -470,6 +468,8 @@ class _WalletState extends DaemonPoller<Wallet> {
           ..sort((a, b) => b.time.compareTo(a.time));
 
         info = infoResponse;
+
+        print("info ${info.writeToJson()}");
 
         ready = true;
       });
