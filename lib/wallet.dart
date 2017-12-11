@@ -333,20 +333,7 @@ class WalletImpl extends StatelessWidget {
   Widget build(BuildContext context) {
     var balancePane = new Balance(walletBalance, channelBalance, info);
 
-    var drawItems = new ListView(children: [
-      new Text("Balance",
-          style: new TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold)),
-      new SizedBox.fromSize(size: new Size.fromHeight(20.0)),
-      new GestureDetector(
-          onTap: () => Navigator.of(context).pushNamed("/channels"),
-          child: new Text("Channels", style: new TextStyle(fontSize: 20.0))),
-    ]);
-
     return new Scaffold(
-//      drawer: new Drawer(
-//          child: new Padding(
-//              padding: new EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 0.0),
-//              child: drawItems)),
       body: new Stack(
         children: [
           // This element is shown when the user overscrolls the CustomScrollView.
