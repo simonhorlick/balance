@@ -356,8 +356,8 @@ func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string, seed []byt
 		DataDir:      dataDir,
 		Database:     nodeDatabase,
 		ChainParams:  network,
-		AddPeers:     []string{"sg.horlick.me:18333", "faucet.lightning.community:18333"},
-		ConnectPeers: []string{},
+		AddPeers:     []string{},
+		ConnectPeers: []string{"sg.horlick.me:18333"},
 	}
 	neutrino.WaitForMoreCFHeaders = time.Second * 1
 	neutrino.MaxPeers = 8
