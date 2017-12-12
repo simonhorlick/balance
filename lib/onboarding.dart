@@ -57,7 +57,8 @@ const kTitleText = const TextStyle(
     letterSpacing: -3.0);
 
 const kNormalText = const TextStyle(fontSize: 18.0, color: Colors.black);
-const kMnemonicNormalText = const TextStyle(fontSize: 16.0, color: Colors.black);
+const kMnemonicNormalText =
+    const TextStyle(fontSize: 16.0, color: Colors.black);
 
 class HelloScreen extends StatelessWidget {
   void _next(BuildContext context) {
@@ -124,6 +125,8 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
 
   _next(BuildContext context) {
     mnemonic.then((mnemonic) {
+      print("Starting LND with new wallet");
+
       // Create a new wallet with this mnemonic.
       Daemon.start(mnemonic.reduce((value, element) => value + " " + element));
 
@@ -227,6 +230,8 @@ class _FundingScreenState extends State<FundingScreen> {
 
   void refresh() {
     try {
+      print("Sending newAddress rpc");
+
       address = stub.newAddress(NewAddressRequest.create()
         ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH);
     } catch (error) {
