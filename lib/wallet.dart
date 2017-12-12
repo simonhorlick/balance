@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:balance/daemon.dart';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
@@ -132,7 +133,8 @@ class Header extends StatelessWidget {
 }
 
 class Balance extends StatelessWidget {
-  Balance(this.walletBalance, this.channelBalance, this.info);
+  Balance(this.walletBalance, this.channelBalance, this.info,
+      this.chainTransactions, this.networkInfo, this.pendingChannels);
 
   // This is the value that is contained only within the wallet.
   final Int64 walletBalance;
@@ -141,6 +143,9 @@ class Balance extends StatelessWidget {
   final Int64 channelBalance;
 
   final GetInfoResponse info;
+  final TransactionDetails chainTransactions;
+  final NetworkInfo networkInfo;
+  final PendingChannelResponse pendingChannels;
 
   @override
   Widget build(BuildContext context) {
@@ -153,9 +158,40 @@ class Balance extends StatelessWidget {
           style: kBalanceText),
     ));
 
+    var syncing = !info.syncedToChain;
+    var connected = info.numActiveChannels > 0 || info.numPendingChannels > 0;
+    var pendingInitialDeposit = !connected && walletBalance == new Int64(0);
+    var syncingNetworkGraph =
+        networkInfo != null && networkInfo.numNodes > 0 && !connected;
+    var pendingInitialDepositConfirmations =
+        !connected && walletBalance != new Int64(0);
+    var hasPendingChannel =
+        info.numActiveChannels == 0 && info.numPendingChannels > 0;
+
     // If the chain backend hasn't finished syncing yet, then show a progress
     // indicator.
-    if (!info.syncedToChain) {
+    if (syncing) {
+      // FIXME(simon): Reomve this once LND exposes it.
+      var heightEstimate = 1254680;
+      elements.add(new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          new SizedBox(
+              width: 10.0,
+              height: 10.0,
+              child: new CircularProgressIndicator(
+                value: info.blockHeight / heightEstimate,
+                strokeWidth: 1.0,
+                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+              )),
+          new Padding(
+              padding: new EdgeInsets.only(left: 10.0),
+              child:
+                  new Text("Downloading blockchain", style: kBalanceSubText)),
+        ],
+      ));
+    } else if (pendingInitialDeposit) {
+      // We can't run autopilot until the user has deposited funds.
       elements.add(new Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -168,13 +204,36 @@ class Balance extends StatelessWidget {
               )),
           new Padding(
               padding: new EdgeInsets.only(left: 10.0),
-              child:
-                  new Text("Downloading blockchain (height ${info.blockHeight})", style: kBalanceSubText)),
+              child: new Text(
+                  "Waiting for funds\n",
+                  style: kBalanceSubText)),
         ],
       ));
-    } else if (info.numActiveChannels == 0) {
+    } else if (syncingNetworkGraph) {
+      // We fetch the network graph before we can create channels.
+      elements.add(new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          new SizedBox(
+              width: 10.0,
+              height: 10.0,
+              child: new CircularProgressIndicator(
+                strokeWidth: 1.0,
+                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+              )),
+          new Padding(
+              padding: new EdgeInsets.only(left: 10.0),
+              child: new Text(
+                  "Discovering nodes (seen ${networkInfo.numChannels} channels)\n",
+                  style: kBalanceSubText)),
+        ],
+      ));
+    } else if (hasPendingChannel) {
       // If the user doesn't have any channels yet, then display a "connecting to
       // network" message.
+
+      var confirmationBlocks = pendingChannels.pendingOpenChannels.first.blocksTillOpen;
+      var numConfs = 3;
 
       elements.add(new Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -183,12 +242,15 @@ class Balance extends StatelessWidget {
               width: 10.0,
               height: 10.0,
               child: new CircularProgressIndicator(
+                value: confirmationBlocks / numConfs,
                 strokeWidth: 1.0,
                 valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
               )),
           new Padding(
               padding: new EdgeInsets.only(left: 10.0),
-              child: new Text("Connecting to network", style: kBalanceSubText)),
+              child: new Text(
+                  "Pending channel open\n",
+                  style: kBalanceSubText)),
         ],
       ));
     } else {
@@ -197,6 +259,44 @@ class Balance extends StatelessWidget {
 
       elements.add(new Text("Spendable: " + formatter.format(channelBalance),
           style: kBalanceSubText));
+    }
+
+    if (pendingInitialDepositConfirmations) {
+      // Find all the incoming transactions to this wallet.
+      var deposits =
+          chainTransactions.transactions.where((tx) => tx.amount > 0).toList();
+
+      // We'll use the oldest transaction to make channels as soon as it has
+      // enough confirmations.
+      var oldest = info.blockHeight;
+      for (Transaction t in deposits) {
+        oldest = min(oldest, t.blockHeight);
+      }
+
+      var targetConfirms = 6.0;
+      var progress = (info.blockHeight - oldest + 1) / targetConfirms;
+
+      if (deposits.isNotEmpty && progress < 1.0) {
+        // The user has deposited funds, but we still need to wait for them to confirm.
+        elements.add(new Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            new SizedBox(
+                width: 10.0,
+                height: 10.0,
+                child: new CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 1.0,
+                  valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                )),
+            new Padding(
+                padding: new EdgeInsets.only(left: 10.0),
+                child: new Text(
+                    "Waiting for funds to settle\n",
+                    style: kBalanceSubText)),
+          ],
+        ));
+      }
     }
 
     return new Column(children: elements);
@@ -318,18 +418,29 @@ class WalletInfoPane extends StatelessWidget {
 }
 
 class WalletImpl extends StatelessWidget {
-  WalletImpl(this.walletBalance, this.channelBalance, this.transactions,
-      this.info, this.rates);
+  WalletImpl(
+      this.walletBalance,
+      this.channelBalance,
+      this.transactions,
+      this.info,
+      this.rates,
+      this.chainTransactions,
+      this.networkInfo,
+      this.pendingChannels);
 
   final Int64 walletBalance;
   final Int64 channelBalance;
   final List<Tx> transactions;
   final GetInfoResponse info;
+  final TransactionDetails chainTransactions;
+  final NetworkInfo networkInfo;
+  final PendingChannelResponse pendingChannels;
   final Rates rates;
 
   @override
   Widget build(BuildContext context) {
-    var balancePane = new Balance(walletBalance, channelBalance, info);
+    var balancePane = new Balance(walletBalance, channelBalance, info,
+        chainTransactions, networkInfo, pendingChannels);
 
     return new Scaffold(
       body: new Stack(
@@ -381,6 +492,9 @@ class _WalletState extends DaemonPoller<Wallet> {
   Int64 channelBalance;
 
   GetInfoResponse info;
+  TransactionDetails chainTransactions;
+  NetworkInfo networkInfo;
+  PendingChannelResponse pendingChannels;
 
   List<Tx> transactions;
 
@@ -396,27 +510,44 @@ class _WalletState extends DaemonPoller<Wallet> {
     return new Tx("Received", inv.value, inv.creationDate, true);
   }
 
-  /// Called if the chain has just become synchronised.
-  void hasSyncedToChain() {
-    print("wallet: hasSyncedToChain");
+  void connectPeers() {
+    print("wallet: connectPeers");
 
-    // Add a well-known peer in case something goes wrong with bootstrapping.
-    var addr = LightningAddress.create()
-      ..host = "172.104.59.47"
-      ..pubkey =
-          "038b869a90060ca856ac80ec54c20acebca93df1869fbee9550efeb238b964558c";
+    var addresses = [
+      LightningAddress.create()
+        ..host = "172.104.59.47"
+        ..pubkey =
+            "038b869a90060ca856ac80ec54c20acebca93df1869fbee9550efeb238b964558c",
+      LightningAddress.create()
+        ..host = "faucet.lightning.community"
+        ..pubkey =
+            "02f1da524a70afd8de6019e2367b47d8d41a623aa3594f55d0785fe1b047c853bc",
+      // y'alls
+      LightningAddress.create()
+        ..host = "45.77.115.33"
+        ..pubkey =
+            "02a35187c5a71676da4930d93faaf30f6d5e19e3bbe8f3ead400b898967e1dc475",
+      // htlc.me
+      LightningAddress.create()
+        ..host = "45.63.87.131"
+        ..pubkey =
+            "02995ec02804a3ae30e2e0a9bca58bd77af664eeff688d36c8f1ee677fe05b5394",
+    ];
 
-    // This has to happen after the chain backend has finished syncing or the
-    // rpc will fail.
-    widget.stub
-        .connectPeer(ConnectPeerRequest.create()
-          ..perm = true
-          ..addr = addr)
-        .then((response) {
-      print("connected: $response");
-    }).catchError((error) {
-      print("error connecting to peer: $error");
-    });
+    // Add well-known peers in case something goes wrong with bootstrapping.
+    for (LightningAddress addr in addresses) {
+      // This has to happen after the chain backend has finished syncing or the
+      // rpc will fail.
+      widget.stub
+          .connectPeer(ConnectPeerRequest.create()
+            ..perm = true
+            ..addr = addr)
+          .then((response) {
+        print("connected: $response");
+      }).catchError((error) {
+        print("error connecting to peer: $error");
+      });
+    }
   }
 
   @override
@@ -434,8 +565,26 @@ class _WalletState extends DaemonPoller<Wallet> {
           await widget.stub.listInvoices(ListInvoiceRequest.create());
       var infoResponse = await widget.stub.getInfo(GetInfoRequest.create());
 
-      if (infoResponse.syncedToChain && (info == null || !info.syncedToChain)) {
-        hasSyncedToChain();
+      var networkInfoResponse;
+      var pendingChannelsResponse;
+      if (infoResponse.syncedToChain) {
+        pendingChannelsResponse =
+            await widget.stub.pendingChannels(PendingChannelRequest.create());
+
+        var channels = await widget.stub.listChannels(ListChannelsRequest.create());
+        for (ActiveChannel channel in channels.channels) {
+          print("channel: ${channel}");
+        }
+
+        networkInfoResponse =
+            await widget.stub.getNetworkInfo(NetworkInfoRequest.create());
+      }
+
+      var onChainTx =
+          await widget.stub.getTransactions(GetTransactionsRequest.create());
+
+      if (infoResponse.syncedToChain && infoResponse.numPeers == 0) {
+        connectPeers();
       }
 
       setState(() {
@@ -453,6 +602,9 @@ class _WalletState extends DaemonPoller<Wallet> {
           ..sort((a, b) => b.time.compareTo(a.time));
 
         info = infoResponse;
+        chainTransactions = onChainTx;
+        networkInfo = networkInfoResponse;
+        pendingChannels = pendingChannelsResponse;
 
         print("info ${info.writeToJson()}");
 
@@ -480,7 +632,7 @@ class _WalletState extends DaemonPoller<Wallet> {
       return new Container();
     }
 
-    return new WalletImpl(
-        walletBalance, channelBalance, transactions, info, rates);
+    return new WalletImpl(walletBalance, channelBalance, transactions, info,
+        rates, chainTransactions, networkInfo, pendingChannels);
   }
 }
