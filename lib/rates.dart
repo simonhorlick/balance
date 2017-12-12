@@ -9,7 +9,6 @@ const kSatoshisPerBitcoin = 100000000;
 /// An instance of Rates allows clients to convert between satoshis and a fiat
 /// currency.
 abstract class Rates {
-
   /// Returns the number of satoshis that you would receive for selling the
   /// given amount of fiat.
   int satoshis(double fiatValue);

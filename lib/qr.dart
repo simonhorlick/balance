@@ -14,7 +14,6 @@ const kTransparentColor = const Color(0x00FFFFFF);
 /// A QrCodeWidget constructs and draws a square QR-code of up to
 /// kMaxQrCodeLength bytes.
 class QrCodeWidget extends StatelessWidget {
-
   // The data the QR code holds.
   final String data;
 
@@ -56,7 +55,6 @@ class QrCodeWidget extends StatelessWidget {
     );
   }
 }
-
 
 /// A QrCodePainter fills the provided space with a square QR-code.
 class QrCodePainter extends CustomPainter {
