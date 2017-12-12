@@ -7,7 +7,7 @@ A modern cryptocurrency wallet.
 Every wallet app has a different reason for existence.
 The following are a list of goals and non-goals of balance.
 
-1. Have a very high-level interface that hides implementation details
+1. Have a very high-level interface that hides implementation details, but is transparent about things the user cares about
 1. Be rock solid and reliable
 1. First-class support for lightning payments and requests
 1. Focus on usability for merchants
