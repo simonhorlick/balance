@@ -2,7 +2,7 @@ package: github.com/simonhorlick/balance
 import:
 - package: github.com/lightningnetwork/lnd
   vcs: git
-  version: 8a12cad2f71b62e65d9a86045a6bc2be537d9075
+  version: e6fe7a6f0724b0a7b3a5f67bc84cbeaa1cb24700
   repo: git@github.com:simonhorlick/lnd.git
 - package: github.com/tyler-smith/go-bip39
   version: 8e7a99b3e716f36d3b080a9a70f9eb45abe4edcc
