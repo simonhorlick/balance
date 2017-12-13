@@ -299,7 +299,7 @@ class _FundingScreenState extends State<FundingScreen> {
                     new GestureDetector(
                         onTap: _launchURL,
                         child: new Text(
-                            "Click here to go to the testnet faucet.",
+                            "Click here to go to the faucet.",
                             style: kNormalText)),
                   ]);
         }
