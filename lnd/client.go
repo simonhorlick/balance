@@ -245,8 +245,8 @@ func Start(dataDir string, seed []byte) error {
 
 		// Force autopilot.
 		cfg.Autopilot.Active = true
-		cfg.Autopilot.Allocation = 0.999 // Allocate entire wallet balance to LN channels.
-		cfg.Autopilot.MaxChannels = 5
+		cfg.Autopilot.Allocation = 0.9
+		cfg.Autopilot.MaxChannels = 3
 
 		// Now that the server has started, if the autopilot mode is currently
 		// active, then we'll initialize a fresh instance of it and start it.
