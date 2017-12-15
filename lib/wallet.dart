@@ -153,10 +153,27 @@ class Balance extends StatelessWidget {
 
     // Always show the balance at the top of the screen.
     elements.add(new Padding(
-      padding: new EdgeInsets.only(bottom: 10.0),
+      padding: new EdgeInsets.only(bottom: 5.0),
       child: new Text(formatter.format(walletBalance + channelBalance),
           style: kBalanceText),
     ));
+    elements.add(
+      new Padding(
+          padding: new EdgeInsets.only(bottom: 20.0),
+          child: new Container(
+            decoration: new BoxDecoration(
+              borderRadius: new BorderRadius.circular(4.0),
+              color: Colors.white,
+            ),
+            child: new Padding(
+                padding: new EdgeInsets.all(2.0),
+                child: new Text("TESTNET",
+                    style: new TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12.0))),
+          )),
+    );
 
     var syncing = !info.syncedToChain;
     var connected = info.numActiveChannels > 0 || info.numPendingChannels > 0;
@@ -566,7 +583,8 @@ class _WalletState extends DaemonPoller<Wallet> {
         pendingChannelsResponse =
             await widget.stub.pendingChannels(PendingChannelRequest.create());
 
-        var channels = await widget.stub.listChannels(ListChannelsRequest.create());
+        var channels =
+            await widget.stub.listChannels(ListChannelsRequest.create());
         for (ActiveChannel channel in channels.channels) {
           print("channel: ${channel}");
         }
