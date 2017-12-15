@@ -364,7 +364,6 @@ func newServer(listenAddrs []string, chanDB *channeldb.DB, cc *chainControl,
 		OnAccept:       s.InboundPeerConnected,
 		RetryDuration:  time.Second * 5,
 		TargetOutbound: 100,
-		GetNewAddress:  nil,
 		Dial:           noiseDial(s.identityPriv),
 		OnConnection:   s.OutboundPeerConnected,
 	})
@@ -1087,6 +1086,12 @@ func (s *server) peerTerminationWatcher(p *peer) {
 	pubStr := string(p.addr.IdentityKey.SerializeCompressed())
 	_, ok := s.persistentPeers[pubStr]
 	if ok {
+		// We'll only need to re-launch a connection request if one
+		// isn't already currently pending.
+		if _, ok := s.persistentConnReqs[pubStr]; ok {
+			return
+		}
+
 		srvrLog.Debugf("Attempting to re-establish persistent "+
 			"connection to peer %v", p)
 
@@ -1096,12 +1101,6 @@ func (s *server) peerTerminationWatcher(p *peer) {
 		connReq := &connmgr.ConnReq{
 			Addr:      p.addr,
 			Permanent: true,
-		}
-
-		// We'll only need to re-launch a connection requests if one
-		// isn't already currently pending.
-		if _, ok := s.persistentConnReqs[pubStr]; ok {
-			return
 		}
 
 		// Otherwise, we'll launch a new connection requests in order
@@ -1579,6 +1578,7 @@ func (s *server) OpenChannel(peerID int32, nodeKey *btcec.PublicKey,
 	var (
 		targetPeer  *peer
 		pubKeyBytes []byte
+		err         error
 	)
 
 	// If the user is targeting the peer by public key, then we'll need to
@@ -1607,6 +1607,17 @@ func (s *server) OpenChannel(peerID int32, nodeKey *btcec.PublicKey,
 	// We'll scale the sat/byte set as the fee  rate to sat/weight as this
 	// is what's used internally when deciding upon coin selection.
 	fundingFeePerWeight := fundingFeePerByte / blockchain.WitnessScaleFactor
+
+	// If the fee rate wasn't high enough to cleanly convert to weight,
+	// then we'll use a default confirmation target.
+	if fundingFeePerWeight == 0 {
+		estimator := s.cc.feeEstimator
+		fundingFeePerWeight, err = estimator.EstimateFeePerWeight(6)
+		if err != nil {
+			errChan <- err
+			return updateChan, errChan
+		}
+	}
 
 	// Spawn a goroutine to send the funding workflow request to the
 	// funding manager. This allows the server to continue handling queries
