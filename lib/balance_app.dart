@@ -24,9 +24,6 @@ class BalanceAppState extends State<BalanceApp> {
   initState() {
     super.initState();
 
-    // Start LND and start listening for rpcs.
-    Daemon.start("");
-
     // Create an rpc client.
     _stub = Daemon.connect();
   }

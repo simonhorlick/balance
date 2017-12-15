@@ -133,7 +133,7 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
       Navigator.of(context).pushReplacement(new PageRouteBuilder(
           opaque: false,
           pageBuilder: (BuildContext context, _, __) {
-            return new FundingScreen();
+            return new BalanceApp();
           },
           transitionsBuilder:
               (_, Animation<double> animation, __, Widget child) {
@@ -186,130 +186,6 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
                   child: new FittedBox(
                       fit: BoxFit.scaleDown, child: wordListBuilder)),
             ]));
-
-    return new OnboardingPage(page, () => _next(context));
-  }
-}
-
-class FundingScreen extends StatefulWidget {
-  @override
-  _FundingScreenState createState() => new _FundingScreenState();
-}
-
-class _FundingScreenState extends State<FundingScreen> {
-  ResponseFuture<NewAddressResponse> address;
-  bool isCopied = false;
-
-  var stub = Daemon.connect();
-
-  _next(BuildContext context) {
-    Navigator.of(context).pushReplacement(new PageRouteBuilder(
-        opaque: false,
-        pageBuilder: (BuildContext context, _, __) {
-          return new BalanceApp();
-        },
-        transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
-          return new FadeTransition(
-            opacity: animation,
-            child: new SlideTransition(
-              position: new Tween<Offset>(
-                      begin: const Offset(1.0, 0.0),
-                      end: const Offset(0.0, 0.0))
-                  .animate(animation),
-              child: child,
-            ),
-          );
-        }));
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    refresh();
-  }
-
-  void refresh() {
-    try {
-      print("Sending newAddress rpc");
-
-      address = stub.newAddress(NewAddressRequest.create()
-        ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH);
-    } catch (error) {
-      print("error: $error");
-      // Retry, eventually it'll work.
-      refresh();
-    }
-  }
-
-  _launchURL() async {
-    const url = 'https://testnet.manu.backend.hamburg/faucet';
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: false);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    var copyText = isCopied
-        ? new Text("Copied to clipboard.", style: kNormalText)
-        : new Text("You can long press on the QR code to copy it.",
-            style: kNormalText);
-
-    var addressBuilder = new FutureBuilder<NewAddressResponse>(
-      future: address,
-      builder:
-          (BuildContext context, AsyncSnapshot<NewAddressResponse> snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.waiting:
-            return new Center(
-                child: new Text('Generating address...', style: kNormalText));
-          default:
-            if (snapshot.hasError)
-              return new Center(
-                  child:
-                      new Text('Error: ${snapshot.error}', style: kNormalText));
-            else
-              return new Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    new Padding(
-                      padding: new EdgeInsets.only(bottom: 20.0),
-                      child: new Text(
-                          "Send funds to the following address to begin using your wallet.\n\n"
-                          "This should take a few minutes, but could take up to an hour.",
-                          style: kNormalText),
-                    ),
-                    new Expanded(
-                        child: new AspectRatio(
-                            aspectRatio: 1.0,
-                            child: new QrCodeWidget(
-                              data: snapshot.data.address,
-                              color: Colors.black,
-                              onCopied: () => setState(() {
-                                    isCopied = true;
-                                  }),
-                            ))),
-                    new Padding(
-                        padding: new EdgeInsets.only(top: 20.0),
-                        child: new SizedBox.fromSize(
-                            size: new Size.fromHeight(50.0), child: copyText)),
-                    new GestureDetector(
-                        onTap: _launchURL,
-                        child: new Text(
-                            "Click here to go to the faucet.",
-                            style: kNormalText)),
-                  ]);
-        }
-      },
-    );
-
-    var page = new Padding(
-      padding: new EdgeInsets.all(20.0),
-      child: addressBuilder,
-    );
 
     return new OnboardingPage(page, () => _next(context));
   }
