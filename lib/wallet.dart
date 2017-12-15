@@ -204,9 +204,7 @@ class Balance extends StatelessWidget {
               )),
           new Padding(
               padding: new EdgeInsets.only(left: 10.0),
-              child: new Text(
-                  "Waiting for funds\n",
-                  style: kBalanceSubText)),
+              child: new Text("Waiting for funds", style: kBalanceSubText)),
         ],
       ));
     } else if (syncingNetworkGraph) {
@@ -224,15 +222,21 @@ class Balance extends StatelessWidget {
           new Padding(
               padding: new EdgeInsets.only(left: 10.0),
               child: new Text(
-                  "Discovering nodes (seen ${networkInfo.numChannels} channels)\n",
+                  "Discovering nodes (seen ${networkInfo.numChannels} channels)",
                   style: kBalanceSubText)),
         ],
       ));
-    } else if (hasPendingChannel) {
-      // If the user doesn't have any channels yet, then display a "connecting to
-      // network" message.
+    } else {
+      // If we're synced and have at least one channel, then display the spendable
+      // amount that we have in our channels.
 
-      var confirmationBlocks = pendingChannels.pendingOpenChannels.first.blocksTillOpen;
+      elements.add(new Text("Spendable: " + formatter.format(channelBalance),
+          style: kBalanceSubText));
+    }
+
+    for (PendingChannelResponse_PendingOpenChannel channel
+        in pendingChannels.pendingOpenChannels) {
+      var confirmationBlocks = channel.blocksTillOpen;
       var numConfs = 3;
 
       elements.add(new Row(
@@ -248,17 +252,9 @@ class Balance extends StatelessWidget {
               )),
           new Padding(
               padding: new EdgeInsets.only(left: 10.0),
-              child: new Text(
-                  "Pending channel open\n",
-                  style: kBalanceSubText)),
+              child: new Text("Pending channel", style: kBalanceSubText)),
         ],
       ));
-    } else {
-      // If we're synced and have at least one channel, then display the spendable
-      // amount that we have in our channels.
-
-      elements.add(new Text("Spendable: " + formatter.format(channelBalance),
-          style: kBalanceSubText));
     }
 
     if (pendingInitialDepositConfirmations) {
@@ -291,8 +287,7 @@ class Balance extends StatelessWidget {
                 )),
             new Padding(
                 padding: new EdgeInsets.only(left: 10.0),
-                child: new Text(
-                    "Waiting for funds to settle\n",
+                child: new Text("Waiting for funds to settle\n",
                     style: kBalanceSubText)),
           ],
         ));
