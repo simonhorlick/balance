@@ -83,8 +83,11 @@ class _TopupState extends State<Topup> {
                             throw 'Could not launch $url';
                           }
                         },
-                        child: new Text("Click here to go to the faucet.",
-                            style: kNormalText))
+                        child: new Align(
+                          alignment: Alignment.centerLeft,
+                          child: new Text("Click here to go to the faucet.",
+                              style: kNormalText),
+                        ))
                   ]);
         }
       },
