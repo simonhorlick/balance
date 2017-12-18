@@ -627,7 +627,7 @@ func (r *rpcServer) OpenChannel(in *lnrpc.OpenChannelRequest,
 	updateChan, errChan := r.server.OpenChannel(
 		in.TargetPeerId, nodePubKey, localFundingAmt,
 		lnwire.NewMSatFromSatoshis(remoteInitialBalance),
-		feePerByte,
+		feePerByte, in.Private,
 	)
 
 	var outpoint wire.OutPoint
@@ -746,7 +746,7 @@ func (r *rpcServer) OpenChannelSync(ctx context.Context,
 	updateChan, errChan := r.server.OpenChannel(
 		in.TargetPeerId, nodepubKey, localFundingAmt,
 		lnwire.NewMSatFromSatoshis(remoteInitialBalance),
-		feePerByte,
+		feePerByte, in.Private,
 	)
 
 	select {
@@ -919,12 +919,21 @@ func (r *rpcServer) CloseChannel(in *lnrpc.CloseChannelRequest,
 		// When crating commitment transaction, or closure
 		// transactions, we typically deal in fees per-kw, so we'll
 		// convert now before passing the close request to the switch.
-		feePerKw := (feePerByte / blockchain.WitnessScaleFactor) * 1000
+		feePerWeight := (feePerByte / blockchain.WitnessScaleFactor)
+		if feePerWeight == 0 {
+			// If the fee rate returned isn't usable, then we'll
+			// fall back to an lax fee estimate.
+			feePerWeight, err = r.server.cc.feeEstimator.EstimateFeePerWeight(6)
+			if err != nil {
+				return err
+			}
+		}
 
 		// Otherwise, the caller has requested a regular interactive
 		// cooperative channel closure. So we'll forward the request to
 		// the htlc switch which will handle the negotiation and
 		// broadcast details.
+		feePerKw := feePerWeight * 1000
 		updateChan, errChan = r.server.htlcSwitch.CloseLink(chanPoint,
 			htlcswitch.CloseRegular, feePerKw)
 	}
@@ -1182,20 +1191,29 @@ func (r *rpcServer) ListPeers(ctx context.Context,
 // TODO(roasbeef): add async hooks into wallet balance changes
 func (r *rpcServer) WalletBalance(ctx context.Context,
 	in *lnrpc.WalletBalanceRequest) (*lnrpc.WalletBalanceResponse, error) {
+	fmt.Println("[walletbalance] Call to WalletBalance")
+
+	fmt.Printf("[walletbalance] r=%v", r)
 
 	// Check macaroon to see if this is allowed.
 	if r.authSvc != nil {
+		fmt.Printf("[walletbalance] r.authSvc=%v", r.authSvc)
+
 		if err := macaroons.ValidateMacaroon(ctx, "walletbalance",
 			r.authSvc); err != nil {
 			return nil, err
 		}
 	}
+	fmt.Println("[walletbalance] Call to ConfirmedBalance")
+	rpcsLog.Debugf("[walletbalance] Call to ConfirmedBalance 0 %v", r.server.cc)
 
 	// Get total balance, from txs that have >= 0 confirmations.
 	totalBal, err := r.server.cc.wallet.ConfirmedBalance(0, in.WitnessOnly)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("[walletbalance] Call to ConfirmedBalance 1")
+	rpcsLog.Debugf("[walletbalance] Call to ConfirmedBalance 1")
 
 	// Get confirmed balance, from txs that have >= 1 confirmations.
 	confirmedBal, err := r.server.cc.wallet.ConfirmedBalance(1, in.WitnessOnly)

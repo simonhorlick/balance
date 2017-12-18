@@ -24,6 +24,7 @@ import (
 	"github.com/lightningnetwork/lnd/lnrpc"
 	"crypto/rand"
 	"strconv"
+	"sync"
 )
 
 var (
@@ -36,6 +37,9 @@ var (
 	macaroonDatabaseDir string
 
 )
+
+// Controls access to lightningRpcServer.
+var rpcServerMutex = &sync.Mutex{}
 
 var s *grpc.Server
 var lightningRpcServer *rpcServer
@@ -192,12 +196,20 @@ func Start(dataDir string, seed []byte) error {
 	}
 	server.fundingMgr = fundingMgr
 
+	log.Print("Starting lightningRpcServer")
+
 	// Initialize, and register our implementation of the gRPC interface
 	// exported by the rpcServer.
+	rpcServerMutex.Lock()
+	defer rpcServerMutex.Unlock()
 	lightningRpcServer = newRPCServer(server, nil)
 	if err := lightningRpcServer.Start(); err != nil {
+		log.Printf("Failed to start lightningRpcServer=%v", err)
+
 		return err
 	}
+
+	log.Printf("Started lightningRpcServer=%v", lightningRpcServer)
 
 	// FIXME(simon): Here we block until the wallet is synced. This is bad.
 	go func() error {
@@ -267,6 +279,8 @@ func Start(dataDir string, seed []byte) error {
 		return nil
 	}()
 
+	log.Print("Returning from Start")
+
 	return nil
 }
 
@@ -277,8 +291,29 @@ func Pause() {
 }
 
 func Resume() {
+	log.Print("Resume")
+
 	// Create a new grpc server here, because grpc doesn't support resuming previous instances.
 	s = grpc.NewServer()
+
+	for {
+		rpcServerMutex.Lock()
+
+		log.Printf("lightningRpcServer=%v", lightningRpcServer)
+
+		// Wait until we have an rpc server.
+		if lightningRpcServer != nil {
+			rpcServerMutex.Unlock()
+			break
+		}
+		rpcServerMutex.Unlock()
+
+		log.Print("Waiting for lightningRpcServer")
+
+		time.Sleep(10 * time.Second)
+	}
+
+	log.Printf("Registering lightningRpcServer=%v", lightningRpcServer)
 
 	lnrpc.RegisterLightningServer(s, lightningRpcServer)
 
