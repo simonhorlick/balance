@@ -251,27 +251,29 @@ class Balance extends StatelessWidget {
           style: kBalanceSubText));
     }
 
-    for (PendingChannelResponse_PendingOpenChannel channel
-        in pendingChannels.pendingOpenChannels) {
-      var confirmationBlocks = channel.blocksTillOpen;
-      var numConfs = 3;
+    if (pendingChannels != null) {
+      for (PendingChannelResponse_PendingOpenChannel channel
+      in pendingChannels.pendingOpenChannels) {
+        var confirmationBlocks = channel.blocksTillOpen;
+        var numConfs = 3;
 
-      elements.add(new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          new SizedBox(
-              width: 10.0,
-              height: 10.0,
-              child: new CircularProgressIndicator(
-                value: confirmationBlocks / numConfs,
-                strokeWidth: 1.0,
-                valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
-              )),
-          new Padding(
-              padding: new EdgeInsets.only(left: 10.0),
-              child: new Text("Pending channel", style: kBalanceSubText)),
-        ],
-      ));
+        elements.add(new Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            new SizedBox(
+                width: 10.0,
+                height: 10.0,
+                child: new CircularProgressIndicator(
+                  value: confirmationBlocks / numConfs,
+                  strokeWidth: 1.0,
+                  valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
+                )),
+            new Padding(
+                padding: new EdgeInsets.only(left: 10.0),
+                child: new Text("Pending channel", style: kBalanceSubText)),
+          ],
+        ));
+      }
     }
 
     if (pendingInitialDepositConfirmations) {
