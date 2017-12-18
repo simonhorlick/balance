@@ -162,16 +162,16 @@ class Balance extends StatelessWidget {
           padding: new EdgeInsets.only(bottom: 20.0),
           child: new Container(
             decoration: new BoxDecoration(
-              borderRadius: new BorderRadius.circular(4.0),
+              borderRadius: new BorderRadius.circular(3.0),
               color: Colors.white,
             ),
             child: new Padding(
-                padding: new EdgeInsets.all(2.0),
+                padding: new EdgeInsets.all(1.0),
                 child: new Text("TESTNET",
                     style: new TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
-                        fontSize: 12.0))),
+                        fontSize: 8.0))),
           )),
     );
 
