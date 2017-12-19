@@ -52,6 +52,9 @@ func Start(dataDir string, seed []byte) error {
 
 	setLogLevels("DEBUG")
 
+	setLogLevel("HSWC", "TRACE")
+	setLogLevel("CRTR", "TRACE")
+
 	cfg = &config{
 		ConfigFile:          defaultConfigFile,
 		DataDir:             defaultDataDir,
