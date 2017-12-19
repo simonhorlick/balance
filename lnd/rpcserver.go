@@ -1191,29 +1191,20 @@ func (r *rpcServer) ListPeers(ctx context.Context,
 // TODO(roasbeef): add async hooks into wallet balance changes
 func (r *rpcServer) WalletBalance(ctx context.Context,
 	in *lnrpc.WalletBalanceRequest) (*lnrpc.WalletBalanceResponse, error) {
-	fmt.Println("[walletbalance] Call to WalletBalance")
-
-	fmt.Printf("[walletbalance] r=%v", r)
 
 	// Check macaroon to see if this is allowed.
 	if r.authSvc != nil {
-		fmt.Printf("[walletbalance] r.authSvc=%v", r.authSvc)
-
 		if err := macaroons.ValidateMacaroon(ctx, "walletbalance",
 			r.authSvc); err != nil {
 			return nil, err
 		}
 	}
-	fmt.Println("[walletbalance] Call to ConfirmedBalance")
-	rpcsLog.Debugf("[walletbalance] Call to ConfirmedBalance 0 %v", r.server.cc)
 
 	// Get total balance, from txs that have >= 0 confirmations.
 	totalBal, err := r.server.cc.wallet.ConfirmedBalance(0, in.WitnessOnly)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("[walletbalance] Call to ConfirmedBalance 1")
-	rpcsLog.Debugf("[walletbalance] Call to ConfirmedBalance 1")
 
 	// Get confirmed balance, from txs that have >= 1 confirmations.
 	confirmedBal, err := r.server.cc.wallet.ConfirmedBalance(1, in.WitnessOnly)

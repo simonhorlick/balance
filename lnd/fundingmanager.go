@@ -375,8 +375,6 @@ func (f *fundingManager) Start() error {
 		return err
 	}
 
-	fndgLog.Tracef("Pending channels %v", pendingChannels)
-
 	// For any channels that were in a pending state when the daemon was
 	// last connected, the Funding Manager will re-initialize the channel
 	// barriers and will also launch waitForFundingConfirmation to wait for
@@ -442,8 +440,6 @@ func (f *fundingManager) Start() error {
 	if err != nil {
 		return err
 	}
-
-	fndgLog.Tracef("Open channels %v", openChannels)
 
 	for _, channel := range openChannels {
 		channelState, shortChanID, err := f.getChannelOpeningState(
@@ -538,8 +534,6 @@ func (f *fundingManager) Start() error {
 				channelState)
 		}
 	}
-
-	fndgLog.Tracef("waitgroup")
 
 	f.wg.Add(1) // TODO(roasbeef): tune
 	go f.reservationCoordinator()
@@ -687,8 +681,6 @@ func (f *fundingManager) failFundingFlow(peer *btcec.PublicKey,
 // NOTE: This MUST be run as a goroutine.
 func (f *fundingManager) reservationCoordinator() {
 	defer f.wg.Done()
-
-	fndgLog.Tracef("reservationCoordinator")
 
 	for {
 		select {
