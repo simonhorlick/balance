@@ -264,7 +264,7 @@ class Balance extends StatelessWidget {
                 width: 10.0,
                 height: 10.0,
                 child: new CircularProgressIndicator(
-                  value: confirmationBlocks / numConfs,
+                  value: (numConfs-confirmationBlocks) / numConfs,
                   strokeWidth: 1.0,
                   valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
                 )),
