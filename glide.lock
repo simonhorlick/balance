@@ -1,5 +1,5 @@
-hash: 9839424c35f71279362b107daa6def3924abf8fabf18cfb69f3f27b9cbd03c12
-updated: 2017-12-19T10:37:14.94134+08:00
+hash: 1a15dec8076d2e43fdaf5a17cd0a191cf54762f876a5410b83d19180e4ecf642
+updated: 2017-12-23T14:09:46.605882+08:00
 imports:
 - name: github.com/aead/chacha20
   version: d31a916ded42d1640b9d89a26f8abd53cc96790c
@@ -71,7 +71,7 @@ imports:
 - name: github.com/lightningnetwork/lightning-onion
   version: 18bf6612a0653a21daf1a08b4a59e54670a524a1
 - name: github.com/lightningnetwork/lnd
-  version: 3c129f005146234c519a2ae6c8bd86f7203b8bd0
+  version: d6172ca8b431114e9fff168736d725f04d4c6b36
   repo: git@github.com:simonhorlick/lnd.git
   vcs: git
   subpackages:
