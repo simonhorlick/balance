@@ -50,10 +50,8 @@ func Start(dataDir string, seed []byte) error {
 
 	initLogRotator(filepath.Join(dataDir, defaultLogFilename))
 
-	setLogLevels("DEBUG")
-
-	setLogLevel("HSWC", "TRACE")
-	setLogLevel("CRTR", "TRACE")
+	setLogLevels("TRACE")
+	setLogLevel("BTCN", "DEBUG")
 
 	cfg = &config{
 		ConfigFile:          defaultConfigFile,
