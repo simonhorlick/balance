@@ -44,7 +44,7 @@ var (
 	// loggers.  The backend must not be used before the log rotator has
 	// been initialized, or data races and/or nil pointer dereferences will
 	// occur.
-	backendLog = btclog.NewBackend(logWriter{})
+	backendLog = btclog.NewBackend(logWriter{}, btclog.WithFlags(btclog.Llongfile))
 
 	// logRotator is one of the logging outputs.  It should be closed on
 	// application shutdown.
