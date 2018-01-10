@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
+import 'package:convert/convert.dart';
+
 class Tx {
   Tx(this.description, this.amount, this.time, this.receive);
 
@@ -36,6 +38,12 @@ var kBalanceText =
 var kBalanceSubText = kBaseText.copyWith(
     fontWeight: FontWeight.normal,
     fontSize: 16.0,
+    color: const Color(0xE0FFFFFF),
+    decoration: TextDecoration.none);
+
+var kBalanceTinyText = kBaseText.copyWith(
+    fontWeight: FontWeight.normal,
+    fontSize: 8.0,
     color: const Color(0xE0FFFFFF),
     decoration: TextDecoration.none);
 
@@ -154,26 +162,25 @@ class Balance extends StatelessWidget {
     // Always show the balance at the top of the screen.
     elements.add(new Padding(
       padding: new EdgeInsets.only(bottom: 5.0),
-      child: new Text(formatter.format(walletBalance + channelBalance),
+      child: new Text("${formatter.format(walletBalance + channelBalance)}",
           style: kBalanceText),
     ));
-    elements.add(
-      new Padding(
-          padding: new EdgeInsets.only(bottom: 20.0),
-          child: new Container(
-            decoration: new BoxDecoration(
-              borderRadius: new BorderRadius.circular(3.0),
-              color: Colors.white,
-            ),
-            child: new Padding(
-                padding: new EdgeInsets.all(1.0),
-                child: new Text("TESTNET",
-                    style: new TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 8.0))),
-          )),
-    );
+
+    elements.add(new Padding(
+        padding: new EdgeInsets.only(bottom: 20.0),
+        child: new Container(
+          decoration: new BoxDecoration(
+            borderRadius: new BorderRadius.circular(3.0),
+            color: Colors.white,
+          ),
+          child: new Padding(
+              padding: new EdgeInsets.all(1.0),
+              child: new Text("TESTNET",
+                  style: new TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 8.0))),
+        )));
 
     var syncing = !info.syncedToChain;
     var connected = info.numActiveChannels > 0 || info.numPendingChannels > 0;
@@ -253,7 +260,7 @@ class Balance extends StatelessWidget {
 
     if (pendingChannels != null) {
       for (PendingChannelResponse_PendingOpenChannel channel
-      in pendingChannels.pendingOpenChannels) {
+          in pendingChannels.pendingOpenChannels) {
         var confirmationBlocks = channel.blocksTillOpen;
         var numConfs = 3;
 
@@ -264,7 +271,7 @@ class Balance extends StatelessWidget {
                 width: 10.0,
                 height: 10.0,
                 child: new CircularProgressIndicator(
-                  value: (numConfs-confirmationBlocks) / numConfs,
+                  value: (numConfs - confirmationBlocks) / numConfs,
                   strokeWidth: 1.0,
                   valueColor: new AlwaysStoppedAnimation<Color>(Colors.white),
                 )),
@@ -531,7 +538,7 @@ class _WalletState extends DaemonPoller<Wallet> {
       LightningAddress.create()
         ..host = "172.104.59.47"
         ..pubkey =
-            "038b869a90060ca856ac80ec54c20acebca93df1869fbee9550efeb238b964558c",
+            "0308661f7589973028796106890e0acc5cc646a4eb14661983852b34a4cc5b4f31",
       LightningAddress.create()
         ..host = "faucet.lightning.community"
         ..pubkey =
