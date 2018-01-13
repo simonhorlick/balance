@@ -2,7 +2,7 @@ package: github.com/simonhorlick/balance
 import:
 - package: github.com/lightningnetwork/lnd
   vcs: git
-  version: beeb75cb5fdd0f21d747fad64abdfd7ffbd08cb4
+  version: c2f394d777c7385911b9478ad8478764b951c651
   repo: git@github.com:simonhorlick/lnd.git
 - package: github.com/tyler-smith/go-bip39
   version: 8e7a99b3e716f36d3b080a9a70f9eb45abe4edcc
@@ -77,7 +77,9 @@ import:
   subpackages:
   - chaincfg
 - package: github.com/lightninglabs/neutrino
-  version: 5560001600544391c68e02bd1cc7cdbd25318030
+  version: 5c37b3c9d2b0538cdf8a8b4ed3cd1fc02476e918
+  vcs: git
+  repo: git@github.com:simonhorlick/neutrino.git
 - package: gopkg.in/macaroon.v1
 - package: gopkg.in/macaroon-bakery.v1
 - package: github.com/juju/loggo
