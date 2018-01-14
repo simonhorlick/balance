@@ -29,6 +29,7 @@ import (
 	"crypto/rand"
 	"strconv"
 	"sync"
+	"github.com/lightningnetwork/lnd/htlcswitch"
 )
 
 var (
@@ -425,7 +426,12 @@ func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string, seed []byt
 	}
 
 	cc.feeEstimator = feeEstimator
-	cc.routingPolicy = defaultBitcoinForwardingPolicy
+	cc.routingPolicy = htlcswitch.ForwardingPolicy{
+		MinHTLC:       cfg.Bitcoin.MinHTLC,
+		BaseFee:       cfg.Bitcoin.BaseFee,
+		FeeRate:       cfg.Bitcoin.FeeRate,
+		TimeLockDelta: cfg.Bitcoin.TimeLockDelta,
+	}
 
 	network := chaincfg.TestNet3Params
 
