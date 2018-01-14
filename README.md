@@ -47,6 +47,7 @@ $ ./generate_stubs.sh
 
 Compile LND and generate the native bindings:
 ```bash
+$ ./hack_lnd.sh
 $ ./bind_objc.sh
 ```
 
