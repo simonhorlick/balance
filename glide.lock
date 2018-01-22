@@ -1,5 +1,5 @@
-hash: 2e1ff08a7622e9e145fc7328a8319a768a8a983019761d679a6528ad44a9a3fb
-updated: 2018-01-13T18:17:50.765068+08:00
+hash: f6af1bc34c68998a997af1982c66a69a78334160f3c213c78026b58c5cfc510b
+updated: 2018-01-22T15:20:04.657807+08:00
 imports:
 - name: github.com/aead/chacha20
   version: d31a916ded42d1640b9d89a26f8abd53cc96790c
@@ -64,7 +64,7 @@ imports:
 - name: github.com/kkdai/bstream
   version: f391b8402d23024e7c0f624b31267a89998fca95
 - name: github.com/lightninglabs/neutrino
-  version: 5c37b3c9d2b0538cdf8a8b4ed3cd1fc02476e918
+  version: 8ba1a043269fafda7fcbaf9415e6eb0f33e51fff
   repo: https://github.com/simonhorlick/neutrino.git
   vcs: git
   subpackages:
@@ -74,7 +74,7 @@ imports:
 - name: github.com/lightningnetwork/lightning-onion
   version: 18bf6612a0653a21daf1a08b4a59e54670a524a1
 - name: github.com/lightningnetwork/lnd
-  version: c2f394d777c7385911b9478ad8478764b951c651
+  version: 28fc95470aa6ee000e70f3aac9e1856a3eb2cd90
   repo: https://github.com/simonhorlick/lnd.git
   vcs: git
   subpackages:
