@@ -57,37 +57,47 @@ func Start(dataDir string, seed []byte) error {
 
 	setLogLevels("TRACE")
 	setLogLevel("BTCN", "DEBUG")
+	setLogLevel("PEER", "DEBUG")
 
 	cfg = &config{
-		ConfigFile:         defaultConfigFile,
-		DataDir:            defaultDataDir,
-		DebugLevel:         defaultLogLevel,
-		TLSCertPath:        defaultTLSCertPath,
-		TLSKeyPath:         defaultTLSKeyPath,
-		AdminMacPath:       defaultAdminMacPath,
-		ReadMacPath:        defaultReadMacPath,
-		LogDir:             defaultLogDir,
-		PeerPort:           defaultPeerPort,
-		RPCPort:            defaultRPCPort,
-		RESTPort:           defaultRESTPort,
-		MaxPendingChannels: defaultMaxPendingChannels,
-		NoEncryptWallet:    defaultNoEncryptWallet,
+		ConfigFile:   defaultConfigFile,
+		DataDir:      defaultDataDir,
+		DebugLevel:   defaultLogLevel,
+		TLSCertPath:  defaultTLSCertPath,
+		TLSKeyPath:   defaultTLSKeyPath,
+		AdminMacPath: defaultAdminMacPath,
+		ReadMacPath:  defaultReadMacPath,
+		LogDir:       defaultLogDir,
+		PeerPort:     defaultPeerPort,
+		RPCPort:      defaultRPCPort,
+		RESTPort:     defaultRESTPort,
 		Bitcoin: &chainConfig{
-			RPCHost:       defaultRPCHost,
-			RPCCert:       defaultBtcdRPCCertFile,
 			MinHTLC:       defaultBitcoinMinHTLCMSat,
 			BaseFee:       defaultBitcoinBaseFeeMSat,
 			FeeRate:       defaultBitcoinFeeRate,
 			TimeLockDelta: defaultBitcoinTimeLockDelta,
+			Node:          "btcd",
+		},
+		BtcdMode: &btcdConfig{
+			RPCHost: defaultRPCHost,
+			RPCCert: defaultBtcdRPCCertFile,
+		},
+		BitcoindMode: &bitcoindConfig{
+			RPCHost: defaultRPCHost,
 		},
 		Litecoin: &chainConfig{
-			RPCHost:       defaultRPCHost,
-			RPCCert:       defaultLtcdRPCCertFile,
 			MinHTLC:       defaultLitecoinMinHTLCMSat,
 			BaseFee:       defaultLitecoinBaseFeeMSat,
 			FeeRate:       defaultLitecoinFeeRate,
 			TimeLockDelta: defaultLitecoinTimeLockDelta,
+			Node:          "btcd",
 		},
+		LtcdMode: &btcdConfig{
+			RPCHost: defaultRPCHost,
+			RPCCert: defaultLtcdRPCCertFile,
+		},
+		MaxPendingChannels: defaultMaxPendingChannels,
+		NoEncryptWallet:    defaultNoEncryptWallet,
 		Autopilot: &autoPilotConfig{
 			MaxChannels: 5,
 			Allocation:  0.6,
@@ -425,13 +435,13 @@ func newChainControlFromConfig2(chanDB *channeldb.DB, dataDir string, seed []byt
 		FeeRate: 50,
 	}
 
-	cc.feeEstimator = feeEstimator
 	cc.routingPolicy = htlcswitch.ForwardingPolicy{
 		MinHTLC:       cfg.Bitcoin.MinHTLC,
 		BaseFee:       cfg.Bitcoin.BaseFee,
 		FeeRate:       cfg.Bitcoin.FeeRate,
 		TimeLockDelta: cfg.Bitcoin.TimeLockDelta,
 	}
+	cc.feeEstimator = feeEstimator
 
 	network := chaincfg.TestNet3Params
 

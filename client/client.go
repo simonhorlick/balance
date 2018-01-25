@@ -32,7 +32,11 @@ func Start(dataDir string, mnemonic string) error {
 		}
 	}
 
-	lnd.Start(dataDir, seed)
+	err = lnd.Start(dataDir, seed)
+	if err != nil {
+		log.Printf("lnd.Start failed: %v\n", err)
+		return err
+	}
 
 	// Start the grpc layer.
 	Resume()
