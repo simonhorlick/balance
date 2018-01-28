@@ -68,9 +68,6 @@ func Start(dataDir string, seed []byte) error {
 		AdminMacPath: defaultAdminMacPath,
 		ReadMacPath:  defaultReadMacPath,
 		LogDir:       defaultLogDir,
-		PeerPort:     defaultPeerPort,
-		RPCPort:      defaultRPCPort,
-		RESTPort:     defaultRESTPort,
 		Bitcoin: &chainConfig{
 			MinHTLC:       defaultBitcoinMinHTLCMSat,
 			BaseFee:       defaultBitcoinBaseFeeMSat,
@@ -103,6 +100,8 @@ func Start(dataDir string, seed []byte) error {
 			Allocation:  0.6,
 		},
 		TrickleDelay: defaultTrickleDelay,
+		Alias:        defaultAlias,
+		Color:        defaultColor,
 	}
 
 	// Open the channeldb, which is dedicated to storing channel, and
@@ -188,10 +187,10 @@ func Start(dataDir string, seed []byte) error {
 
 			for _, channel := range dbChannels {
 				if chanID.IsChanPoint(&channel.FundingOutpoint) {
+					// TODO(rosbeef): populate baecon
 					return lnwallet.NewLightningChannel(
 						activeChainControl.signer,
-						activeChainControl.chainNotifier,
-						activeChainControl.feeEstimator,
+						server.witnessBeacon,
 						channel)
 				}
 			}

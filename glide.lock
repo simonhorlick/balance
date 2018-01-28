@@ -1,5 +1,5 @@
-hash: d9a2fc00883253c125317f34b5db352d12b18a0cd9180032fa62512cec906503
-updated: 2018-01-23T13:34:08.301385+08:00
+hash: 24ee187f12cf6a7f3b8fd5bc425e72f3eedabc21cac999f244c77fbb6d3909e5
+updated: 2018-01-28T10:14:38.86333+08:00
 imports:
 - name: github.com/aead/chacha20
   version: d31a916ded42d1640b9d89a26f8abd53cc96790c
@@ -7,6 +7,8 @@ imports:
   - chacha
 - name: github.com/aead/siphash
   version: e404fcfc888570cadd1610538e2dbc89f66af814
+- name: github.com/AndreasBriese/bbloom
+  version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
 - name: github.com/awalterschulze/gographviz
   version: 9d8c9780eb4766351ae8489f78cb940cb6e0503d
 - name: github.com/boltdb/bolt
@@ -35,6 +37,16 @@ imports:
   version: ecdeabc65495df2dec95d7c4a4c3e021903035e5
   subpackages:
   - spew
+- name: github.com/dgraph-io/badger
+  version: 39bfb9cbbe922c50a53aa839476d052b19eaa519
+  subpackages:
+  - options
+  - protos
+  - skl
+  - table
+  - "y"
+- name: github.com/dgryski/go-farm
+  version: 2de33835d10275975374b37b2dcfd22c9020a1f5
 - name: github.com/go-errors/errors
   version: 8fa88b06e5974e97fbf9899a7f86a344bfd1f105
 - name: github.com/golang/protobuf
@@ -54,7 +66,7 @@ imports:
 - name: github.com/howeyc/gopass
   version: bf9dde6d0d2c004a008c27aaee91170c786f6db8
 - name: github.com/jessevdk/go-flags
-  version: 1679536dcc895411a9f5848d9a0250be7856448c
+  version: f88afde2fa19a30cf50ba4b05b3d13bc6bae3079
 - name: github.com/jrick/logrotate
   version: a93b200c26cbae3bb09dd0dc2c7c7fe1468a034a
   subpackages:
@@ -76,7 +88,7 @@ imports:
 - name: github.com/lightningnetwork/lightning-onion
   version: 18bf6612a0653a21daf1a08b4a59e54670a524a1
 - name: github.com/lightningnetwork/lnd
-  version: 28fc95470aa6ee000e70f3aac9e1856a3eb2cd90
+  version: 59a9bc94c3539bdcb3eec05c4b0d2ad22f802644
   repo: https://github.com/simonhorlick/lnd.git
   vcs: git
   subpackages:
@@ -87,6 +99,7 @@ imports:
   - chainntnfs/btcdnotify
   - chainntnfs/neutrinonotify
   - channeldb
+  - contractcourt
   - discovery
   - htlcswitch
   - lnrpc
@@ -108,6 +121,8 @@ imports:
   version: 946bd9fbed05568b0f3cd188353d8aa28f38b688
   subpackages:
   - internal/socket
+- name: github.com/pkg/errors
+  version: e881fd58d78e04cf6d0de1217f8707c8cc2249bc
 - name: github.com/roasbeef/btcd
   version: 9978b939c33973be19b932fa7b936079bb7ba38d
   subpackages:
@@ -137,7 +152,7 @@ imports:
   - hdkeychain
   - txsort
 - name: github.com/roasbeef/btcwallet
-  version: 6c1491e092f39d6ed4e9103b9dc8322d04ca98bb
+  version: 4f4765c3e3baf4c7b40c311340a076ec83c5ef3a
   subpackages:
   - chain
   - internal/helpers
