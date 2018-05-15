@@ -26,12 +26,17 @@
 
 
 [[constraint]]
+  branch = "master"
   name = "github.com/lightninglabs/neutrino"
-  source = "https://github.com/simonhorlick/neutrino.git"
 
 [[constraint]]
   name = "github.com/lightningnetwork/lnd"
-  source = "https://github.com/simonhorlick/lnd.git"
+  branch = "mobile-test-5"
+  source = "github.com/halseth/lnd"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/roasbeef/btcutil"
 
 [[constraint]]
   branch = "master"

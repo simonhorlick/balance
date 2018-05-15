@@ -2,12 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/AndreasBriese/bbloom"
-  packages = ["."]
-  revision = "28f7e881ca57bc00e028f9ede9f0d9104cfeef5e"
-
-[[projects]]
   name = "github.com/aead/chacha20"
   packages = [
     ".",
@@ -20,12 +14,6 @@
   name = "github.com/aead/siphash"
   packages = ["."]
   revision = "e404fcfc888570cadd1610538e2dbc89f66af814"
-
-[[projects]]
-  name = "github.com/boltdb/bolt"
-  packages = ["."]
-  revision = "2f1ce7a837dcb8da3ec595b1dac9d0632f0f99e8"
-  version = "v1.3.1"
 
 [[projects]]
   branch = "master"
@@ -66,32 +54,19 @@
   revision = "31079b6807923eb23992c421b114992b95131b55"
 
 [[projects]]
+  name = "github.com/coreos/bbolt"
+  packages = ["."]
+  revision = "4f5275f4ebbf6fe7cb772de987fa96ee674460a7"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  revision = "ecdeabc65495df2dec95d7c4a4c3e021903035e5"
-
-[[projects]]
-  name = "github.com/dgraph-io/badger"
-  packages = [
-    ".",
-    "options",
-    "protos",
-    "skl",
-    "table",
-    "y"
-  ]
-  revision = "39bfb9cbbe922c50a53aa839476d052b19eaa519"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/dgryski/go-farm"
-  packages = ["."]
-  revision = "2de33835d10275975374b37b2dcfd22c9020a1f5"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
 
 [[projects]]
   name = "github.com/go-errors/errors"
   packages = ["."]
-  revision = "8fa88b06e5974e97fbf9899a7f86a344bfd1f105"
+  revision = "a6af135bd4e28680facf08a3d206b454abc877a4"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -102,7 +77,7 @@
     "ptypes/any",
     "ptypes/struct"
   ]
-  revision = "ab9f9a6dab164b7d1246e0e688b0ab7b94d8553e"
+  revision = "bbd03ef6da3a115852eaf24c8a1c46aeb39aa175"
 
 [[projects]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
@@ -114,9 +89,10 @@
   revision = "f2862b476edcef83412c7af8687c9cd8e4097c0f"
 
 [[projects]]
+  branch = "master"
   name = "github.com/kkdai/bstream"
   packages = ["."]
-  revision = "f391b8402d23024e7c0f624b31267a89998fca95"
+  revision = "f71540b9dfdcfe64dbf2818e9b66423c6aafcacd"
 
 [[projects]]
   name = "github.com/lightninglabs/gozmq"
@@ -124,23 +100,22 @@
   revision = "0d266ba6d55ea65c18c7a02d8992c89355149e80"
 
 [[projects]]
-  branch = "balance"
+  branch = "master"
   name = "github.com/lightninglabs/neutrino"
   packages = [
     ".",
-    "blockcache",
     "filterdb",
     "headerfs"
   ]
-  revision = "e4d2b5e1cbfb6b7132cd653df148a47fe01407ef"
-  source = "https://github.com/simonhorlick/neutrino.git"
+  revision = "36d9a509ff4ea1e916a73c6f1c2b784c1faf11ed"
 
 [[projects]]
   name = "github.com/lightningnetwork/lightning-onion"
   packages = ["."]
-  revision = "18bf6612a0653a21daf1a08b4a59e54670a524a1"
+  revision = "c86137582e53fe3ba26681a98f911b546970893e"
 
 [[projects]]
+  branch = "mobile-test-5"
   name = "github.com/lightningnetwork/lnd"
   packages = [
     "chainntnfs",
@@ -148,6 +123,7 @@
     "channeldb",
     "contractcourt",
     "htlcswitch",
+    "keychain",
     "lnrpc",
     "lnwallet",
     "lnwallet/btcwallet",
@@ -155,15 +131,11 @@
     "routing/chainview",
     "shachain"
   ]
-  revision = "59a9bc94c3539bdcb3eec05c4b0d2ad22f802644"
-  source = "https://github.com/simonhorlick/lnd.git"
+  revision = "e5ed7dc900e9392f038b3c5bf07210a70e214aac"
+  source = "github.com/halseth/lnd"
 
 [[projects]]
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "e881fd58d78e04cf6d0de1217f8707c8cc2249bc"
-
-[[projects]]
+  branch = "master"
   name = "github.com/roasbeef/btcd"
   packages = [
     "addrmgr",
@@ -179,7 +151,7 @@
     "txscript",
     "wire"
   ]
-  revision = "9978b939c33973be19b932fa7b936079bb7ba38d"
+  revision = "a03db407e40d3b66ea29984263bbc8bf4d2f04c4"
 
 [[projects]]
   name = "github.com/roasbeef/btcutil"
@@ -192,7 +164,7 @@
     "hdkeychain",
     "txsort"
   ]
-  revision = "c3ff179366044979fb9856c2feb79bd4c2184c7a"
+  revision = "dfb640c57141f1c2113b92b4b16d2a89c30dd258"
 
 [[projects]]
   name = "github.com/roasbeef/btcwallet"
@@ -213,7 +185,7 @@
     "walletdb/bdb",
     "wtxmgr"
   ]
-  revision = "4f4765c3e3baf4c7b40c311340a076ec83c5ef3a"
+  revision = "ccd48bb4720f2baeaa795cac81264f6ced2da4c7"
 
 [[projects]]
   branch = "master"
@@ -224,11 +196,10 @@
 [[projects]]
   name = "golang.org/x/crypto"
   packages = [
-    "hkdf",
     "pbkdf2",
     "ripemd160"
   ]
-  revision = "9419663f5a44be8b34ca85f08abc5fe1be11f8a3"
+  revision = "49796115aa4b964c318aad4f3084fdb41e9aa067"
 
 [[projects]]
   name = "golang.org/x/net"
@@ -241,19 +212,25 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "66aacef3dd8a676686c7ae3716979581e8b03c47"
+  revision = "ae89d30ce0c63142b652837da33d782e2b0a9b25"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "ab9e364efd8b52800ff7ee48a9ffba4e0ed78dfb"
+  revision = "6f686a352de66814cdd080d970febae7767857a3"
 
 [[projects]]
   name = "golang.org/x/text"
   packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
     "internal/gen",
+    "internal/tag",
     "internal/triegen",
     "internal/ucd",
+    "language",
     "secure/bidirule",
     "transform",
     "unicode/bidi",
@@ -261,7 +238,8 @@
     "unicode/norm",
     "unicode/rangetable"
   ]
-  revision = "18c65dde6afd36dbc39197ca72008895b8dfbfb6"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   name = "google.golang.org/genproto"
@@ -269,7 +247,7 @@
     "googleapis/api/annotations",
     "googleapis/rpc/status"
   ]
-  revision = "ee236bd376b077c7a89f260c026c4735b195e459"
+  revision = "df60624c1e9b9d2973e889c7a1cff73155da81c4"
 
 [[projects]]
   name = "google.golang.org/grpc"
@@ -296,6 +274,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6baca358c30b6ec924925ec080bf5577a4df0a5d1271c32e5ed03d7097a762f6"
+  inputs-digest = "ad376ab01853640c7a17e2690a5f645c1aef028c8ef2a1820a186aea057f1e01"
   solver-name = "gps-cdcl"
   solver-version = 1
