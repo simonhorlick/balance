@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
-import 'package:flutter/material.dart';
+import 'package:balance/lnd.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 /// A camera preview widget.
@@ -97,9 +98,8 @@ class PaymentDetails extends StatelessWidget {
 /// A PaymentProgressScreen attempts to pay the given payment request
 class PaymentProgressScreen extends StatefulWidget {
   final String paymentRequest;
-  final LightningClient stub;
 
-  PaymentProgressScreen(this.paymentRequest, this.stub);
+  PaymentProgressScreen(this.paymentRequest);
 
   @override
   _PaymentProgressScreenState createState() =>
@@ -133,13 +133,13 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
     });
 
     setState(() {
-      details = widget.stub
+      details = LndClient
           .decodePayReq(PayReqString.create()..payReq = widget.paymentRequest);
     });
   }
 
   Future<String> _sendPayment(String paymentRequest) async {
-    var response = await widget.stub
+    var response = await LndClient
         .sendPaymentSync(SendRequest.create()..paymentRequest = paymentRequest);
 
     return response.paymentError;
@@ -243,10 +243,6 @@ class GuideOverlay extends StatelessWidget {
 /// it straight to the PaymentProgressScreen which attempts to pay the payment
 /// request.
 class Scanner extends StatefulWidget {
-  Scanner(this.stub);
-
-  final LightningClient stub;
-
   @override
   _ScannerState createState() {
     return new _ScannerState();
@@ -266,7 +262,7 @@ class _ScannerState extends State<Scanner> {
     // back up properly when we navigate back.
     Navigator.of(context).pushReplacement(new MaterialPageRoute<bool>(
           builder: (BuildContext context) =>
-              new PaymentProgressScreen(paymentRequest, widget.stub),
+              new PaymentProgressScreen(paymentRequest),
           fullscreenDialog: true,
         ));
   }

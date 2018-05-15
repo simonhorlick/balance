@@ -1,9 +1,8 @@
+import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:balance/lnd.dart';
+import 'package:balance/qr.dart';
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart' hide ConnectionState;
-
-import 'package:balance/qr.dart';
-
-import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const kNormalText = const TextStyle(color: Colors.white, fontSize: 16.0);
@@ -11,10 +10,6 @@ const kNormalText = const TextStyle(color: Colors.white, fontSize: 16.0);
 /// Topup displays a QR code of a bitcoin address for depositing bitcoin from
 /// an external source such as a wallet or exchange.
 class Topup extends StatefulWidget {
-  final LightningClient stub;
-
-  Topup(this.stub);
-
   @override
   _TopupState createState() => new _TopupState();
 }
@@ -29,7 +24,7 @@ class _TopupState extends State<Topup> {
   @override
   initState() {
     super.initState();
-    addressResponse = widget.stub.newAddress(NewAddressRequest.create()
+    addressResponse = LndClient.newAddress(NewAddressRequest.create()
       ..type = NewAddressRequest_AddressType.NESTED_PUBKEY_HASH);
   }
 

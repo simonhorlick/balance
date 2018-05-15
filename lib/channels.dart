@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:balance/daemon.dart';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:balance/lnd.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -26,21 +26,17 @@ var kDarkText = kBaseText.copyWith(
 var formatter = new NumberFormat("###,###", "en_US");
 
 class Channels extends StatefulWidget {
-  Channels(this.stub);
-
-  final LightningClient stub;
-
   @override
   _ChannelsState createState() => new _ChannelsState();
 }
 
-class _ChannelsState extends DaemonPoller<Channels> {
+class _ChannelsState extends State<Channels> {
   ListChannelsResponse listChannelsResponse;
 
   @override
   Future<Null> refresh() async {
     ListChannelsResponse response =
-        await widget.stub.listChannels(ListChannelsRequest.create());
+        await LndClient.listChannels(ListChannelsRequest.create());
     setState(() {
       listChannelsResponse = response;
     });

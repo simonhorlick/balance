@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:balance/balance_app.dart';
-import 'package:balance/daemon.dart';
 import 'package:balance/onboarding.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -22,21 +19,21 @@ class _FirstTimeRedirectState extends State<FirstTimeRedirect> {
   void initState() {
     super.initState();
 
-    Daemon.walletExists().then((exists) {
-      if (exists) {
-        print("FirstTimeRedirect: Wallet exists, starting lnd");
-
-        // Start LND and start listening for rpcs.
-        Daemon.start("");
-      } else {
-        print("FirstTimeRedirect: Wallet doesn't exist, showing onboarding");
-      }
-
-      setState(() {
-        ready = true;
-        walletExists = exists;
-      });
-    });
+//    Daemon.walletExists().then((exists) {
+//      if (exists) {
+//        print("FirstTimeRedirect: Wallet exists, starting lnd");
+//
+//        // Start LND and start listening for rpcs.
+////        Daemon.start("");
+//      } else {
+//        print("FirstTimeRedirect: Wallet doesn't exist, showing onboarding");
+//      }
+//
+//      setState(() {
+//        ready = true;
+//        walletExists = exists;
+//      });
+//    });
   }
 
   @override

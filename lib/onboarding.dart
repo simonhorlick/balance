@@ -1,15 +1,8 @@
 import 'dart:async';
 
 import 'package:balance/balance_app.dart';
-import 'package:balance/daemon.dart';
-import 'package:balance/qr.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
-import 'package:url_launcher/url_launcher.dart';
-
-import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
-import 'package:grpc/grpc.dart' hide ConnectionState;
 
 // An OnboardingPage consists of a main body with a "next" button at the bottom
 // of the screen, allowing the user to progress through the onboarding.
@@ -120,7 +113,7 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
   @override
   void initState() {
     super.initState();
-    mnemonic = Daemon.createMnemonic();
+//    mnemonic = Daemon.createMnemonic();
   }
 
   _next(BuildContext context) {
@@ -128,7 +121,7 @@ class _MnemonicScreenState extends State<MnemonicScreen> {
       print("Starting LND with new wallet");
 
       // Create a new wallet with this mnemonic.
-      Daemon.start(mnemonic.reduce((value, element) => value + " " + element));
+//      Daemon.start(mnemonic.reduce((value, element) => value + " " + element));
 
       Navigator.of(context).pushReplacement(new PageRouteBuilder(
           opaque: false,
