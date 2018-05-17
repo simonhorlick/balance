@@ -20,8 +20,13 @@ FlutterMethodChannel* lndChannel;
   _resultCb(p0);
 }
 - (void)onResponse:(NSData*)p0 {
-  FlutterStandardTypedData* d = [FlutterStandardTypedData typedDataWithBytes:p0];
-  _resultCb(d);
+  if (p0 == nil) {
+    // Send back an empty payload for nil responses. This allows dart to parse it properly.
+    NSMutableData *empty = [[NSMutableData alloc] init];
+    _resultCb([FlutterStandardTypedData typedDataWithBytes:empty]);
+  } else {
+    _resultCb([FlutterStandardTypedData typedDataWithBytes:p0]);
+  }
 }
 @end
 
