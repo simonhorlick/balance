@@ -1,3 +1,4 @@
+import 'package:balance/lnd.dart';
 import 'package:balance/receive.dart';
 import 'package:balance/scan.dart';
 import 'package:balance/topup.dart';
@@ -13,8 +14,29 @@ class BalanceApp extends StatefulWidget {
 }
 
 class BalanceAppState extends State<BalanceApp> {
+  bool loaded = false;
+
+  @override
+  initState() {
+    super.initState();
+    LndClient.start().then((msg) {
+      print("LndClient: start $msg");
+      setState(() {
+        loaded = true;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!loaded) {
+      return new MaterialApp(
+        title: 'Balance',
+        theme: new ThemeData(primarySwatch: Colors.blue),
+        home: new Text("Loading..."),
+      );
+    }
+
     return new MaterialApp(
       title: 'Balance',
       theme: new ThemeData(primarySwatch: Colors.blue),
