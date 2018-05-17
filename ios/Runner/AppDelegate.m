@@ -117,7 +117,7 @@ FlutterMethodChannel* lndChannel;
     if ([@"Start" isEqualToString:call.method]) {
       // Create a minimal config file for LND.
       NSString *fileName = [NSString stringWithFormat:@"%@/lnd.conf", dir];
-      NSString *content = @"[Application Options]\ndebuglevel=trace\nnoencryptwallet=1\nnobootstrap=1\n\n[Bitcoin]\nbitcoin.active=1\nbitcoin.testnet=1\nbitcoin.node=neutrino\n\n[Neutrino]\nneutrino.connect=sg.horlick.me:18333\n";
+      NSString *content = @"[Application Options]\ndebuglevel=trace\nnoencryptwallet=1\n\n[Bitcoin]\nbitcoin.active=1\nbitcoin.testnet=1\nbitcoin.node=neutrino\n\n[Neutrino]\nneutrino.connect=sg.horlick.me:18333\n";
       [content writeToFile:fileName
                 atomically:NO
                   encoding:NSUTF8StringEncoding
