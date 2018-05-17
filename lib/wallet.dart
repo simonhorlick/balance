@@ -637,13 +637,20 @@ class _WalletState extends State<Wallet> {
     BitstampRates.create().then((r) => setState(() {
           rates = r;
         }));
+    refresh();
   }
 
   @override
   Widget build(BuildContext context) {
     if (!ready) {
       // TODO(simon): Show something here while everything's loading.
-      return new Container();
+      return new Scaffold(
+        backgroundColor: Colors.blue,
+        body: new Padding(
+          padding: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          child: new Text("Loading"),
+        ),
+      );
     }
 
     return new WalletImpl(walletBalance, channelBalance, transactions, info,
