@@ -516,11 +516,11 @@ class _WalletState extends State<Wallet> {
 
   Rates rates;
 
-  paymentToTx(Payment p) {
+  Tx paymentToTx(Payment p) {
     return new Tx("Sent", p.value, p.creationDate, false);
   }
 
-  invoiceToTx(Invoice inv) {
+  Tx invoiceToTx(Invoice inv) {
     return new Tx("Received", inv.value, inv.creationDate, true);
   }
 
@@ -564,7 +564,6 @@ class _WalletState extends State<Wallet> {
     }
   }
 
-  @override
   Future<Null> refresh() async {
     print("wallet: Refreshing state");
 
@@ -626,7 +625,7 @@ class _WalletState extends State<Wallet> {
         ready = true;
       });
     } catch (error) {
-      print("$error");
+      print("Error: $error");
     }
 
     return null;
