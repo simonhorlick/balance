@@ -524,6 +524,46 @@ class _WalletState extends State<Wallet> {
     return new Tx("Received", inv.value, inv.creationDate, true);
   }
 
+  void connectPeers() {
+    print("wallet: connectPeers");
+
+    var addresses = [
+      LightningAddress.create()
+        ..host = "172.104.59.47"
+        ..pubkey =
+            "0308661f7589973028796106890e0acc5cc646a4eb14661983852b34a4cc5b4f31",
+      LightningAddress.create()
+        ..host = "faucet.lightning.community"
+        ..pubkey =
+            "02f1da524a70afd8de6019e2367b47d8d41a623aa3594f55d0785fe1b047c853bc",
+      // y'alls
+      LightningAddress.create()
+        ..host = "45.77.115.33"
+        ..pubkey =
+            "02a35187c5a71676da4930d93faaf30f6d5e19e3bbe8f3ead400b898967e1dc475",
+      // htlc.me
+      LightningAddress.create()
+        ..host = "45.63.87.131"
+        ..pubkey =
+            "02995ec02804a3ae30e2e0a9bca58bd77af664eeff688d36c8f1ee677fe05b5394",
+    ];
+
+    // Add well-known peers in case something goes wrong with bootstrapping.
+    for (LightningAddress addr in addresses) {
+      // This has to happen after the chain backend has finished syncing or the
+      // rpc will fail.
+      LndClient
+          .connectPeer(ConnectPeerRequest.create()
+            ..perm = true
+            ..addr = addr)
+          .then((response) {
+        print("connected: $response");
+      }).catchError((error) {
+        print("error connecting to peer: $error");
+      });
+    }
+  }
+
   Future<Null> refresh() async {
     print("wallet: Refreshing state");
 
@@ -556,6 +596,10 @@ class _WalletState extends State<Wallet> {
 
       var onChainTx =
           await LndClient.getTransactions(GetTransactionsRequest.create());
+
+      if (infoResponse.syncedToChain && infoResponse.numPeers == 0) {
+        connectPeers();
+      }
 
       setState(() {
         walletBalance = walletBalanceResponse.totalBalance;
