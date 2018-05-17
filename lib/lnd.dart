@@ -183,4 +183,9 @@ class LndClient {
     });
     return SendResponse.create()..mergeFromBuffer(result);
   }
+
+  static Future<String> start() async {
+    final Uint8List result = await _kChannel.invokeMethod('Start');
+    return result.toString();
+  }
 }

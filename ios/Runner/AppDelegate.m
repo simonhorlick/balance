@@ -31,20 +31,6 @@ FlutterMethodChannel* lndChannel;
 @end
 
 
-
-@interface PrintResultLndCallback : NSObject <LndmobileCallback>
-@end
-
-@implementation PrintResultLndCallback
-- (void)onError:(NSError*)p0 {
-  NSLog(@"onError \"%@\"\n", p0);
-}
-- (void)onResponse:(NSData*)p0 {
-  NSLog(@"onResponse \"%@\"\n", [NSString stringWithUTF8String:[p0 bytes]]);
-}
-@end
-
-
 @interface StreamingCallHandler : NSObject<FlutterStreamHandler>
 @end
 
@@ -114,17 +100,6 @@ FlutterMethodChannel* lndChannel;
   freopen([logFilePath2 cStringUsingEncoding:NSASCIIStringEncoding], "a", stdout);
 #endif
   
-  // Create a minimal config file for LND.
-  NSString *fileName = [NSString stringWithFormat:@"%@/lnd.conf", dir];
-  NSString *content = @"[Application Options]\ndebuglevel=debug\nnoencryptwallet=1\nnobootstrap=1\n\n[Bitcoin]\nbitcoin.active=1\nbitcoin.testnet=1\nbitcoin.node=neutrino\n\n[Neutrino]\nneutrino.connect=sg.horlick.me:18333\n";
-  [content writeToFile:fileName
-            atomically:NO
-              encoding:NSUTF8StringEncoding
-                 error:nil];
-  
-  // TODO(simon): Link this up with the resume method on the lndChannel.
-  LndmobileStart(dir, [PrintResultLndCallback new]);
-
   FlutterViewController* controller =
   (FlutterViewController*)self.window.rootViewController;
   
@@ -139,7 +114,16 @@ FlutterMethodChannel* lndChannel;
   [lndChannel setMethodCallHandler:^(FlutterMethodCall* call,
                                      FlutterResult result) {
     NSLog(@"Call for %@", call.method);
-    if ([@"GetInfo" isEqualToString:call.method]) {
+    if ([@"Start" isEqualToString:call.method]) {
+      // Create a minimal config file for LND.
+      NSString *fileName = [NSString stringWithFormat:@"%@/lnd.conf", dir];
+      NSString *content = @"[Application Options]\ndebuglevel=trace\nnoencryptwallet=1\nnobootstrap=1\n\n[Bitcoin]\nbitcoin.active=1\nbitcoin.testnet=1\nbitcoin.node=neutrino\n\n[Neutrino]\nneutrino.connect=sg.horlick.me:18333\n";
+      [content writeToFile:fileName
+                atomically:NO
+                  encoding:NSUTF8StringEncoding
+                     error:nil];
+      LndmobileStart(dir, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"GetInfo" isEqualToString:call.method]) {
       FlutterStandardTypedData *msg = call.arguments[@"req"];
       LndmobileGetInfo(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
     } else if ([@"WalletBalance" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileWalletBalance(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
