@@ -10,20 +10,26 @@ dependencies:
   cupertino_icons: ^0.1.2
 
   camera:
-    path: ../../sigurdm/camera/
+    git:
+      url: https://github.com/simonhorlick/plugins.git
+      ref: 87998a7492e704e39f4c532207b5ca89d20d95dc
+      path: packages/camera
 
   grpc:
     git:
       url: https://github.com/grpc/grpc-dart.git
       ref: b8e5c5c2c548727a13cd006c09ca406b013b1130
+
   protobuf: 0.8.0
+
+  qr:
+    git:
+      url: https://github.com/kevmoo/qr.dart.git
+      ref: dd1316d0f9d5ae332c7319a6923e2b4fb3285f5d
+
   intl: "^0.15.2"
   convert: "^2.0.1"
   http: '>=0.11.3+12'
-  qr:
-    git:
-      url: git://github.com/simonhorlick/qr.dart.git
-      ref: cde18c58c0d2f749263dcf69746e1bdeeee3ba2f
   url_launcher: 1.0.3
 
 dev_dependencies:
