@@ -117,30 +117,30 @@ FlutterMethodChannel* lndChannel;
     if ([@"Start" isEqualToString:call.method]) {
       // Create a minimal config file for LND.
       NSString *fileName = [NSString stringWithFormat:@"%@/lnd.conf", dir];
-      NSString *content = @"[Application Options]\ndebuglevel=trace\nnoencryptwallet=1\nnobootstrap=1\n\n[Bitcoin]\nbitcoin.active=1\nbitcoin.testnet=1\nbitcoin.node=neutrino\n\n[Neutrino]\nneutrino.connect=sg.horlick.me:18333\n";
+      NSString *content = @"[Application Options]\ndebuglevel=debug\nnoencryptwallet=1\nnobootstrap=1\n\n[Bitcoin]\nbitcoin.active=1\nbitcoin.testnet=1\nbitcoin.node=neutrino\n\n[Neutrino]\nneutrino.connect=sg.horlick.me:18333\n";
       [content writeToFile:fileName
                 atomically:NO
                   encoding:NSUTF8StringEncoding
                      error:nil];
       LndmobileStart(dir, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"GetInfo" isEqualToString:call.method]) {
+    } else if ([@"/lnrpc.Lightning/GetInfo" isEqualToString:call.method]) {
       FlutterStandardTypedData *msg = call.arguments[@"req"];
       LndmobileGetInfo(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"WalletBalance" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileWalletBalance(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"ChannelBalance" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileChannelBalance(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"ListPayments" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileListPayments(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"ListInvoices" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileListInvoices(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"LookupInvoice" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileLookupInvoice(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"AddInvoice" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileAddInvoice(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"ConnectPeer" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileConnectPeer(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"PendingChannels" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobilePendingChannels(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"ListChannels" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileListChannels(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"GetNetworkInfo" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileGetNetworkInfo(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"GetTransactions" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileGetTransactions(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"NewAddress" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileNewAddress(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"DecodePayReq" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileDecodePayReq(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"SendPaymentSync" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileSendPaymentSync(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
-    } else if ([@"SubscribeTransactions" isEqualToString:call.method]) {
+    } else if ([@"/lnrpc.Lightning/WalletBalance" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileWalletBalance(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/ChannelBalance" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileChannelBalance(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/ListPayments" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileListPayments(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/ListInvoices" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileListInvoices(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/LookupInvoice" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileLookupInvoice(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/AddInvoice" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileAddInvoice(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/ConnectPeer" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileConnectPeer(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/PendingChannels" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobilePendingChannels(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/ListChannels" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileListChannels(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/GetNetworkInfo" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileGetNetworkInfo(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/GetTransactions" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileGetTransactions(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/NewAddress" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileNewAddress(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/DecodePayReq" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileDecodePayReq(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/SendPaymentSync" isEqualToString:call.method]) {FlutterStandardTypedData *msg = call.arguments[@"req"];LndmobileSendPaymentSync(msg.data, [[FlutterResultLndCallback alloc] initWithFlutterResult:result]);
+    } else if ([@"/lnrpc.Lightning/SubscribeTransactions" isEqualToString:call.method]) {
       FlutterStandardTypedData *msg = call.arguments[@"req"];
       FlutterStandardTypedData *streamId = call.arguments[@"streamId"];
       FlutterStreamingResultLndCallback* cb = [[FlutterStreamingResultLndCallback alloc] initWithStreamingCallHandler:instance streamId:streamId];

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:balance/fit_width.dart';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
-import 'package:balance/lnd.dart';
 import 'package:balance/qr.dart';
 import 'package:balance/rates.dart';
 import 'package:fixnum/fixnum.dart';
@@ -38,6 +37,10 @@ typedef void KeyTapCallback(text);
 /// The first page in the flow, and this widget, implement a keypad for entering
 /// the sale price.
 class Receive extends StatelessWidget {
+  final LightningClient stub;
+
+  Receive(this.stub);
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -48,7 +51,7 @@ class Receive extends StatelessWidget {
           new Align(
               alignment: Alignment.centerLeft,
               child: new BackButton(color: Colors.white)),
-          new Keypad(),
+          new Keypad(stub),
         ]),
       ),
     );
@@ -106,6 +109,10 @@ class RequestButton extends StatelessWidget {
 ///
 /// The _KeypadState stores the currently typed value.
 class Keypad extends StatefulWidget {
+  final LightningClient stub;
+
+  Keypad(this.stub);
+
   @override
   _KeypadState createState() => new _KeypadState();
 }
@@ -217,7 +224,7 @@ class _KeypadState extends State<Keypad> {
   Future<Null> _request() async {
     Navigator.of(context).pushReplacement(new MaterialPageRoute<bool>(
           builder: (BuildContext context) =>
-              new PaymentRequestScreen(_digits, rates),
+              new PaymentRequestScreen(widget.stub, _digits, rates),
           fullscreenDialog: true,
         ));
   }
@@ -228,8 +235,9 @@ class _KeypadState extends State<Keypad> {
 class PaymentRequestScreen extends StatefulWidget {
   final String digits;
   final Future<Rates> rates;
+  LightningClient stub;
 
-  PaymentRequestScreen(this.digits, this.rates);
+  PaymentRequestScreen(this.stub, this.digits, this.rates);
 
   @override
   _PaymentRequestScreenState createState() => new _PaymentRequestScreenState();
@@ -269,7 +277,7 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
       var payReq = response.rHash;
 
       var inv =
-          await LndClient.lookupInvoice(PaymentHash.create()..rHash = payReq);
+          await widget.stub.lookupInvoice(PaymentHash.create()..rHash = payReq);
 
       print("$inv");
 
@@ -289,7 +297,7 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
 
   Future<Null> createInvoice(int satoshis) async {
     try {
-      var invoiceResponse = await LndClient.addInvoice(Invoice.create()
+      var invoiceResponse = await widget.stub.addInvoice(Invoice.create()
         ..memo = ""
         ..value = new Int64(satoshis));
       setState(() {

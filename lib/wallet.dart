@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
-import 'package:balance/lnd.dart';
 import 'package:balance/rates.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -497,6 +496,10 @@ class WalletImpl extends StatelessWidget {
 }
 
 class Wallet extends StatefulWidget {
+  LightningClient stub;
+
+  Wallet(this.stub);
+
   @override
   _WalletState createState() => new _WalletState();
 }
@@ -538,7 +541,7 @@ class _WalletState extends State<Wallet> {
     for (LightningAddress addr in addresses) {
       // This has to happen after the chain backend has finished syncing or the
       // rpc will fail.
-      LndClient
+      widget.stub
           .connectPeer(ConnectPeerRequest.create()
             ..perm = true
             ..addr = addr)
@@ -555,33 +558,33 @@ class _WalletState extends State<Wallet> {
 
     try {
       var walletBalanceResponse =
-          await LndClient.walletBalance(WalletBalanceRequest.create());
+          await widget.stub.walletBalance(WalletBalanceRequest.create());
       var channelBalanceResponse =
-          await LndClient.channelBalance(ChannelBalanceRequest.create());
+          await widget.stub.channelBalance(ChannelBalanceRequest.create());
       var paymentsResponse =
-          await LndClient.listPayments(ListPaymentsRequest.create());
+          await widget.stub.listPayments(ListPaymentsRequest.create());
       var invoicesResponse =
-          await LndClient.listInvoices(ListInvoiceRequest.create());
-      var infoResponse = await LndClient.getInfo(GetInfoRequest.create());
+          await widget.stub.listInvoices(ListInvoiceRequest.create());
+      var infoResponse = await widget.stub.getInfo(GetInfoRequest.create());
 
       var networkInfoResponse;
       var pendingChannelsResponse;
       if (infoResponse.syncedToChain) {
         pendingChannelsResponse =
-            await LndClient.pendingChannels(PendingChannelsRequest.create());
+            await widget.stub.pendingChannels(PendingChannelsRequest.create());
 
         var channels =
-            await LndClient.listChannels(ListChannelsRequest.create());
+            await widget.stub.listChannels(ListChannelsRequest.create());
         for (Channel channel in channels.channels) {
           print("channel: ${channel}");
         }
 
         networkInfoResponse =
-            await LndClient.getNetworkInfo(NetworkInfoRequest.create());
+            await widget.stub.getNetworkInfo(NetworkInfoRequest.create());
       }
 
       var onChainTx =
-          await LndClient.getTransactions(GetTransactionsRequest.create());
+          await widget.stub.getTransactions(GetTransactionsRequest.create());
 
       if (infoResponse.syncedToChain && infoResponse.numPeers == 0) {
         connectPeers();

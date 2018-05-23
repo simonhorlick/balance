@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
-import 'package:balance/lnd.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -99,7 +98,9 @@ class PaymentDetails extends StatelessWidget {
 class PaymentProgressScreen extends StatefulWidget {
   final String paymentRequest;
 
-  PaymentProgressScreen(this.paymentRequest);
+  LightningClient stub;
+
+  PaymentProgressScreen(this.paymentRequest, this.stub);
 
   @override
   _PaymentProgressScreenState createState() =>
@@ -133,13 +134,13 @@ class _PaymentProgressScreenState extends State<PaymentProgressScreen> {
     });
 
     setState(() {
-      details = LndClient
+      details = widget.stub
           .decodePayReq(PayReqString.create()..payReq = widget.paymentRequest);
     });
   }
 
   Future<String> _sendPayment(String paymentRequest) async {
-    var response = await LndClient
+    var response = await widget.stub
         .sendPaymentSync(SendRequest.create()..paymentRequest = paymentRequest);
 
     return response.paymentError;
@@ -243,6 +244,10 @@ class GuideOverlay extends StatelessWidget {
 /// it straight to the PaymentProgressScreen which attempts to pay the payment
 /// request.
 class Scanner extends StatefulWidget {
+  LightningClient stub;
+
+  Scanner(this.stub);
+
   @override
   _ScannerState createState() {
     return new _ScannerState();
@@ -262,7 +267,7 @@ class _ScannerState extends State<Scanner> {
     // back up properly when we navigate back.
     Navigator.of(context).pushReplacement(new MaterialPageRoute<bool>(
           builder: (BuildContext context) =>
-              new PaymentProgressScreen(paymentRequest),
+              new PaymentProgressScreen(paymentRequest, widget.stub),
           fullscreenDialog: true,
         ));
   }

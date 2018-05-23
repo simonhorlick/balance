@@ -1,10 +1,12 @@
-import 'package:balance/lnd.dart';
+import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
+import 'package:balance/inprocess.dart';
 import 'package:balance/receive.dart';
 import 'package:balance/scan.dart';
 import 'package:balance/topup.dart';
 import 'package:balance/wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:grpc/grpc.dart';
 
 // This is the "normal" app flow, where we can assume the wallet has been
 // and initialised is available for use.
@@ -15,15 +17,39 @@ class BalanceApp extends StatefulWidget {
 
 class BalanceAppState extends State<BalanceApp> {
   bool loaded = false;
+  LightningClient stub;
+
+  // Connect to an LND instance that's listening on a tcp socket. This is useful
+  // for debugging.
+  connectRemote() async {
+    var cert = await readCertificate();
+    ClientChannel channel = new ClientChannel('localhost',
+        port: 10009,
+        options: new ChannelOptions(
+            credentials: new ChannelCredentials.secure(certificates: cert)));
+
+    stub = new LightningClient(channel);
+
+    setState(() {
+      loaded = true;
+    });
+  }
+
+  connect() async {
+    InProcChannel inprocchannel = new InProcChannel();
+    stub = new LightningClient(inprocchannel);
+
+    setState(() {
+      loaded = true;
+    });
+  }
 
   @override
   initState() {
     super.initState();
-    LndClient.start().then((msg) {
+    start().then((msg) async {
       print("LndClient: start $msg");
-      setState(() {
-        loaded = true;
-      });
+      connect();
     });
   }
 
@@ -40,12 +66,12 @@ class BalanceAppState extends State<BalanceApp> {
     return new MaterialApp(
       title: 'Balance',
       theme: new ThemeData(primarySwatch: Colors.blue),
-      home: new Wallet(),
+      home: new Wallet(stub),
       routes: <String, WidgetBuilder>{
-        '/wallet': (BuildContext context) => new Wallet(),
-        '/scan': (BuildContext context) => new Scanner(),
-        '/topup': (BuildContext context) => new Topup(),
-        '/receive': (BuildContext context) => new Receive(),
+        '/wallet': (BuildContext context) => new Wallet(stub),
+        '/scan': (BuildContext context) => new Scanner(stub),
+        '/topup': (BuildContext context) => new Topup(stub),
+        '/receive': (BuildContext context) => new Receive(stub),
       },
     );
   }
