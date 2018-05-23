@@ -529,23 +529,9 @@ class _WalletState extends State<Wallet> {
 
     var addresses = [
       LightningAddress.create()
-        ..host = "172.104.59.47"
-        ..pubkey =
-            "0308661f7589973028796106890e0acc5cc646a4eb14661983852b34a4cc5b4f31",
-      LightningAddress.create()
         ..host = "faucet.lightning.community"
         ..pubkey =
-            "02f1da524a70afd8de6019e2367b47d8d41a623aa3594f55d0785fe1b047c853bc",
-      // y'alls
-      LightningAddress.create()
-        ..host = "45.77.115.33"
-        ..pubkey =
-            "02a35187c5a71676da4930d93faaf30f6d5e19e3bbe8f3ead400b898967e1dc475",
-      // htlc.me
-      LightningAddress.create()
-        ..host = "45.63.87.131"
-        ..pubkey =
-            "02995ec02804a3ae30e2e0a9bca58bd77af664eeff688d36c8f1ee677fe05b5394",
+            "0270685ca81a8e4d4d01beec5781f4cc924684072ae52c507f8ebe9daf0caaab7b",
     ];
 
     // Add well-known peers in case something goes wrong with bootstrapping.
