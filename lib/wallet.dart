@@ -556,8 +556,6 @@ class _WalletState extends State<Wallet> {
   }
 
   Future<Null> refresh() async {
-    print("wallet: Refreshing state");
-
     try {
       var walletBalanceResponse =
           await widget.stub.walletBalance(WalletBalanceRequest.create());
@@ -577,9 +575,6 @@ class _WalletState extends State<Wallet> {
 
         var channels =
             await widget.stub.listChannels(ListChannelsRequest.create());
-        for (Channel channel in channels.channels) {
-          print("channel: ${channel}");
-        }
 
         networkInfoResponse =
             await widget.stub.getNetworkInfo(NetworkInfoRequest.create());

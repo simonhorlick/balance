@@ -1,49 +1,10 @@
 import 'dart:async';
 
+import 'package:balance/camera.dart';
+import 'package:balance/full_screen_invoice.dart';
 import 'package:balance/generated/vendor/github.com/lightningnetwork/lnd/lnrpc/rpc.pbgrpc.dart';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-/// A camera preview widget.
-class Camera extends StatefulWidget {
-  final CameraId cameraId;
-
-  Camera(this.cameraId);
-
-  @override
-  State createState() {
-    return new _CameraState(cameraId);
-  }
-}
-
-class _CameraState extends State<StatefulWidget> {
-  // A reference to the camera that's being displayed.
-  final CameraId cameraId;
-
-  // Whether the camera is currently showing or not.
-  bool isPlaying = true;
-
-  _CameraState(this.cameraId);
-
-  @override
-  void initState() {
-    super.initState();
-    if (isPlaying) cameraId.start();
-  }
-
-  @override
-  void deactivate() {
-    if (isPlaying) cameraId.stop();
-    super.deactivate();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return new Container(
-        color: Colors.black, child: new Texture(textureId: cameraId.textureId));
-  }
-}
 
 // TODO(simon): Refactor this, it's used in a bunch of places.
 var formatter = new NumberFormat("###,###", "en_US");
@@ -244,7 +205,7 @@ class GuideOverlay extends StatelessWidget {
 /// it straight to the PaymentProgressScreen which attempts to pay the payment
 /// request.
 class Scanner extends StatefulWidget {
-  LightningClient stub;
+  final LightningClient stub;
 
   Scanner(this.stub);
 
@@ -255,8 +216,7 @@ class Scanner extends StatefulWidget {
 }
 
 class _ScannerState extends State<Scanner> {
-  Camera camera;
-  List<CameraDescription> cameras = new List();
+  CameraApp camera;
 
   bool seenBarcode = false;
 
@@ -291,40 +251,21 @@ class _ScannerState extends State<Scanner> {
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    // Query the list of available cameras and create a Camera Widget.
-    availableCameras().then((List<CameraDescription> available) {
-      this.cameras = available
-          .where((camera) => camera.lensDirection == CameraLensDirection.back)
-          .toList();
-
-      if (this.cameras.isNotEmpty) {
-        CameraFormat previewFormat = this.cameras.first.previewFormats.first;
-        CameraFormat captureFormat = this.cameras.first.captureFormats.first;
-
-        this
-            .cameras
-            .first
-            .open(previewFormat, captureFormat, _barcodeScanned)
-            .then((cameraId) {
-          setState(() {
-            this.camera = new Camera(cameraId);
-          });
-        });
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new Stack(children: [
         // The camera sits at the bottom of the stack.
-        (camera == null) ? new Container() : camera,
+        new CameraApp(_barcodeScanned),
         new TopBar(_showInvoiceDialog),
         new GuideOverlay(),
+        new Center(
+            child: new FlatButton(
+          child: new Text("Click Me!"),
+          onPressed: () {
+            _barcodeScanned(
+                "lightning:lntb100u1pds2tg3pp5eeqhhk4vtfh523exfqvh26n0nqh29ztvf9vdzl9y5eaghgytetxsdqqcqzysxqyz5vq47zjmr2th2hvcf858lz0l6fhaufvhscda6lqcge0hjyd960vzva43amunya9zk7ayx08kr7h0m5pr70axjudfk2yfe57sc54wxvdkksptgpsrj");
+          },
+        ))
       ]),
     );
   }
@@ -338,52 +279,5 @@ class _ScannerState extends State<Scanner> {
     if (invoice != null) {
       _showProgressScreen(invoice);
     }
-  }
-}
-
-/// A FullScreenInvoice allows the user to paste an invoice string for the case
-/// where scanning a QR code is not practical.
-class FullScreenInvoice extends StatefulWidget {
-  @override
-  FullScreenInvoiceState createState() => new FullScreenInvoiceState();
-}
-
-class FullScreenInvoiceState extends State<FullScreenInvoice> {
-  String invoice;
-  @override
-  Widget build(BuildContext context) {
-    var textStyle =
-        Theme.of(context).textTheme.subhead.copyWith(color: Colors.white);
-
-    return new Scaffold(
-      appBar: new AppBar(title: const Text("Paste Invoice"), actions: <Widget>[
-        new FlatButton(
-            child: new Text('PAY', style: textStyle),
-            onPressed: () {
-              Navigator.pop(context, invoice);
-            })
-      ]),
-      body: new Form(
-          child: new ListView(
-        children: <Widget>[
-          new Padding(
-            padding: new EdgeInsets.all(10.0),
-            child: new TextField(
-              decoration: const InputDecoration(
-                hintText:
-                    'For example, lnbc2500u1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdq5xysxxatsyp3k7enxv4jsxqzpuaztrnwngzn3kdzw5hydlzf03qdgm2hdq27cqv3agm2awhz5se903vruatfhq77w3ls4evs3ch9zw97j25emudupq63nyw24cg27h2rspfj9srp',
-                labelText: 'Invoice Text',
-              ),
-              onChanged: (value) {
-                setState(() {
-                  invoice = value;
-                });
-              },
-              maxLines: 3,
-            ),
-          )
-        ],
-      )),
-    );
   }
 }

@@ -12,7 +12,10 @@ dependencies:
   camera:
     path: ../../sigurdm/camera/
 
-  grpc: 0.4.1
+  grpc:
+    git:
+      url: https://github.com/grpc/grpc-dart.git
+      ref: b8e5c5c2c548727a13cd006c09ca406b013b1130
   protobuf: 0.8.0
   intl: "^0.15.2"
   convert: "^2.0.1"

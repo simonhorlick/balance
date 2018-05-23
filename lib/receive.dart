@@ -122,7 +122,7 @@ class _KeypadState extends State<Keypad> {
 
   Future<Rates> rates;
 
-  void _addDigit(String digit) {
+  void _addDigit(dynamic digit) {
     setState(() {
       _digits += digit;
       // Strip any prefixed zeros.
@@ -132,7 +132,7 @@ class _KeypadState extends State<Keypad> {
     });
   }
 
-  void _decimalPoint(String ignored) {
+  void _decimalPoint(dynamic ignored) {
     // If a decimal point has already been entered, then ignore this.
     if (_digits.contains(".")) return;
     setState(() {
