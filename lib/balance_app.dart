@@ -19,6 +19,8 @@ class BalanceAppState extends State<BalanceApp> {
   bool loaded = false;
   LightningClient stub;
 
+  bool useInproc = false;
+
   // Connect to an LND instance that's listening on a tcp socket. This is useful
   // for debugging.
   connectRemote() async {
@@ -36,8 +38,7 @@ class BalanceAppState extends State<BalanceApp> {
   }
 
   connect() async {
-    InProcChannel inprocchannel = new InProcChannel();
-    stub = new LightningClient(inprocchannel);
+    stub = new LightningClient(new InProcChannel());
 
     setState(() {
       loaded = true;
@@ -47,10 +48,15 @@ class BalanceAppState extends State<BalanceApp> {
   @override
   initState() {
     super.initState();
-    start().then((msg) async {
-      print("LndClient: start $msg");
-      connect();
-    });
+
+    if (useInproc) {
+      start().then((msg) async {
+        print("LndClient: start $msg");
+        connect();
+      });
+    } else {
+      connectRemote();
+    }
   }
 
   @override
