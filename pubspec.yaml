@@ -19,8 +19,8 @@ dependencies:
   http: '>=0.11.3+12'
   qr:
     git:
-      url: git://github.com/kevmoo/qr.dart.git
-      ref: d38c6d7290d06a46b88c0811da1e0abca1c21135
+      url: git://github.com/simonhorlick/qr.dart.git
+      ref: cde18c58c0d2f749263dcf69746e1bdeeee3ba2f
   url_launcher: 1.0.3
 
 dev_dependencies:
