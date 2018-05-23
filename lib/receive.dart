@@ -253,6 +253,8 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
   // Whether the invoice has been paid.
   bool settled = false;
 
+  Timer timer;
+
   @override
   initState() {
     super.initState();
@@ -269,6 +271,16 @@ class _PaymentRequestScreenState extends State<PaymentRequestScreen> {
         errorText = error.toString();
       });
     });
+    timer = new Timer.periodic(new Duration(seconds: 1), (timer) {
+      refresh();
+    });
+    refresh();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override
