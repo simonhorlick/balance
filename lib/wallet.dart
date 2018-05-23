@@ -519,6 +519,8 @@ class _WalletState extends State<Wallet> {
 
   Rates rates;
 
+  Timer timer;
+
   Tx paymentToTx(Payment p) {
     return new Tx("Sent", p.value, p.creationDate, false);
   }
@@ -626,7 +628,16 @@ class _WalletState extends State<Wallet> {
     BitstampRates.create().then((r) => setState(() {
           rates = r;
         }));
+    timer = new Timer.periodic(new Duration(seconds: 1), (timer) {
+      refresh();
+    });
     refresh();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
   }
 
   @override
