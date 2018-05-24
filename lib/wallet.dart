@@ -396,25 +396,32 @@ class Footer extends StatelessWidget {
 }
 
 class InfoContent extends StatelessWidget {
-  InfoContent(this.balancePane);
+  InfoContent(this.balancePane, this.headersSynced);
 
   final Widget balancePane;
+  final bool headersSynced;
 
   @override
   Widget build(BuildContext context) {
+    var widgets = [balancePane];
+
+    // Only allow top-ups after the initial header sync.
+    if (headersSynced) {
+      widgets.add(new TopUp());
+    }
+
     return new Expanded(
-      child: new Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        balancePane,
-        new TopUp(),
-      ]),
+      child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center, children: widgets),
     );
   }
 }
 
 class WalletInfoPane extends StatelessWidget {
-  WalletInfoPane(this.balancePane);
+  WalletInfoPane(this.balancePane, this.headersSynced);
 
   final Widget balancePane;
+  final bool headersSynced;
 
   @override
   Widget build(BuildContext context) {
@@ -426,7 +433,7 @@ class WalletInfoPane extends StatelessWidget {
             new Header(),
             // All children have fixed size apart from InfoContent that fills
             // the remaining space.
-            new InfoContent(balancePane),
+            new InfoContent(balancePane, headersSynced),
             new SendReceive(),
             new Footer(),
           ]),
@@ -458,6 +465,7 @@ class WalletImpl extends StatelessWidget {
   Widget build(BuildContext context) {
     var balancePane = new Balance(walletBalance, channelBalance, info,
         chainTransactions, networkInfo, pendingChannels);
+    bool headersSynced = info.syncedToChain;
 
     return new Scaffold(
       body: new Stack(
@@ -476,7 +484,7 @@ class WalletImpl extends StatelessWidget {
               if (index == 0) {
                 return new SizedBox.fromSize(
                     size: MediaQuery.of(context).size,
-                    child: new WalletInfoPane(balancePane));
+                    child: new WalletInfoPane(balancePane, headersSynced));
               } else {
                 var txIndex = index - 1;
                 return new SizedBox.fromSize(
@@ -624,7 +632,7 @@ class _WalletState extends State<Wallet> {
     BitstampRates.create().then((r) => setState(() {
           rates = r;
         }));
-    timer = new Timer.periodic(new Duration(seconds: 1), (timer) {
+    timer = new Timer.periodic(new Duration(seconds: 10), (timer) {
       refresh();
     });
     refresh();
