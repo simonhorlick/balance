@@ -589,7 +589,8 @@ class _WalletState extends State<Wallet> {
 
       setState(() {
         walletBalance = walletBalanceResponse.totalBalance;
-        channelBalance = channelBalanceResponse.balance;
+        channelBalance = channelBalanceResponse.balance +
+            channelBalanceResponse.pendingOpenBalance;
 
         var invoices = invoicesResponse.invoices
             .where((inv) => inv.settled)
