@@ -65,7 +65,11 @@ class BalanceAppState extends State<BalanceApp> {
       return new MaterialApp(
         title: 'Balance',
         theme: new ThemeData(primarySwatch: Colors.blue),
-        home: new Text("Loading..."),
+        home: new Center(
+            child: new Text(
+          "Connecting to LND",
+          style: const TextStyle(color: Colors.white),
+        )),
       );
     }
 
