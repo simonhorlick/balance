@@ -16,8 +16,9 @@ FlutterMethodChannel* lndChannel;
   _resultCb = result;
   return self;
 }
-- (void)onError:(NSError*)p0 {
-  _resultCb(p0);
+- (void)onError:(NSError*)error {
+  NSString *code = [NSString stringWithFormat:@"%ld", (long)[error code]];
+  _resultCb([FlutterError errorWithCode:code message:[error localizedDescription] details:NULL]);
 }
 - (void)onResponse:(NSData*)p0 {
   if (p0 == nil) {
