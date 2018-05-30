@@ -19,7 +19,7 @@ class BalanceAppState extends State<BalanceApp> {
   bool loaded = false;
   LightningClient stub;
 
-  bool useInproc = false;
+  bool useInproc = true;
 
   // Connect to an LND instance that's listening on a tcp socket. This is useful
   // for debugging.
