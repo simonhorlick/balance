@@ -652,7 +652,7 @@ class _WalletState extends State<Wallet> {
         backgroundColor: Colors.blue,
         body: new Padding(
           padding: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          child: new Text("Loading"),
+          child: new Text(""),
         ),
       );
     }
