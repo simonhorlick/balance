@@ -258,14 +258,6 @@ class _ScannerState extends State<Scanner> {
         new CameraApp(_barcodeScanned),
         new TopBar(_showInvoiceDialog),
         new GuideOverlay(),
-        new Center(
-            child: new FlatButton(
-          child: new Text("Click Me!"),
-          onPressed: () {
-            _barcodeScanned(
-                "lightning:lntb100u1pds2tg3pp5eeqhhk4vtfh523exfqvh26n0nqh29ztvf9vdzl9y5eaghgytetxsdqqcqzysxqyz5vq47zjmr2th2hvcf858lz0l6fhaufvhscda6lqcge0hjyd960vzva43amunya9zk7ayx08kr7h0m5pr70axjudfk2yfe57sc54wxvdkksptgpsrj");
-          },
-        ))
       ]),
     );
   }
